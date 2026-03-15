@@ -1,0 +1,84 @@
+/**
+ * Domain-level types: derived or composed types used in application logic.
+ * These are not raw database rows — they represent how the app thinks about data.
+ */
+
+import type { MilestoneType, TransactionSource } from './database'
+
+// ─── Tree ──────────────────────────────────────────────────────────────────
+
+/** The four visual stages of the tree, driven by lifetime earnings. */
+export type TreeStage = 'sapling' | 'young' | 'growing' | 'mature'
+
+// ─── Fruit ─────────────────────────────────────────────────────────────────
+
+export type FruitColor = 'green' | 'red' | 'gold'
+
+/** One cluster of fruit displayed on the tree. */
+export interface FruitCluster {
+  source: Exclude<TransactionSource, 'spend'>
+  color: FruitColor
+  count: number       // number of fruit icons to render
+  totalValue: number  // dollar value this cluster represents
+}
+
+// ─── Financials ────────────────────────────────────────────────────────────
+
+/** Computed financial summary for a child. */
+export interface ChildFinancialSummary {
+  savingsBalance:   number   // current balance (earnings minus spending)
+  lifetimeEarnings: number   // total ever earned (never decreases)
+  totalSpent:       number   // total ever spent (positive number)
+  allocatedToGoals: number   // locked toward goals
+  freeToUse:        number   // savingsBalance minus allocatedToGoals
+  sourceBreakdown:  SourceBreakdown
+}
+
+export interface SourceBreakdown {
+  allowance: number
+  gift:      number
+  interest:  number
+  jobs:      number
+}
+
+// ─── Goals ─────────────────────────────────────────────────────────────────
+
+/** A goal with its computed progress percentage. */
+export interface GoalWithProgress {
+  id: string
+  name: string
+  targetPrice: number
+  allocatedAmount: number
+  progressPercent: number  // 0–100
+  isComplete: boolean
+}
+
+// ─── Milestones ────────────────────────────────────────────────────────────
+
+export interface MilestoneDefinition {
+  type: MilestoneType
+  threshold: number   // lifetime earnings required to unlock
+  label: string
+  iconPath: string    // path to SVG in /public/icons/
+}
+
+// ─── Allowance Prompt ──────────────────────────────────────────────────────
+
+/** Data shown to the parent in the Sunday allowance prompt. */
+export interface AllowancePromptEntry {
+  childId: string
+  childName: string
+  defaultAmount: number   // from recurring_allowances config
+  adjustedAmount: number  // editable by parent before confirming
+}
+
+// ─── Profile ───────────────────────────────────────────────────────────────
+
+/** App-level session mode. */
+export type AppMode = 'parent' | 'child'
+
+export interface ActiveChildProfile {
+  childId: string
+  childName: string
+  avatarColor: string
+}

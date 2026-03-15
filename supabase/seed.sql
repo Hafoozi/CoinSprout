@@ -1,0 +1,2 @@
+-- Alias to the dev seed data file.
+-- See migrations/003_seed_dev_data.sql for instructions.

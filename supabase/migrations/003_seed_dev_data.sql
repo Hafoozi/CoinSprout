@@ -1,0 +1,47 @@
+-- ============================================================
+-- CoinSprout — Migration 003: Dev Seed Data
+-- DO NOT run in production.
+-- Creates a test family with two children and sample transactions.
+-- Replace the user_id placeholder with a real Supabase Auth user ID.
+-- ============================================================
+
+-- Step 1: Create your user in Supabase Auth dashboard first,
+-- then paste the user ID below.
+-- do $$ declare
+--   v_user_id    uuid := 'YOUR-USER-UUID-HERE';
+--   v_family_id  uuid;
+--   v_child1_id  uuid;
+--   v_child2_id  uuid;
+-- begin
+--
+--   insert into public.families (owner_user_id)
+--   values (v_user_id)
+--   returning id into v_family_id;
+--
+--   insert into public.children (family_id, name, birthdate, avatar_color)
+--   values (v_family_id, 'Emma', '2016-03-10', 'sprout')
+--   returning id into v_child1_id;
+--
+--   insert into public.children (family_id, name, birthdate, avatar_color)
+--   values (v_family_id, 'Liam', '2020-07-22', 'sky')
+--   returning id into v_child2_id;
+--
+--   -- Emma transactions
+--   insert into public.transactions (child_id, amount, source, note)
+--   values
+--     (v_child1_id,  5.00, 'allowance', 'Week 1'),
+--     (v_child1_id,  5.00, 'allowance', 'Week 2'),
+--     (v_child1_id, 10.00, 'gift',      'Birthday money from grandma'),
+--     (v_child1_id,  1.25, 'interest',  'Monthly interest'),
+--     (v_child1_id, -4.00, 'spend',     'Candy at the store');
+--
+--   -- Liam transactions
+--   insert into public.transactions (child_id, amount, source, note)
+--   values
+--     (v_child2_id, 3.00, 'allowance', 'Week 1'),
+--     (v_child2_id, 5.00, 'gift',      'Tooth fairy');
+--
+-- end $$;
+
+-- Uncomment and fill in the user ID above to run seed data.
+select 'Seed file loaded — uncomment and fill in user ID to execute.' as status;

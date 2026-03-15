@@ -1,0 +1,9 @@
+{
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/allowance",
+      "schedule": "0 21 * * 0"
+    }
+  ]
+}
