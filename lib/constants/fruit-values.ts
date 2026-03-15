@@ -13,6 +13,7 @@ export const SOURCE_FRUIT_COLOR: Record<IncomeSource, FruitColor> = {
   allowance: 'green',
   gift:      'red',
   interest:  'gold',
+  jobs:      'green',
 }
 
 /** Maps fruit color to the SVG asset path. */

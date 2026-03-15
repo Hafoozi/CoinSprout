@@ -18,7 +18,7 @@ export interface ActionResult {
 export interface AddMoneyFormData {
   childId: string
   amount: string
-  source: 'allowance' | 'gift' | 'interest'
+  source: 'allowance' | 'gift' | 'interest' | 'jobs'
   note: string
   date: string
 }
