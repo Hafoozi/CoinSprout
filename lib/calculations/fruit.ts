@@ -20,11 +20,11 @@ export function calculateFruitClusters(transactions: Transaction[]): FruitCluste
   const savingsBalance = roundMoney(transactions.reduce((s, t) => s + t.amount, 0))
   if (savingsBalance <= 0) return []
 
-  const incomeSources: IncomeSource[] = ['allowance', 'gift', 'interest']
+  const incomeSources: IncomeSource[] = ['allowance', 'gift', 'interest', 'jobs']
 
   // Total per source (positive transactions only)
   const sourceTotal: Record<IncomeSource, number> = {
-    allowance: 0, gift: 0, interest: 0,
+    allowance: 0, gift: 0, interest: 0, jobs: 0,
   }
   let totalIncome = 0
   for (const t of transactions) {

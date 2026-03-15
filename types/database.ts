@@ -38,6 +38,7 @@ export interface Database {
           parent_pin_hash?: string | null
           created_at?: string
         }
+        Relationships: []
       }
 
       children: {
@@ -68,6 +69,7 @@ export interface Database {
           pin_hash?: string | null
           created_at?: string
         }
+        Relationships: []
       }
 
       transactions: {
@@ -95,6 +97,7 @@ export interface Database {
           note?: string | null
           created_at?: string
         }
+        Relationships: []
       }
 
       goals: {
@@ -122,6 +125,7 @@ export interface Database {
           allocated_amount?: number
           created_at?: string
         }
+        Relationships: []
       }
 
       goal_allocations: {
@@ -146,6 +150,7 @@ export interface Database {
           amount?: number
           created_at?: string
         }
+        Relationships: []
       }
 
       milestones: {
@@ -167,6 +172,7 @@ export interface Database {
           milestone_type?: MilestoneType
           unlocked_at?: string
         }
+        Relationships: []
       }
 
       recurring_allowances: {
@@ -175,7 +181,7 @@ export interface Database {
           child_id: string
           amount: number
           frequency: AllowanceFrequency
-          day_of_week: number // 0 = Sunday … 6 = Saturday
+          day_of_week: number
           is_active: boolean
           last_prompted_at: string | null
           created_at: string
@@ -200,8 +206,13 @@ export interface Database {
           last_prompted_at?: string | null
           created_at?: string
         }
+        Relationships: []
       }
     }
+    Views: { [_ in never]: never }
+    Functions: { [_ in never]: never }
+    Enums: { [_ in never]: never }
+    CompositeTypes: { [_ in never]: never }
   }
 }
 

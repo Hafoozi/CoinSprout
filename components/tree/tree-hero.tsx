@@ -1,6 +1,7 @@
 'use client'
 
-import type { TreeStage, FruitCluster, MilestoneType } from '@/types/domain'
+import type { TreeStage, FruitCluster } from '@/types/domain'
+import type { MilestoneType } from '@/types/database'
 
 // TODO: Implement tree hero panel — the visual centerpiece of the child screen
 // Renders: TreeStage SVG, FruitCluster overlays, MilestoneAnimals
