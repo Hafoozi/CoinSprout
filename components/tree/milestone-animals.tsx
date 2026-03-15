@@ -1,6 +1,6 @@
 'use client'
 
-import type { MilestoneType } from '@/types/domain'
+import type { MilestoneType } from '@/types/database'
 
 // TODO: Implement milestone animals
 // Renders unlocked animal SVGs positioned around the base of the tree
