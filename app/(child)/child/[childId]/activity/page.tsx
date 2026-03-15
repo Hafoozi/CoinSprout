@@ -11,5 +11,5 @@ export default function ChildActivityPage({
 }: {
   params: { childId: string }
 }) {
-  return <ActivityList childId={params.childId} transactions={[]} />
+  return <ActivityList transactions={[]} />
 }
