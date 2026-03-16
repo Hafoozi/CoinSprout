@@ -1,31 +1,24 @@
 'use client'
 
-import type { Child, Milestone } from '@/lib/db/types'
+import type { Child } from '@/lib/db/types'
 import type { ChildFinancialSummary, GoalWithProgress } from '@/types/domain'
 import type { Transaction } from '@/lib/db/types'
 import TreeHero from '@/components/tree/tree-hero'
 import TransactionNotifications from '@/components/child/transaction-notifications'
 import { calculateTreeStage } from '@/lib/calculations/tree-stage'
 import { calculateFruitClusters } from '@/lib/calculations/fruit'
-import { getNextMilestone, amountToNextMilestone } from '@/lib/calculations/milestones'
-import type { MilestoneType } from '@/types/database'
+import { getNextMilestone, amountToNextMilestone, getEarnedMilestones } from '@/lib/calculations/milestones'
+import { AVATAR_BG } from '@/lib/constants/avatar-colors'
+import { ROUTES } from '@/lib/constants/routes'
+import Link from 'next/link'
 
 interface Props {
   child:        Child
   summary:      ChildFinancialSummary
   transactions: Transaction[]
   goals:        GoalWithProgress[]
-  milestones:   Milestone[]
 }
 
-const AVATAR_BG: Record<string, string> = {
-  sprout: 'bg-sprout-200 text-sprout-800',
-  sky:    'bg-sky-200    text-sky-800',
-  gold:   'bg-yellow-200 text-yellow-800',
-  rose:   'bg-pink-200   text-pink-800',
-  violet: 'bg-violet-200 text-violet-800',
-  orange: 'bg-orange-200 text-orange-800',
-}
 
 function fmt(n: number) {
   return '$' + Math.abs(n).toFixed(2)
@@ -69,10 +62,10 @@ function AppleDot({ color }: { color: string }) {
   )
 }
 
-export default function ChildDashboard({ child, summary, transactions, goals, milestones }: Props) {
+export default function ChildDashboard({ child, summary, transactions, goals }: Props) {
   const stage         = calculateTreeStage(summary.lifetimeEarnings)
   const fruitClusters = calculateFruitClusters(summary.savingsBalance)
-  const unlockedTypes = milestones.map((m) => m.milestone_type as MilestoneType)
+  const unlockedTypes = getEarnedMilestones(summary.lifetimeEarnings)
   const nextMilestone = getNextMilestone(summary.lifetimeEarnings)
   const amountToNext  = amountToNextMilestone(summary.lifetimeEarnings)
   const colorClass    = AVATAR_BG[child.avatar_color ?? 'sprout'] ?? AVATAR_BG.sprout
@@ -102,7 +95,7 @@ export default function ChildDashboard({ child, summary, transactions, goals, mi
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
 
         {/* LEFT — tree */}
-        <div className="card-surface p-4">
+        <div className="card-surface overflow-hidden">
           <TreeHero
             stage={stage}
             fruitClusters={fruitClusters}
@@ -119,6 +112,7 @@ export default function ChildDashboard({ child, summary, transactions, goals, mi
             <p className="text-sm text-gray-500 font-medium">My Savings</p>
             <p className="text-4xl font-bold text-sprout-700 money">{fmt(summary.savingsBalance)}</p>
             <p className="text-xs text-gray-400">Free to use: {fmt(summary.freeToUse)}</p>
+            <p className="text-xs text-gray-400">Lifetime earned: {fmt(summary.lifetimeEarnings)}</p>
           </div>
 
           {/* Next milestone progress */}
@@ -213,7 +207,17 @@ export default function ChildDashboard({ child, summary, transactions, goals, mi
       {/* Recent activity — full width below */}
       {transactions.length > 0 && (
         <div className="space-y-2">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Recent Activity</h2>
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Recent Activity</h2>
+            {transactions.length > 5 && (
+              <Link
+                href={ROUTES.CHILD.ACTIVITY(child.id)}
+                className="text-xs font-medium text-sprout-600 hover:text-sprout-800 transition-colors"
+              >
+                View all →
+              </Link>
+            )}
+          </div>
           <div className="card-surface divide-y divide-gray-100">
             {transactions.slice(0, 5).map((tx) => (
               <div key={tx.id} className="flex items-center justify-between px-4 py-3 text-sm">

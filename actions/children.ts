@@ -2,10 +2,19 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireParent } from '@/lib/auth/require-parent'
+import { getChildById } from '@/lib/db/queries/children'
 import { createChild, updateChild } from '@/lib/db/mutations/children'
 import { createChildSchema, updateChildSchema } from '@/lib/validators/child'
 import { ROUTES } from '@/lib/constants/routes'
 import type { ActionResult } from '@/types/ui'
+
+export async function getChildDisplayInfo(
+  childId: string
+): Promise<{ name: string; avatarColor: string } | null> {
+  const child = await getChildById(childId)
+  if (!child) return null
+  return { name: child.name, avatarColor: child.avatar_color ?? 'sprout' }
+}
 
 export async function addChild(_: unknown, formData: FormData): Promise<ActionResult> {
   const { family } = await requireParent()

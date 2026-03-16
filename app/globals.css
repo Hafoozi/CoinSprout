@@ -86,6 +86,20 @@
 }
 .animate-gift-wiggle { animation: gift-wiggle 0.6s ease-in-out 0.3s 1 forwards; }
 
+/* ── Sky animations ───────────────────────────────────────────────────────── */
+@keyframes star-twinkle {
+  0%, 100% { opacity: 1;   }
+  50%       { opacity: 0.15; }
+}
+@keyframes cloud-drift {
+  0%   { transform: translateX(0px);  }
+  100% { transform: translateX(22px); }
+}
+@keyframes sun-glow-pulse {
+  0%, 100% { opacity: 0.22; }
+  50%       { opacity: 0.48; }
+}
+
 /* ── Animal sprite animations ─────────────────────────────────────────────── */
 /* Bunny hops forward (right) across two full hops then returns */
 @keyframes bunny-hop {

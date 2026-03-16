@@ -1,13 +1,17 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import dynamic from 'next/dynamic'
+import dynamicImport from 'next/dynamic'
 import { requireParent } from '@/lib/auth/require-parent'
 import { getChildById } from '@/lib/db/queries/children'
 import { getChildDashboardData } from '@/lib/db/queries/dashboards'
 
+export const dynamic = 'force-dynamic'
+
 // Skip SSR — the dashboard uses localStorage and has no SEO value.
-// This prevents hydration mismatches from data differences between children.
-const ChildDashboard = dynamic(() => import('@/components/child/child-dashboard'), { ssr: false })
+const ChildDashboard = dynamicImport(
+  () => import('@/components/child/child-dashboard'),
+  { ssr: false }
+)
 
 export const metadata: Metadata = {
   title: 'My Tree — CoinSprout',
@@ -33,7 +37,6 @@ export default async function ChildTreePage({
       summary={dashboardData.summary}
       transactions={dashboardData.transactions}
       goals={dashboardData.goals}
-      milestones={dashboardData.milestones}
     />
   )
 }

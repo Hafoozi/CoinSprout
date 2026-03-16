@@ -36,6 +36,8 @@ export async function addTransaction(_: unknown, formData: FormData): Promise<Ac
 
   revalidatePath(ROUTES.PARENT.CHILD(parsed.data.childId))
   revalidatePath(ROUTES.PARENT.DASHBOARD)
+  revalidatePath(ROUTES.CHILD.HOME(parsed.data.childId))
+  revalidatePath(ROUTES.CHILD.ACTIVITY(parsed.data.childId))
   return { success: true }
 }
 
@@ -64,6 +66,8 @@ export async function recordSpend(_: unknown, formData: FormData): Promise<Actio
 
   revalidatePath(ROUTES.PARENT.CHILD(parsed.data.childId))
   revalidatePath(ROUTES.PARENT.DASHBOARD)
+  revalidatePath(ROUTES.CHILD.HOME(parsed.data.childId))
+  revalidatePath(ROUTES.CHILD.ACTIVITY(parsed.data.childId))
   return { success: true }
 }
 
@@ -97,6 +101,8 @@ export async function editTransaction(_: unknown, formData: FormData): Promise<A
 
   revalidatePath(ROUTES.PARENT.CHILD(parsed.data.childId))
   revalidatePath(ROUTES.PARENT.DASHBOARD)
+  revalidatePath(ROUTES.CHILD.HOME(parsed.data.childId))
+  revalidatePath(ROUTES.CHILD.ACTIVITY(parsed.data.childId))
   return { success: true }
 }
 
@@ -119,5 +125,7 @@ export async function removeTransaction(_: unknown, formData: FormData): Promise
 
   revalidatePath(ROUTES.PARENT.CHILD(parsed.data.childId))
   revalidatePath(ROUTES.PARENT.DASHBOARD)
+  revalidatePath(ROUTES.CHILD.HOME(parsed.data.childId))
+  revalidatePath(ROUTES.CHILD.ACTIVITY(parsed.data.childId))
   return { success: true }
 }

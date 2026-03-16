@@ -52,7 +52,8 @@ export async function verifyChildPin(childId: string, pin: string): Promise<Acti
 export async function verifyParentPin(pin: string): Promise<ActionResult> {
   try {
     const { family } = await requireParent()
-    if (!family.parent_pin_hash) return { success: false, error: 'No parent PIN set' }
+    // No PIN set yet — allow through so the parent isn't locked out
+    if (!family.parent_pin_hash) return { success: true }
     const ok = await verifyPin(pin, family.parent_pin_hash)
     if (!ok) return { success: false, error: 'Incorrect PIN' }
     return { success: true }

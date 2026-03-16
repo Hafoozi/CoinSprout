@@ -14,7 +14,6 @@ export const ROUTES = {
     GOAL:               (goalId: string) => `/goals/${goalId}`,
     NEW_TRANSACTION:    '/transactions/new',
     SPEND:              '/transactions/spend',
-    RECURRING_ALLOWANCE:'/recurring-allowance',
   },
 
   CHILD: {

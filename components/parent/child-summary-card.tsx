@@ -3,15 +3,7 @@ import Button from '@/components/ui/button'
 import MoneyAmount from '@/components/shared/money-amount'
 import { ROUTES } from '@/lib/constants/routes'
 import type { Child } from '@/lib/db/types'
-
-const AVATAR_BG: Record<string, string> = {
-  sprout: 'bg-sprout-200 text-sprout-800',
-  sky:    'bg-sky-200    text-sky-800',
-  gold:   'bg-yellow-200 text-yellow-800',
-  rose:   'bg-pink-200   text-pink-800',
-  violet: 'bg-violet-200 text-violet-800',
-  orange: 'bg-orange-200 text-orange-800',
-}
+import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 
 interface Props {
   child:          Child
