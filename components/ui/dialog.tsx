@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 interface DialogProps {
   open:     boolean
@@ -10,7 +11,10 @@ interface DialogProps {
 }
 
 export default function Dialog({ open, onClose, title, children }: DialogProps) {
-  const panelRef = useRef<HTMLDivElement>(null)
+  const panelRef  = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   // Close on Escape key
   useEffect(() => {
@@ -25,22 +29,22 @@ export default function Dialog({ open, onClose, title, children }: DialogProps) 
     if (open) panelRef.current?.focus()
   }, [open])
 
-  if (!open) return null
+  if (!open || !mounted) return null
 
-  return (
-    // Overlay — click outside to close
+  // Render into document.body so z-index is never trapped inside a
+  // stacking context created by the sticky header or other ancestors.
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
       onClick={onClose}
     >
-      {/* Panel — stop propagation so clicks inside don't close */}
       <div
         ref={panelRef}
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
-        className="card-surface w-full max-w-sm p-6 space-y-4 outline-none overflow-y-auto max-h-[90vh]"
+        className="card-surface w-full max-w-sm p-6 space-y-4 outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -58,6 +62,7 @@ export default function Dialog({ open, onClose, title, children }: DialogProps) 
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

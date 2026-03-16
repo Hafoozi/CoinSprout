@@ -12,12 +12,12 @@ export type TreeStage = 'sapling' | 'young' | 'growing' | 'mature' | 'ancient'
 
 // ─── Fruit ─────────────────────────────────────────────────────────────────
 
-export type FruitColor = 'green' | 'red' | 'gold'
+export type FruitColor = 'green' | 'red' | 'silver' | 'gold' | 'sparkling'
 
 /** One cluster of fruit displayed on the tree. */
 export interface FruitCluster {
   color:        FruitColor
-  denomination: number   // dollar value each fruit represents (5, 10, or 20)
+  denomination: number   // dollar value each fruit represents (5, 10, 20, 250, or 1000)
   count:        number   // number of fruit icons to render
 }
 

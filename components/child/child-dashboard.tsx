@@ -36,9 +36,11 @@ const ANIMAL_EMOJI: Record<MilestoneType, string> = {
 }
 
 const APPLE_COLOR_HEX: Record<string, string> = {
-  green: '#16a34a',
-  red:   '#dc2626',
-  gold:  '#d97706',
+  green:     '#16a34a',
+  red:       '#dc2626',
+  silver:    '#94a3b8',
+  gold:      '#d97706',
+  sparkling: '#a855f7',
 }
 
 function AppleDot({ color }: { color: string }) {

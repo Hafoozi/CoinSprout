@@ -24,9 +24,11 @@ const ANIMAL_OVERLAY: Record<MilestoneType, { style: React.CSSProperties; size: 
 }
 
 const FRUIT_COLOR_HEX: Record<string, string> = {
-  green: '#16a34a',
-  red:   '#dc2626',
-  gold:  '#d97706',
+  green:     '#16a34a',
+  red:       '#dc2626',
+  silver:    '#94a3b8',
+  gold:      '#d97706',
+  sparkling: '#a855f7',
 }
 
 // ─── Fruit positions — kept well inside each canopy's safe zone ─────────────
@@ -70,7 +72,7 @@ const STAGE_FRUIT_POS: Record<TreeStage, Array<{ x: number; y: number }>> = {
 // NOTE: outer <g> handles SVG position; inner <g> handles CSS animation.
 // Combining both on one element causes CSS transform to override the SVG
 // transform attribute in some browsers, collapsing all apples to (0,0).
-function Apple({ x, y, color }: { x: number; y: number; color: string }) {
+function Apple({ x, y, color, sparkling = false }: { x: number; y: number; color: string; sparkling?: boolean }) {
   return (
     <g transform={`translate(${x - 7}, ${y - 8})`}>
       <g className="fruit-bob">
@@ -84,6 +86,12 @@ function Apple({ x, y, color }: { x: number; y: number; color: string }) {
         <path d="M4.5 3.5 Q7 2.5 9.5 3.5" fill="none" stroke="rgba(0,0,0,0.13)" strokeWidth="2.5" strokeLinecap="round"/>
         {/* Highlight */}
         <circle cx="4" cy="6.5" r="1.8" fill="white" opacity="0.32"/>
+        {/* Sparkle stars for $1000 apple */}
+        {sparkling && <>
+          <text x="12.5" y="3"   fontSize="4" textAnchor="middle" fill="#fde68a">✦</text>
+          <text x="-0.5" y="5"   fontSize="3" textAnchor="middle" fill="#fde68a">✦</text>
+          <text x="14"   y="10"  fontSize="3" textAnchor="middle" fill="#fde68a">✦</text>
+        </>}
       </g>
     </g>
   )
@@ -95,10 +103,11 @@ function TreeSvg({ stage, fruitClusters }: { stage: TreeStage; fruitClusters: Fr
   const maxSlots  = positions.length
 
   // Interleave fruits round-robin across clusters so colours spread evenly
-  const flatFruits: { color: string }[] = []
+  const flatFruits: { color: string; sparkling: boolean }[] = []
   const buckets = fruitClusters.map(c => ({
-    color: FRUIT_COLOR_HEX[c.color] ?? '#16a34a',
-    count: c.count,
+    color:     FRUIT_COLOR_HEX[c.color] ?? '#16a34a',
+    sparkling: c.color === 'sparkling',
+    count:     c.count,
   }))
 
   while (flatFruits.length < maxSlots) {
@@ -106,7 +115,7 @@ function TreeSvg({ stage, fruitClusters }: { stage: TreeStage; fruitClusters: Fr
     for (const b of buckets) {
       if (flatFruits.length >= maxSlots) break
       if (b.count > 0) {
-        flatFruits.push({ color: b.color })
+        flatFruits.push({ color: b.color, sparkling: b.sparkling })
         b.count--
       }
     }
@@ -184,7 +193,7 @@ function TreeSvg({ stage, fruitClusters }: { stage: TreeStage; fruitClusters: Fr
       {flatFruits.map((f, i) => {
         const p = positions[i]
         if (!p) return null
-        return <Apple key={i} x={p.x} y={p.y} color={f.color}/>
+        return <Apple key={i} x={p.x} y={p.y} color={f.color} sparkling={f.sparkling}/>
       })}
 
       {/* Ground shadow */}
