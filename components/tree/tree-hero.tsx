@@ -27,9 +27,9 @@ const ANIMAL_OVERLAY: Record<MilestoneType, { style: React.CSSProperties; size: 
 const FRUIT_COLOR_HEX: Record<string, string> = {
   green:     '#16a34a',
   red:       '#dc2626',
-  silver:    '#c0c0c0',
+  silver:    '#dde8f0',
   gold:      '#d97706',
-  sparkling: '#a855f7',
+  sparkling: '#f8fafc',
 }
 
 // ─── Fruit positions — kept well inside each canopy's safe zone ─────────────
@@ -82,17 +82,13 @@ function Apple({ x, y, color, sparkling = false }: { x: number; y: number; color
         {/* Leaf */}
         <path d="M7 1.5 Q10.5 -1 12 2" stroke="#16a34a" strokeWidth="1.2" fill="#22c55e"/>
         {/* Round body */}
-        <circle cx="7" cy="8.5" r="6.5" fill={color}/>
+        <circle cx="7" cy="8.5" r="6.5" fill={color} stroke={sparkling ? '#f59e0b' : 'none'} strokeWidth={sparkling ? 0.9 : 0}/>
         {/* Top cleft */}
-        <path d="M4.5 3.5 Q7 2.5 9.5 3.5" fill="none" stroke="rgba(0,0,0,0.13)" strokeWidth="2.5" strokeLinecap="round"/>
+        <path d="M4.5 3.5 Q7 2.5 9.5 3.5" fill="none" stroke={sparkling ? 'rgba(245,158,11,0.3)' : 'rgba(0,0,0,0.13)'} strokeWidth="2.5" strokeLinecap="round"/>
         {/* Highlight */}
-        <circle cx="4" cy="6.5" r="1.8" fill="white" opacity="0.32"/>
-        {/* Sparkle stars for $1000 apple */}
-        {sparkling && <>
-          <text x="12.5" y="3"   fontSize="4" textAnchor="middle" fill="#fde68a">✦</text>
-          <text x="-0.5" y="5"   fontSize="3" textAnchor="middle" fill="#fde68a">✦</text>
-          <text x="14"   y="10"  fontSize="3" textAnchor="middle" fill="#fde68a">✦</text>
-        </>}
+        {!sparkling && <circle cx="4" cy="6.5" r="1.8" fill="white" opacity="0.32"/>}
+        {/* Gold star for $1000 apple */}
+        {sparkling && <text x="7" y="12.5" textAnchor="middle" fontSize="9" fill="#f59e0b">★</text>}
       </g>
     </g>
   )

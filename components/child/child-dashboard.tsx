@@ -42,13 +42,14 @@ const ANIMAL_EMOJI: Record<MilestoneType, string> = {
 const APPLE_COLOR_HEX: Record<string, string> = {
   green:     '#16a34a',
   red:       '#dc2626',
-  silver:    '#c0c0c0',
+  silver:    '#dde8f0',
   gold:      '#d97706',
-  sparkling: '#a855f7',
+  sparkling: '#f8fafc',
 }
 
 function AppleDot({ color }: { color: string }) {
   const fill = APPLE_COLOR_HEX[color] ?? '#16a34a'
+  const isSparkling = color === 'sparkling'
   return (
     <svg width="18" height="20" viewBox="0 0 18 20" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
       {/* Stem */}
@@ -56,11 +57,14 @@ function AppleDot({ color }: { color: string }) {
       {/* Leaf */}
       <path d="M9 3 Q13 0 14.5 3.5" stroke="#16a34a" strokeWidth="1.2" fill="#22c55e"/>
       {/* Round body */}
-      <circle cx="9" cy="12" r="7.5" fill={fill}/>
+      <circle cx="9" cy="12" r="7.5" fill={fill} stroke={isSparkling ? '#f59e0b' : 'none'} strokeWidth={isSparkling ? 1 : 0}/>
       {/* Top cleft */}
-      <path d="M6 5.5 Q9 4.5 12 5.5" fill="none" stroke="rgba(0,0,0,0.13)" strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Highlight */}
-      <circle cx="5.5" cy="9" r="2" fill="white" opacity="0.35"/>
+      <path d="M6 5.5 Q9 4.5 12 5.5" fill="none" stroke={isSparkling ? 'rgba(245,158,11,0.3)' : 'rgba(0,0,0,0.13)'} strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Highlight or star */}
+      {isSparkling
+        ? <text x="9" y="16.5" textAnchor="middle" fontSize="11" fill="#f59e0b">★</text>
+        : <circle cx="5.5" cy="9" r="2" fill="white" opacity="0.35"/>
+      }
     </svg>
   )
 }

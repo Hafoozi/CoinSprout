@@ -9,10 +9,10 @@ interface Props {
 }
 
 const ANIM: Record<MilestoneType, { cls: string; duration: number; origin: string }> = {
-  bunny: { cls: 'anim-bunny-hop',     duration: 900,  origin: 'bottom center' },
+  bunny: { cls: 'anim-bunny-hop',     duration: 1600, origin: 'bottom center' },
   bird:  { cls: 'anim-bird-fly',      duration: 1400, origin: 'center'        },
-  deer:  { cls: 'anim-deer-prance',   duration: 1000, origin: 'bottom center' },
-  owl:   { cls: 'anim-owl-hoot',      duration: 1100, origin: 'center'        },
+  deer:  { cls: 'anim-deer-prance',   duration: 1600, origin: 'bottom center' },
+  owl:   { cls: 'anim-owl-hoot',      duration: 1500, origin: 'center'        },
   fox:   { cls: 'anim-fox-bounce',    duration: 950,  origin: 'bottom center' },
 }
 
