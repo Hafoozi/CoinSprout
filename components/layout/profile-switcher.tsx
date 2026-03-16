@@ -9,8 +9,9 @@ import { ROUTES } from '@/lib/constants/routes'
 import type { Child } from '@/lib/db/types'
 
 interface ProfileSwitcherProps {
-  children: Child[]
+  children:    Child[]
   hasParentPin: boolean
+  parentName:  string
 }
 
 type Mode =
@@ -21,7 +22,7 @@ type Mode =
   | { type: 'reset-child-pin'; child: Child; step: 'enter' | 'confirm'; first?: string }
   | { type: 'set-parent-pin'; step: 'enter' | 'confirm'; first?: string }
 
-export default function ProfileSwitcher({ children, hasParentPin }: ProfileSwitcherProps) {
+export default function ProfileSwitcher({ children, hasParentPin, parentName }: ProfileSwitcherProps) {
   const router = useRouter()
   const [mode, setMode] = useState<Mode>({ type: 'closed' })
   const [error, setError] = useState<string>()
@@ -33,12 +34,8 @@ export default function ProfileSwitcher({ children, hasParentPin }: ProfileSwitc
   }
 
   function handleChildSelect(child: Child) {
-    setError(undefined)
-    if (!child.pin_hash) {
-      setMode({ type: 'set-child-pin', child, step: 'enter' })
-    } else {
-      setMode({ type: 'enter-child-pin', child })
-    }
+    close()
+    router.push(ROUTES.CHILD.HOME(child.id))
   }
 
   function handleChildPinEntry(child: Child, pin: string) {
@@ -113,41 +110,49 @@ export default function ProfileSwitcher({ children, hasParentPin }: ProfileSwitc
 
       {/* Profile selection dialog */}
       <Dialog open={mode.type === 'select'} onClose={close} title="Switch Profile">
-        <div className="space-y-3">
-          <p className="text-sm text-gray-500">Select a profile to switch to:</p>
+        <div className="space-y-2">
 
-          {/* Child profiles */}
-          <div className="space-y-2">
-            {children.map((child) => (
-              <div key={child.id} className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3 hover:bg-sprout-50 hover:border-sprout-200 transition-colors">
-                <button
-                  type="button"
-                  onClick={() => handleChildSelect(child)}
-                  className="flex flex-1 items-center gap-3 text-left"
-                >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sprout-100 text-sprout-700 font-bold text-sm">
-                    {child.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-800">{child.name}</p>
-                    <p className="text-xs text-gray-400">{child.pin_hash ? 'PIN set' : 'No PIN — will set on first switch'}</p>
-                  </div>
-                  <span className="ml-auto text-gray-300">›</span>
-                </button>
-                {child.pin_hash && (
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); setError(undefined); setMode({ type: 'reset-child-pin', child, step: 'enter' }) }}
-                    className="shrink-0 rounded-lg px-2 py-1 text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                  >
-                    Reset PIN
-                  </button>
-                )}
-              </div>
-            ))}
+          {/* Parent profile — current */}
+          <div className="flex items-center gap-3 rounded-xl bg-sprout-50 border border-sprout-200 px-4 py-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sprout-200 text-sprout-700 font-bold text-sm">
+              {parentName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="font-medium text-gray-800">{parentName}</p>
+              <p className="text-xs text-sprout-600">Parent · Active</p>
+            </div>
           </div>
 
-          {/* Divider */}
+          {/* Children — tap to switch directly, no PIN required */}
+          {children.map((child) => (
+            <div key={child.id} className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3 hover:bg-sprout-50 hover:border-sprout-200 transition-colors">
+              <button
+                type="button"
+                onClick={() => handleChildSelect(child)}
+                className="flex flex-1 items-center gap-3 text-left"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sprout-100 text-sprout-700 font-bold text-sm">
+                  {child.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-medium text-gray-800">{child.name}</p>
+                  <p className="text-xs text-gray-400">Child</p>
+                </div>
+                <span className="ml-auto text-gray-300">›</span>
+              </button>
+              {child.pin_hash && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setError(undefined); setMode({ type: 'reset-child-pin', child, step: 'enter' }) }}
+                  className="shrink-0 rounded-lg px-2 py-1 text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  Reset PIN
+                </button>
+              )}
+            </div>
+          ))}
+
+          {/* Parent PIN settings */}
           <div className="border-t border-gray-100 pt-2">
             <button
               type="button"
@@ -159,18 +164,6 @@ export default function ProfileSwitcher({ children, hasParentPin }: ProfileSwitc
           </div>
         </div>
       </Dialog>
-
-      {/* Child PIN entry dialog */}
-      {mode.type === 'enter-child-pin' && (
-        <Dialog open={true} onClose={close} title={`Switch to ${mode.child.name}`}>
-          <PinPad
-            title={`Enter ${mode.child.name}'s PIN`}
-            error={error}
-            isLoading={isPending}
-            onComplete={(pin) => handleChildPinEntry(mode.child, pin)}
-          />
-        </Dialog>
-      )}
 
       {/* Set child PIN dialog */}
       {mode.type === 'set-child-pin' && (

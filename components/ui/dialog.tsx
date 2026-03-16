@@ -30,7 +30,7 @@ export default function Dialog({ open, onClose, title, children }: DialogProps) 
   return (
     // Overlay — click outside to close
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
       onClick={onClose}
     >
       {/* Panel — stop propagation so clicks inside don't close */}

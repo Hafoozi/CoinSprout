@@ -11,7 +11,13 @@ import ProfileSwitcher from '@/components/layout/profile-switcher'
  */
 export default async function AppHeader() {
   const { family } = await requireParent()
-  const children = await getChildrenByFamilyId(family.id)
+  const [children, { user }] = await Promise.all([
+    getChildrenByFamilyId(family.id),
+    (await import('@/lib/supabase/server')).createClient().then(sb => sb.auth.getUser()),
+  ])
+  const parentName = (user?.user_metadata?.full_name as string | undefined)
+    || user?.email?.split('@')[0]
+    || 'Parent'
 
   return (
     <header className="sticky top-0 z-10 h-14 bg-white border-b border-sprout-100 flex items-center justify-between px-4">
@@ -26,6 +32,7 @@ export default async function AppHeader() {
         <ProfileSwitcher
           children={children}
           hasParentPin={!!family.parent_pin_hash}
+          parentName={parentName}
         />
 
         <form action={signOut}>

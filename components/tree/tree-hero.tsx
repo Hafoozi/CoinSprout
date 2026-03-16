@@ -20,35 +20,40 @@ const FRUIT_COLOR_HEX: Record<string, string> = {
   gold:  '#d97706',
 }
 
-// ─── Fruit positions per stage — tuned to each canopy size ──────────────────
+// ─── Fruit positions — kept well inside each canopy's safe zone ─────────────
+// Sapling  canopy cy=178 ry=62  → safe y 148–205
+// Young    canopy cy=168 ry=74  → safe y 130–220
+// Growing  canopy cy=158 ry=84  → safe y 112–215
+// Mature   canopy cy=148 ry=100 → safe y  95–205
+// Ancient  canopy cy=132 ry=114 → safe y  78–195
 const STAGE_FRUIT_POS: Record<TreeStage, Array<{ x: number; y: number }>> = {
   sapling: [
-    { x: 152, y: 148 }, { x: 170, y: 155 },
-    { x: 148, y: 172 }, { x: 172, y: 178 },
+    { x: 150, y: 158 }, { x: 170, y: 163 },
+    { x: 148, y: 180 }, { x: 172, y: 184 },
   ],
   young: [
-    { x: 145, y: 120 }, { x: 172, y: 128 },
-    { x: 132, y: 148 }, { x: 188, y: 145 },
-    { x: 150, y: 165 }, { x: 175, y: 162 },
-    { x: 140, y: 180 }, { x: 182, y: 178 },
+    { x: 145, y: 138 }, { x: 172, y: 142 },
+    { x: 130, y: 160 }, { x: 188, y: 158 },
+    { x: 148, y: 178 }, { x: 174, y: 180 },
+    { x: 138, y: 198 }, { x: 180, y: 195 },
   ],
   growing: [
-    { x: 138, y:  98 }, { x: 168, y:  92 }, { x: 196, y: 102 },
-    { x: 122, y: 122 }, { x: 158, y: 115 }, { x: 192, y: 120 },
-    { x: 135, y: 145 }, { x: 165, y: 138 }, { x: 198, y: 142 },
-    { x: 148, y: 168 }, { x: 175, y: 162 }, { x: 215, y: 152 },
+    { x: 142, y: 118 }, { x: 168, y: 112 }, { x: 195, y: 122 },
+    { x: 125, y: 142 }, { x: 158, y: 134 }, { x: 192, y: 138 },
+    { x: 138, y: 162 }, { x: 165, y: 158 }, { x: 200, y: 162 },
+    { x: 148, y: 182 }, { x: 175, y: 178 }, { x: 215, y: 172 },
   ],
   mature: [
-    { x: 118, y:  88 }, { x: 150, y:  78 }, { x: 185, y:  82 }, { x: 218, y:  90 },
-    { x: 105, y: 112 }, { x: 142, y: 105 }, { x: 178, y: 108 }, { x: 212, y: 115 },
-    { x: 115, y: 138 }, { x: 152, y: 130 }, { x: 188, y: 135 }, { x: 225, y: 140 },
-    { x: 128, y: 162 }, { x: 162, y: 155 }, { x: 198, y: 158 }, { x: 235, y: 155 },
+    { x: 122, y: 108 }, { x: 152, y:  98 }, { x: 185, y: 102 }, { x: 215, y: 112 },
+    { x: 108, y: 130 }, { x: 145, y: 122 }, { x: 178, y: 125 }, { x: 212, y: 132 },
+    { x: 115, y: 155 }, { x: 152, y: 145 }, { x: 188, y: 148 }, { x: 225, y: 155 },
+    { x: 128, y: 175 }, { x: 162, y: 168 }, { x: 198, y: 170 }, { x: 232, y: 168 },
   ],
   ancient: [
-    { x:  95, y:  78 }, { x: 130, y:  65 }, { x: 165, y:  58 }, { x: 200, y:  68 }, { x: 232, y:  80 },
-    { x:  82, y: 102 }, { x: 118, y:  92 }, { x: 155, y:  85 }, { x: 192, y:  90 }, { x: 225, y: 100 },
-    { x:  90, y: 125 }, { x: 128, y: 115 }, { x: 162, y: 110 }, { x: 198, y: 118 }, { x: 235, y: 125 },
-    { x: 100, y: 148 }, { x: 138, y: 140 }, { x: 172, y: 138 }, { x: 208, y: 142 }, { x: 245, y: 148 },
+    { x: 108, y: 100 }, { x: 138, y:  88 }, { x: 165, y:  82 }, { x: 195, y:  90 }, { x: 225, y: 102 },
+    { x:  92, y: 122 }, { x: 125, y: 112 }, { x: 158, y: 105 }, { x: 192, y: 112 }, { x: 222, y: 122 },
+    { x:  98, y: 145 }, { x: 130, y: 135 }, { x: 162, y: 128 }, { x: 196, y: 135 }, { x: 228, y: 145 },
+    { x: 105, y: 165 }, { x: 138, y: 155 }, { x: 170, y: 150 }, { x: 205, y: 158 }, { x: 238, y: 165 },
   ],
 }
 
@@ -198,16 +203,37 @@ export default function TreeHero({ stage, fruitClusters, unlockedMilestones, chi
     const updated = [...done, celebrating]
     try { localStorage.setItem(key, JSON.stringify(updated)) } catch { /* ignore */ }
 
-    // Advance to next uncelebrated unlock without needing a remount
-    const next = unlockedMilestones.find(m => !updated.includes(m))
     setRevealed(false)
-    setCelebrating(next ?? null)
+    setCelebrating(null)
+
+    // Brief pause before showing the next celebration
+    const next = unlockedMilestones.find(m => !updated.includes(m))
+    if (next) setTimeout(() => setCelebrating(next), 800)
+  }
+
+  function resetCelebrations() {
+    try { localStorage.removeItem(`cs_celebrated_${childId}`) } catch { /* ignore */ }
+    setRevealed(false)
+    const first = unlockedMilestones[0] ?? null
+    setCelebrating(first)
   }
 
   return (
     <div>
       {/* Tree */}
       <TreeSvg stage={stage} fruitClusters={fruitClusters}/>
+
+      {/* Dev-only reset button for testing celebrations */}
+      {process.env.NODE_ENV === 'development' && unlockedMilestones.length > 0 && (
+        <div className="flex justify-end mb-1">
+          <button
+            onClick={resetCelebrations}
+            className="text-xs text-gray-300 hover:text-gray-400 transition-colors"
+          >
+            ↺ reset celebrations
+          </button>
+        </div>
+      )}
 
       {/* Milestone badge row */}
       <div className="flex justify-center gap-3 mt-3 pt-3 border-t border-gray-100">
