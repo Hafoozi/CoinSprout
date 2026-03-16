@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import type { TreeStage, FruitCluster } from '@/types/domain'
 import type { MilestoneType } from '@/types/database'
 import AnimalIcon from '@/components/ui/animal-icon'
+import TreeAnimalSprite from '@/components/tree/tree-animal-sprite'
 
 interface Props {
   stage:              TreeStage
@@ -16,11 +17,11 @@ const MILESTONE_ORDER: MilestoneType[] = ['bunny', 'bird', 'deer', 'owl', 'fox']
 
 // Positions for unlocked animals overlaid on the tree container (% based)
 const ANIMAL_OVERLAY: Record<MilestoneType, { style: React.CSSProperties; size: number }> = {
-  bunny: { style: { left: '3%',  bottom: '5%' }, size: 44 },
-  bird:  { style: { right: '8%', top:    '8%' }, size: 38 },
-  deer:  { style: { right: '2%', bottom: '4%' }, size: 46 },
-  owl:   { style: { left: '8%',  top:   '12%' }, size: 38 },
-  fox:   { style: { left: '28%', bottom: '4%' }, size: 44 },
+  bunny: { style: { left: '2%',  bottom: '4%' }, size: 52 },
+  bird:  { style: { right: '6%', top:    '6%' }, size: 46 },
+  deer:  { style: { right: '1%', bottom: '3%' }, size: 56 },
+  owl:   { style: { left: '6%',  top:   '10%' }, size: 46 },
+  fox:   { style: { left: '26%', bottom: '3%' }, size: 52 },
 }
 
 const FRUIT_COLOR_HEX: Record<string, string> = {
@@ -255,10 +256,10 @@ export default function TreeHero({ stage, fruitClusters, unlockedMilestones, chi
         {MILESTONE_ORDER.filter(type => unlockedMilestones.includes(type)).map(type => (
           <div
             key={type}
-            className="absolute pointer-events-none drop-shadow-sm"
+            className="absolute drop-shadow-sm"
             style={ANIMAL_OVERLAY[type].style}
           >
-            <AnimalIcon type={type} size={ANIMAL_OVERLAY[type].size}/>
+            <TreeAnimalSprite type={type} size={ANIMAL_OVERLAY[type].size}/>
           </div>
         ))}
       </div>

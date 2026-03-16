@@ -31,6 +31,10 @@ function fmt(n: number) {
   return '$' + Math.abs(n).toFixed(2)
 }
 
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
 const ANIMAL_EMOJI: Record<MilestoneType, string> = {
   bunny: '🐰', bird: '🐦', deer: '🦌', owl: '🦉', fox: '🦊',
 }
@@ -211,7 +215,9 @@ export default function ChildDashboard({ child, summary, transactions, goals, mi
               <div key={tx.id} className="flex items-center justify-between px-4 py-3 text-sm">
                 <div>
                   <p className="font-medium text-gray-700 capitalize">{tx.source}</p>
-                  {tx.note && <p className="text-xs text-gray-400">{tx.note}</p>}
+                  <p className="text-xs text-gray-400">
+                    {fmtDate(tx.created_at)}{tx.note ? ` · ${tx.note}` : ''}
+                  </p>
                 </div>
                 <span className={`font-semibold money ${tx.amount >= 0 ? 'text-sprout-600' : 'text-red-500'}`}>
                   {tx.amount >= 0 ? '+' : '-'}{fmt(tx.amount)}
