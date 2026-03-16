@@ -161,7 +161,13 @@ export default function ChildDashboard({ child, summary, transactions, goals, mi
                   { key: 'interest',  label: 'Interest',  icon: '📈' },
                   { key: 'jobs',      label: 'Jobs',      icon: '⭐' },
                 ] as const
-              ).filter(({ key }) => summary.sourceBreakdown[key] > 0).map(({ key, label, icon }) => (
+              )
+                .filter(({ key }) => summary.sourceBreakdown[key] > 0)
+                .sort((a, b) => {
+                  const diff = summary.sourceBreakdown[b.key] - summary.sourceBreakdown[a.key]
+                  return diff !== 0 ? diff : a.label.localeCompare(b.label)
+                })
+                .map(({ key, label, icon }) => (
                 <div key={key} className="flex items-center gap-2 text-sm">
                   <span className="text-base leading-none">{icon}</span>
                   <span className="text-gray-600">{label}</span>
@@ -175,7 +181,7 @@ export default function ChildDashboard({ child, summary, transactions, goals, mi
               <div className="border-t border-gray-100 pt-2 space-y-1">
                 <p className="text-xs text-gray-400">On your tree:</p>
                 <div className="flex flex-wrap gap-3">
-                  {fruitClusters.map((cluster) => (
+                  {[...fruitClusters].reverse().map((cluster) => (
                     <div key={cluster.denomination} className="flex items-center gap-1.5 text-xs text-gray-500">
                       <AppleDot color={cluster.color} />
                       <span className="money">{cluster.count} × ${cluster.denomination}</span>

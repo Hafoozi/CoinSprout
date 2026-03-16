@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import type { TreeStage, FruitCluster } from '@/types/domain'
 import type { MilestoneType } from '@/types/database'
 import AnimalIcon from '@/components/ui/animal-icon'
@@ -13,6 +13,15 @@ interface Props {
 }
 
 const MILESTONE_ORDER: MilestoneType[] = ['bunny', 'bird', 'deer', 'owl', 'fox']
+
+// Positions for unlocked animals overlaid on the tree container (% based)
+const ANIMAL_OVERLAY: Record<MilestoneType, { style: React.CSSProperties; size: number }> = {
+  bunny: { style: { left: '3%',  bottom: '5%' }, size: 44 },
+  bird:  { style: { right: '8%', top:    '8%' }, size: 38 },
+  deer:  { style: { right: '2%', bottom: '4%' }, size: 46 },
+  owl:   { style: { left: '8%',  top:   '12%' }, size: 38 },
+  fox:   { style: { left: '28%', bottom: '4%' }, size: 44 },
+}
 
 const FRUIT_COLOR_HEX: Record<string, string> = {
   green: '#16a34a',
@@ -60,11 +69,17 @@ const STAGE_FRUIT_POS: Record<TreeStage, Array<{ x: number; y: number }>> = {
 // ─── Apple SVG ───────────────────────────────────────────────────────────────
 function Apple({ x, y, color }: { x: number; y: number; color: string }) {
   return (
-    <g transform={`translate(${x - 7}, ${y - 9})`} className="fruit-bob">
-      <path d="M7 2 Q8 0 9 2" stroke="#78350f" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
-      <path d="M7 2 Q10 -1 12 2" stroke="#16a34a" strokeWidth="1.2" fill="#22c55e"/>
-      <path d="M2 6 Q2 1 7 1 Q12 1 12 6 Q14 14 7 15 Q0 14 2 6 Z" fill={color}/>
-      <ellipse cx="5" cy="6" rx="1.5" ry="2" fill="white" opacity="0.35"/>
+    <g transform={`translate(${x - 7}, ${y - 8})`} className="fruit-bob">
+      {/* Stem */}
+      <path d="M7 1.5 Q7.5 -0.5 9.5 0.8" stroke="#78350f" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      {/* Leaf */}
+      <path d="M7 1.5 Q10.5 -1 12 2" stroke="#16a34a" strokeWidth="1.2" fill="#22c55e"/>
+      {/* Round body */}
+      <circle cx="7" cy="8.5" r="6.5" fill={color}/>
+      {/* Top cleft */}
+      <path d="M4.5 3.5 Q7 2.5 9.5 3.5" fill="none" stroke="rgba(0,0,0,0.13)" strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Highlight */}
+      <circle cx="4" cy="6.5" r="1.8" fill="white" opacity="0.32"/>
     </g>
   )
 }
@@ -220,8 +235,19 @@ export default function TreeHero({ stage, fruitClusters, unlockedMilestones, chi
 
   return (
     <div>
-      {/* Tree */}
-      <TreeSvg stage={stage} fruitClusters={fruitClusters}/>
+      {/* Tree + animals */}
+      <div className="relative">
+        <TreeSvg stage={stage} fruitClusters={fruitClusters}/>
+        {MILESTONE_ORDER.filter(type => unlockedMilestones.includes(type)).map(type => (
+          <div
+            key={type}
+            className="absolute pointer-events-none drop-shadow-sm"
+            style={ANIMAL_OVERLAY[type].style}
+          >
+            <AnimalIcon type={type} size={ANIMAL_OVERLAY[type].size}/>
+          </div>
+        ))}
+      </div>
 
       {/* Dev-only reset button for testing celebrations */}
       {process.env.NODE_ENV === 'development' && unlockedMilestones.length > 0 && (
