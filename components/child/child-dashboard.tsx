@@ -44,11 +44,17 @@ const APPLE_COLOR_HEX: Record<string, string> = {
 function AppleDot({ color }: { color: string }) {
   const fill = APPLE_COLOR_HEX[color] ?? '#16a34a'
   return (
-    <svg width="14" height="16" viewBox="0 0 14 16" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-      <path d="M7 2 Q8 0 9 2" stroke="#78350f" strokeWidth="1" fill="none" strokeLinecap="round"/>
-      <path d="M7 2 Q10 -1 12 2" stroke="#16a34a" strokeWidth="1" fill="#22c55e"/>
-      <path d="M2 6 Q2 1 7 1 Q12 1 12 6 Q14 14 7 15 Q0 14 2 6 Z" fill={fill}/>
-      <ellipse cx="5" cy="6" rx="1.5" ry="2" fill="white" opacity="0.35"/>
+    <svg width="18" height="20" viewBox="0 0 18 20" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      {/* Stem */}
+      <path d="M9 3 Q9.5 0.5 11.5 2" stroke="#78350f" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      {/* Leaf */}
+      <path d="M9 3 Q13 0 14.5 3.5" stroke="#16a34a" strokeWidth="1.2" fill="#22c55e"/>
+      {/* Round body */}
+      <circle cx="9" cy="12" r="7.5" fill={fill}/>
+      {/* Top cleft */}
+      <path d="M6 5.5 Q9 4.5 12 5.5" fill="none" stroke="rgba(0,0,0,0.13)" strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Highlight */}
+      <circle cx="5.5" cy="9" r="2" fill="white" opacity="0.35"/>
     </svg>
   )
 }

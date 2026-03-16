@@ -67,19 +67,24 @@ const STAGE_FRUIT_POS: Record<TreeStage, Array<{ x: number; y: number }>> = {
 }
 
 // ─── Apple SVG ───────────────────────────────────────────────────────────────
+// NOTE: outer <g> handles SVG position; inner <g> handles CSS animation.
+// Combining both on one element causes CSS transform to override the SVG
+// transform attribute in some browsers, collapsing all apples to (0,0).
 function Apple({ x, y, color }: { x: number; y: number; color: string }) {
   return (
-    <g transform={`translate(${x - 7}, ${y - 8})`} className="fruit-bob">
-      {/* Stem */}
-      <path d="M7 1.5 Q7.5 -0.5 9.5 0.8" stroke="#78350f" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
-      {/* Leaf */}
-      <path d="M7 1.5 Q10.5 -1 12 2" stroke="#16a34a" strokeWidth="1.2" fill="#22c55e"/>
-      {/* Round body */}
-      <circle cx="7" cy="8.5" r="6.5" fill={color}/>
-      {/* Top cleft */}
-      <path d="M4.5 3.5 Q7 2.5 9.5 3.5" fill="none" stroke="rgba(0,0,0,0.13)" strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Highlight */}
-      <circle cx="4" cy="6.5" r="1.8" fill="white" opacity="0.32"/>
+    <g transform={`translate(${x - 7}, ${y - 8})`}>
+      <g className="fruit-bob">
+        {/* Stem */}
+        <path d="M7 1.5 Q7.5 -0.5 9.5 0.8" stroke="#78350f" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+        {/* Leaf */}
+        <path d="M7 1.5 Q10.5 -1 12 2" stroke="#16a34a" strokeWidth="1.2" fill="#22c55e"/>
+        {/* Round body */}
+        <circle cx="7" cy="8.5" r="6.5" fill={color}/>
+        {/* Top cleft */}
+        <path d="M4.5 3.5 Q7 2.5 9.5 3.5" fill="none" stroke="rgba(0,0,0,0.13)" strokeWidth="2.5" strokeLinecap="round"/>
+        {/* Highlight */}
+        <circle cx="4" cy="6.5" r="1.8" fill="white" opacity="0.32"/>
+      </g>
     </g>
   )
 }
