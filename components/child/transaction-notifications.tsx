@@ -9,7 +9,6 @@ const SOURCE_CONFIG = {
     message:  'You showed up and earned it. Keep it up!',
     bg:       'bg-sprout-50',
     border:   'border-sprout-200',
-    accent:   'text-sprout-700',
     btn:      'bg-sprout-500 hover:bg-sprout-600',
     icon:     '💵',
   },
@@ -18,7 +17,6 @@ const SOURCE_CONFIG = {
     message:  'Someone special is thinking of you!',
     bg:       'bg-pink-50',
     border:   'border-pink-200',
-    accent:   'text-pink-700',
     btn:      'bg-pink-500 hover:bg-pink-600',
     icon:     '🎁',
   },
@@ -27,7 +25,6 @@ const SOURCE_CONFIG = {
     message:  'Your savings earned interest — money makes money!',
     bg:       'bg-sky-50',
     border:   'border-sky-200',
-    accent:   'text-sky-700',
     btn:      'bg-sky-500 hover:bg-sky-600',
     icon:     '📈',
   },
@@ -36,23 +33,24 @@ const SOURCE_CONFIG = {
     message:  'You earned this with your effort. Well done!',
     bg:       'bg-amber-50',
     border:   'border-amber-200',
-    accent:   'text-amber-700',
     btn:      'bg-amber-500 hover:bg-amber-600',
     icon:     '⭐',
   },
 } as const
 
-// 8 coin burst trajectories
+// Coins start large near the button and converge upward toward the savings counter
 const COINS = [
-  { dx: -90, dy: -110, delay: 0     },
-  { dx: -50, dy: -140, delay: 0.06  },
-  { dx:   0, dy: -155, delay: 0.04  },
-  { dx:  50, dy: -140, delay: 0.08  },
-  { dx:  90, dy: -110, delay: 0.02  },
-  { dx: -70, dy:  -80, delay: 0.10  },
-  { dx:  70, dy:  -80, delay: 0.05  },
-  { dx:  20, dy: -125, delay: 0.07  },
+  { dx: -55, dy: -210, cs: 1.8, delay: 0    },
+  { dx: -25, dy: -225, cs: 2.0, delay: 0.04 },
+  { dx:   0, dy: -230, cs: 2.0, delay: 0.02 },
+  { dx:  25, dy: -225, cs: 1.8, delay: 0.06 },
+  { dx:  55, dy: -210, cs: 1.6, delay: 0.08 },
+  { dx: -38, dy: -218, cs: 1.7, delay: 0.10 },
+  { dx:  38, dy: -218, cs: 1.7, delay: 0.03 },
+  { dx:  12, dy: -228, cs: 1.9, delay: 0.07 },
 ]
+
+const round = (n: number) => Math.round(n * 100) / 100
 
 interface Props {
   childId:      string
@@ -60,10 +58,15 @@ interface Props {
 }
 
 export default function TransactionNotifications({ childId, transactions }: Props) {
-  const [queue,      setQueue]      = useState<Transaction[]>([])
-  const [accepting,  setAccepting]  = useState(false)
-  const [showCoins,  setShowCoins]  = useState(false)
+  const [queue,     setQueue]     = useState<Transaction[]>([])
+  const [accepting, setAccepting] = useState(false)
+  const [showCoins, setShowCoins] = useState(false)
+  const [closing,   setClosing]   = useState(false)
+  const [countVal,  setCountVal]  = useState(0)
 
+  const savingsBalance = round(transactions.reduce((s, t) => s + t.amount, 0))
+
+  // Initialise from localStorage
   useEffect(() => {
     try {
       const key    = `cs_ack_txns_${childId}`
@@ -71,17 +74,19 @@ export default function TransactionNotifications({ childId, transactions }: Prop
       const income = transactions.filter((t) => t.amount > 0)
 
       if (stored === null) {
-        // First load — mark everything as already seen; no pop-ups
         localStorage.setItem(key, JSON.stringify(income.map((t) => t.id)))
         return
       }
 
       const acknowledged: string[] = JSON.parse(stored)
       const pending = income.filter((t) => !acknowledged.includes(t.id))
-      if (pending.length > 0) setQueue(pending)
-    } catch {
-      // localStorage unavailable or corrupted — skip notifications
-    }
+      if (pending.length > 0) {
+        setQueue(pending)
+        // Counter starts at balance BEFORE all pending transactions
+        const pendingTotal = pending.reduce((s, t) => s + t.amount, 0)
+        setCountVal(round(savingsBalance - pendingTotal))
+      }
+    } catch { /* ignore localStorage errors */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [childId])
 
@@ -96,14 +101,40 @@ export default function TransactionNotifications({ childId, transactions }: Prop
       localStorage.setItem(key, JSON.stringify([...acknowledged, tx.id]))
     } catch { /* ignore */ }
 
+    const startVal = countVal
+    const endVal   = round(countVal + tx.amount)
+
     setAccepting(true)
     setShowCoins(true)
 
+    // Count up after coins arrive (~650 ms)
     setTimeout(() => {
-      setQueue((q)  => q.slice(1))
-      setAccepting(false)
-      setShowCoins(false)
-    }, 1300)
+      const countDuration = 600
+      const startTime     = Date.now()
+
+      const interval = setInterval(() => {
+        const elapsed  = Date.now() - startTime
+        const progress = Math.min(elapsed / countDuration, 1)
+        const eased    = 1 - Math.pow(1 - progress, 3)   // ease-out cubic
+        setCountVal(startVal + (endVal - startVal) * eased)
+
+        if (progress >= 1) {
+          clearInterval(interval)
+          setCountVal(endVal)
+
+          // Brief pause then close
+          setTimeout(() => {
+            setClosing(true)
+            setTimeout(() => {
+              setQueue((q) => q.slice(1))
+              setAccepting(false)
+              setClosing(false)
+              setShowCoins(false)
+            }, 350)
+          }, 400)
+        }
+      }, 16)
+    }, 650)
   }
 
   const current = queue[0]
@@ -113,31 +144,40 @@ export default function TransactionNotifications({ childId, transactions }: Prop
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-6">
-      {/* Wrapper — overflow:visible so coins can fly out */}
       <div className="relative max-w-xs w-full">
 
         {/* Card */}
-        <div className={`rounded-3xl border-2 ${cfg.border} ${cfg.bg} p-8 shadow-2xl text-center space-y-5
-          ${accepting ? 'animate-shrink-out' : 'animate-bounce-in'}`}
+        <div className={`rounded-3xl border-2 ${cfg.border} ${cfg.bg} p-8 shadow-2xl text-center space-y-4
+          ${closing ? 'animate-shrink-out' : 'animate-bounce-in'}`}
         >
-          {/* Big icon */}
-          <div className="text-6xl leading-none">{cfg.icon}</div>
+          {/* Savings counter — coins fly toward here */}
+          <div className="rounded-2xl bg-white/70 px-4 py-3 space-y-0.5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">My Savings</p>
+            <p className="text-3xl font-bold text-sprout-700 money tabular-nums">
+              ${countVal.toFixed(2)}
+            </p>
+          </div>
 
-          {/* Text */}
+          {/* Source icon */}
+          <div className="text-5xl leading-none">{cfg.icon}</div>
+
+          {/* Headline + message */}
           <div>
             <p className="text-xl font-bold text-gray-800">{cfg.headline}</p>
             <p className="text-sm text-gray-500 mt-1">{cfg.message}</p>
           </div>
 
-          {/* Amount */}
-          <p className={`text-5xl font-bold money ${cfg.accent}`}>+${current.amount.toFixed(2)}</p>
+          {/* Amount — always green */}
+          <p className="text-5xl font-bold money text-emerald-500">
+            +${current.amount.toFixed(2)}
+          </p>
 
-          {/* Note */}
+          {/* Optional note */}
           {current.note && (
             <p className="text-sm text-gray-400 italic">"{current.note}"</p>
           )}
 
-          {/* Button */}
+          {/* Accept button */}
           <button
             onClick={handleAccept}
             disabled={accepting}
@@ -146,25 +186,27 @@ export default function TransactionNotifications({ childId, transactions }: Prop
             Add to My Tree! 🌱
           </button>
 
-          {/* Queue count */}
           {queue.length > 1 && (
-            <p className="text-xs text-gray-400">{queue.length - 1} more reward{queue.length > 2 ? 's' : ''} waiting…</p>
+            <p className="text-xs text-gray-400">
+              {queue.length - 1} more reward{queue.length > 2 ? 's' : ''} waiting…
+            </p>
           )}
         </div>
 
-        {/* Coins — positioned relative to wrapper, fly upward */}
+        {/* Coins — fly from button up toward the savings counter */}
         {showCoins && COINS.map((c, i) => (
           <div
             key={i}
             className="absolute pointer-events-none"
             style={{
-              top:  '50%',
-              left: '50%',
-              marginTop:  '-14px',
-              marginLeft: '-14px',
+              top:        '74%',
+              left:       '50%',
+              marginLeft: '-22px',
+              marginTop:  '-22px',
               '--tx': `${c.dx}px`,
               '--ty': `${c.dy}px`,
-              animation: `coin-fly 1.1s ease-out ${c.delay}s forwards`,
+              '--cs': c.cs,
+              animation: `coin-deposit 1s ease-in ${c.delay}s forwards`,
             } as React.CSSProperties}
           >
             <CoinSvg />
@@ -177,11 +219,11 @@ export default function TransactionNotifications({ childId, transactions }: Prop
 
 function CoinSvg() {
   return (
-    <svg width="28" height="28" viewBox="0 0 28 28">
-      <circle cx="14" cy="14" r="13" fill="#fbbf24" stroke="#d97706" strokeWidth="1.5"/>
-      <circle cx="14" cy="14" r="10" fill="#fcd34d"/>
-      <circle cx="10" cy="10" r="3"  fill="#fde68a" opacity="0.7"/>
-      <text x="14" y="18.5" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#92400e">$</text>
+    <svg width="44" height="44" viewBox="0 0 44 44">
+      <circle cx="22" cy="22" r="20" fill="#fbbf24" stroke="#d97706" strokeWidth="2"/>
+      <circle cx="22" cy="22" r="16" fill="#fcd34d"/>
+      <circle cx="15" cy="15" r="4.5" fill="#fde68a" opacity="0.7"/>
+      <text x="22" y="28" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#92400e">$</text>
     </svg>
   )
 }

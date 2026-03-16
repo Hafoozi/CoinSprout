@@ -71,10 +71,10 @@
 }
 .animate-shrink-out { animation: shrink-out 0.35s ease-in forwards; }
 
-@keyframes coin-fly {
-  0%   { transform: translate(0, 0) scale(1);              opacity: 1; }
+@keyframes coin-deposit {
+  0%   { transform: translate(0, 0) scale(var(--cs, 1.5)); opacity: 1; }
   80%  { opacity: 1; }
-  100% { transform: translate(var(--tx), var(--ty)) scale(0.2); opacity: 0; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0.08); opacity: 0; }
 }
 
 @keyframes gift-wiggle {
