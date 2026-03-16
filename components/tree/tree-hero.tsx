@@ -26,7 +26,7 @@ const ANIMAL_OVERLAY: Record<MilestoneType, { style: React.CSSProperties; size: 
 const FRUIT_COLOR_HEX: Record<string, string> = {
   green:     '#16a34a',
   red:       '#dc2626',
-  silver:    '#94a3b8',
+  silver:    '#c0c0c0',
   gold:      '#d97706',
   sparkling: '#a855f7',
 }
