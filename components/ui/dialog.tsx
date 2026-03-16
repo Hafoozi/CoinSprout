@@ -40,7 +40,7 @@ export default function Dialog({ open, onClose, title, children }: DialogProps) 
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
-        className="card-surface w-full max-w-sm p-6 space-y-4 outline-none"
+        className="card-surface w-full max-w-sm p-6 space-y-4 outline-none overflow-y-auto max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">

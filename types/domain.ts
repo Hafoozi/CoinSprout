@@ -7,8 +7,8 @@ import type { MilestoneType, TransactionSource } from './database'
 
 // ─── Tree ──────────────────────────────────────────────────────────────────
 
-/** The four visual stages of the tree, driven by lifetime earnings. */
-export type TreeStage = 'sapling' | 'young' | 'growing' | 'mature'
+/** The five visual stages of the tree, driven by lifetime earnings. */
+export type TreeStage = 'sapling' | 'young' | 'growing' | 'mature' | 'ancient'
 
 // ─── Fruit ─────────────────────────────────────────────────────────────────
 
