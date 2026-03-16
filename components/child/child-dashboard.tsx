@@ -35,9 +35,27 @@ const ANIMAL_EMOJI: Record<MilestoneType, string> = {
   bunny: '🐰', bird: '🐦', deer: '🦌', owl: '🦉', fox: '🦊',
 }
 
+const APPLE_COLOR_HEX: Record<string, string> = {
+  green: '#16a34a',
+  red:   '#dc2626',
+  gold:  '#d97706',
+}
+
+function AppleDot({ color }: { color: string }) {
+  const fill = APPLE_COLOR_HEX[color] ?? '#16a34a'
+  return (
+    <svg width="14" height="16" viewBox="0 0 14 16" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M7 2 Q8 0 9 2" stroke="#78350f" strokeWidth="1" fill="none" strokeLinecap="round"/>
+      <path d="M7 2 Q10 -1 12 2" stroke="#16a34a" strokeWidth="1" fill="#22c55e"/>
+      <path d="M2 6 Q2 1 7 1 Q12 1 12 6 Q14 14 7 15 Q0 14 2 6 Z" fill={fill}/>
+      <ellipse cx="5" cy="6" rx="1.5" ry="2" fill="white" opacity="0.35"/>
+    </svg>
+  )
+}
+
 export default function ChildDashboard({ child, summary, transactions, goals, milestones }: Props) {
   const stage         = calculateTreeStage(summary.lifetimeEarnings)
-  const fruitClusters = calculateFruitClusters(transactions)
+  const fruitClusters = calculateFruitClusters(summary.savingsBalance)
   const unlockedTypes = milestones.map((m) => m.milestone_type as MilestoneType)
   const nextMilestone = getNextMilestone(summary.lifetimeEarnings)
   const amountToNext  = amountToNextMilestone(summary.lifetimeEarnings)
@@ -132,25 +150,41 @@ export default function ChildDashboard({ child, summary, transactions, goals, mi
             </div>
           )}
 
-          {/* Fruit legend */}
-          {fruitClusters.length > 0 && (
-            <div className="card-surface p-4 space-y-2">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400">My Fruit</h2>
-              <div className="space-y-1.5">
-                {fruitClusters.map((cluster) => (
-                  <div key={cluster.source} className="flex items-center gap-2 text-sm">
-                    <span
-                      className="h-3 w-3 rounded-full inline-block shrink-0"
-                      style={{ backgroundColor: cluster.color === 'green' ? '#15803d' : cluster.color === 'red' ? '#b91c1c' : '#b45309' }}
-                    />
-                    <span className="capitalize text-gray-600">{cluster.source}</span>
-                    <span className="ml-auto text-gray-400 money">{cluster.count} × $5</span>
-                  </div>
-                ))}
-                <p className="text-xs text-gray-400 pt-1">Each fruit = $5 saved 🍎</p>
-              </div>
+          {/* My Savings breakdown */}
+          <div className="card-surface p-4 space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Where it came from</h2>
+            <div className="space-y-1.5">
+              {(
+                [
+                  { key: 'allowance', label: 'Allowance', icon: '💵' },
+                  { key: 'gift',      label: 'Gifts',     icon: '🎁' },
+                  { key: 'interest',  label: 'Interest',  icon: '📈' },
+                  { key: 'jobs',      label: 'Jobs',      icon: '⭐' },
+                ] as const
+              ).filter(({ key }) => summary.sourceBreakdown[key] > 0).map(({ key, label, icon }) => (
+                <div key={key} className="flex items-center gap-2 text-sm">
+                  <span className="text-base leading-none">{icon}</span>
+                  <span className="text-gray-600">{label}</span>
+                  <span className="ml-auto font-medium text-gray-700 money">{fmt(summary.sourceBreakdown[key])}</span>
+                </div>
+              ))}
             </div>
-          )}
+
+            {/* Apple legend */}
+            {fruitClusters.length > 0 && (
+              <div className="border-t border-gray-100 pt-2 space-y-1">
+                <p className="text-xs text-gray-400">On your tree:</p>
+                <div className="flex flex-wrap gap-3">
+                  {fruitClusters.map((cluster) => (
+                    <div key={cluster.denomination} className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <AppleDot color={cluster.color} />
+                      <span className="money">{cluster.count} × ${cluster.denomination}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

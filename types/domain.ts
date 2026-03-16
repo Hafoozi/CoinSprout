@@ -3,7 +3,7 @@
  * These are not raw database rows — they represent how the app thinks about data.
  */
 
-import type { MilestoneType, TransactionSource } from './database'
+import type { MilestoneType } from './database'
 
 // ─── Tree ──────────────────────────────────────────────────────────────────
 
@@ -16,10 +16,9 @@ export type FruitColor = 'green' | 'red' | 'gold'
 
 /** One cluster of fruit displayed on the tree. */
 export interface FruitCluster {
-  source: Exclude<TransactionSource, 'spend'>
-  color: FruitColor
-  count: number       // number of fruit icons to render
-  totalValue: number  // dollar value this cluster represents
+  color:        FruitColor
+  denomination: number   // dollar value each fruit represents (5, 10, or 20)
+  count:        number   // number of fruit icons to render
 }
 
 // ─── Financials ────────────────────────────────────────────────────────────
