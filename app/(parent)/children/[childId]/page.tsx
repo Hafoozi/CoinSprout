@@ -6,23 +6,16 @@ import { getChildById } from '@/lib/db/queries/children'
 import { getChildDashboardData } from '@/lib/db/queries/dashboards'
 import SavingsSummary from '@/components/child/savings-summary'
 import ActivitySection from '@/components/child/activity-section'
-import GoalCard from '@/components/child/goal-card'
+import GoalActions from '@/components/parent/goal-actions'
 import QuickActions from '@/components/parent/quick-actions'
 import EditChildButton from '@/components/parent/edit-child-button'
 import { ROUTES } from '@/lib/constants/routes'
+import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 
 export const metadata: Metadata = {
   title: 'Child Profile — CoinSprout',
 }
 
-const AVATAR_BG: Record<string, string> = {
-  sprout: 'bg-sprout-200 text-sprout-800',
-  sky:    'bg-sky-200    text-sky-800',
-  gold:   'bg-yellow-200 text-yellow-800',
-  rose:   'bg-pink-200   text-pink-800',
-  violet: 'bg-violet-200 text-violet-800',
-  orange: 'bg-orange-200 text-orange-800',
-}
 
 export default async function ChildProfilePage({
   params,
@@ -102,7 +95,7 @@ export default async function ChildProfilePage({
         ) : (
           <div className="space-y-3">
             {goals.map((goal) => (
-              <GoalCard key={goal.id} goal={goal} />
+              <GoalActions key={goal.id} goal={goal} />
             ))}
           </div>
         )}

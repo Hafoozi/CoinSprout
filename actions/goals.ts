@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireParent } from '@/lib/auth/require-parent'
-import { createGoal as createGoalMutation, allocateToGoal as allocateToGoalMutation } from '@/lib/db/mutations/goals'
+import { createGoal as createGoalMutation, allocateToGoal as allocateToGoalMutation, deleteGoal as deleteGoalMutation, completeGoal as completeGoalMutation } from '@/lib/db/mutations/goals'
 import { getGoalById } from '@/lib/db/queries/goals'
 import { getTransactionsByChildId } from '@/lib/db/queries/transactions'
 import { getGoalsByChildId } from '@/lib/db/queries/goals'
@@ -36,6 +36,8 @@ export async function createGoal(_: unknown, formData: FormData): Promise<Action
   if (!goal) return { success: false, error: 'Failed to create goal' }
 
   revalidatePath(ROUTES.PARENT.CHILD(parsed.data.childId))
+  revalidatePath(ROUTES.CHILD.HOME(parsed.data.childId))
+  revalidatePath(ROUTES.CHILD.GOALS(parsed.data.childId))
   return { success: true }
 }
 
@@ -79,5 +81,44 @@ export async function allocateToGoal(_: unknown, formData: FormData): Promise<Ac
 
   revalidatePath(ROUTES.PARENT.CHILD(goal.child_id))
   revalidatePath(ROUTES.PARENT.GOAL(goal.id))
+  revalidatePath(ROUTES.CHILD.HOME(goal.child_id))
+  revalidatePath(ROUTES.CHILD.GOALS(goal.child_id))
+  return { success: true }
+}
+
+export async function deleteGoal(_: unknown, formData: FormData): Promise<ActionResult> {
+  await requireParent()
+
+  const goalId = formData.get('goalId')?.toString()
+  if (!goalId) return { success: false, error: 'Missing goal ID' }
+
+  const goal = await getGoalById(goalId)
+  if (!goal) return { success: false, error: 'Goal not found' }
+
+  const ok = await deleteGoalMutation(goalId)
+  if (!ok) return { success: false, error: 'Failed to delete goal' }
+
+  revalidatePath(ROUTES.PARENT.CHILD(goal.child_id))
+  revalidatePath(ROUTES.CHILD.HOME(goal.child_id))
+  revalidatePath(ROUTES.CHILD.GOALS(goal.child_id))
+  return { success: true }
+}
+
+export async function completeGoal(_: unknown, formData: FormData): Promise<ActionResult> {
+  await requireParent()
+
+  const goalId = formData.get('goalId')?.toString()
+  if (!goalId) return { success: false, error: 'Missing goal ID' }
+
+  const goal = await getGoalById(goalId)
+  if (!goal) return { success: false, error: 'Goal not found' }
+
+  const updated = await completeGoalMutation(goalId)
+  if (!updated) return { success: false, error: 'Failed to complete goal' }
+
+  revalidatePath(ROUTES.PARENT.CHILD(goal.child_id))
+  revalidatePath(ROUTES.PARENT.GOAL(goal.id))
+  revalidatePath(ROUTES.CHILD.HOME(goal.child_id))
+  revalidatePath(ROUTES.CHILD.GOALS(goal.child_id))
   return { success: true }
 }

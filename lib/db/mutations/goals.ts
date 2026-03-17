@@ -73,3 +73,38 @@ export async function allocateToGoal(data: {
 
   return updated ?? null
 }
+
+/** Hard-delete a goal and its allocation audit rows. */
+export async function deleteGoal(goalId: string): Promise<boolean> {
+  const supabase = await createClient()
+
+  // Delete allocations first (avoids FK violations if no cascade is set)
+  await supabase.from('goal_allocations').delete().eq('goal_id', goalId)
+
+  const { error } = await supabase.from('goals').delete().eq('id', goalId)
+  return !error
+}
+
+/**
+ * Mark a goal as complete by setting allocated_amount = target_price.
+ * Used when a parent wants to close a goal the child has physically achieved.
+ */
+export async function completeGoal(goalId: string): Promise<Goal | null> {
+  const supabase = await createClient()
+
+  const { data: goal } = await supabase
+    .from('goals')
+    .select('target_price')
+    .eq('id', goalId)
+    .single()
+  if (!goal) return null
+
+  const { data: updated } = await supabase
+    .from('goals')
+    .update({ allocated_amount: goal.target_price })
+    .eq('id', goalId)
+    .select()
+    .single()
+
+  return updated ?? null
+}

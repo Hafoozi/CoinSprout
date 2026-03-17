@@ -3,23 +3,22 @@
  * These are not raw database rows — they represent how the app thinks about data.
  */
 
-import type { MilestoneType, TransactionSource } from './database'
+import type { MilestoneType } from './database'
 
 // ─── Tree ──────────────────────────────────────────────────────────────────
 
-/** The four visual stages of the tree, driven by lifetime earnings. */
-export type TreeStage = 'sapling' | 'young' | 'growing' | 'mature'
+/** The five visual stages of the tree, driven by lifetime earnings. */
+export type TreeStage = 'sapling' | 'young' | 'growing' | 'mature' | 'ancient'
 
 // ─── Fruit ─────────────────────────────────────────────────────────────────
 
-export type FruitColor = 'green' | 'red' | 'gold'
+export type FruitColor = 'green' | 'red' | 'silver' | 'gold' | 'sparkling'
 
 /** One cluster of fruit displayed on the tree. */
 export interface FruitCluster {
-  source: Exclude<TransactionSource, 'spend'>
-  color: FruitColor
-  count: number       // number of fruit icons to render
-  totalValue: number  // dollar value this cluster represents
+  color:        FruitColor
+  denomination: number   // dollar value each fruit represents (5, 10, 20, 250, or 1000)
+  count:        number   // number of fruit icons to render
 }
 
 // ─── Financials ────────────────────────────────────────────────────────────
