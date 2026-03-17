@@ -4,7 +4,9 @@ export const dynamic = 'force-dynamic'
 
 import { requireParent } from '@/lib/auth/require-parent'
 import { getGoalsByChildId } from '@/lib/db/queries/goals'
-import { toGoalWithProgress } from '@/lib/calculations/goals'
+import { getTransactionsByChildId } from '@/lib/db/queries/transactions'
+import { toGoalWithProgress, calculateUnallocatedSavings } from '@/lib/calculations/goals'
+import { calculateSavingsBalance } from '@/lib/calculations/savings'
 import GoalsList from '@/components/child/goals-list'
 
 export const metadata: Metadata = {
@@ -18,7 +20,19 @@ export default async function ChildGoalsPage({
 }) {
   await requireParent()
 
-  const goals = (await getGoalsByChildId(params.childId)).map(toGoalWithProgress)
+  const [goals, transactions] = await Promise.all([
+    getGoalsByChildId(params.childId),
+    getTransactionsByChildId(params.childId),
+  ])
 
-  return <GoalsList childId={params.childId} goals={goals} />
+  const savingsBalance = calculateSavingsBalance(transactions)
+  const freeToUse      = calculateUnallocatedSavings(savingsBalance, goals)
+
+  return (
+    <GoalsList
+      childId={params.childId}
+      goals={goals.map(toGoalWithProgress)}
+      freeToUse={freeToUse}
+    />
+  )
 }

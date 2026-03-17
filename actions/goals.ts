@@ -104,6 +104,44 @@ export async function deleteGoal(_: unknown, formData: FormData): Promise<Action
   return { success: true }
 }
 
+/**
+ * Child-facing allocation — called directly (not via form action).
+ * Still requires an authenticated session; the parent is always logged in
+ * when a child is viewing the app.
+ */
+export async function childAllocateToGoal(goalId: string, amount: number): Promise<ActionResult> {
+  try {
+    await requireParent()
+
+    const goal = await getGoalById(goalId)
+    if (!goal) return { success: false, error: 'Goal not found' }
+
+    const [transactions, goals] = await Promise.all([
+      getTransactionsByChildId(goal.child_id),
+      getGoalsByChildId(goal.child_id),
+    ])
+
+    const savingsBalance = calculateSavingsBalance(transactions)
+    const totalAllocated = calculateTotalAllocated(goals)
+
+    const updated = await allocateToGoalMutation({
+      goalId,
+      amount,
+      currentSavingsBalance: savingsBalance,
+      currentTotalAllocated: totalAllocated,
+    })
+
+    if (!updated) return { success: false, error: 'Not enough free savings' }
+
+    revalidatePath(ROUTES.CHILD.HOME(goal.child_id))
+    revalidatePath(ROUTES.CHILD.GOALS(goal.child_id))
+    revalidatePath(ROUTES.PARENT.CHILD(goal.child_id))
+    return { success: true }
+  } catch {
+    return { success: false, error: 'Failed to allocate' }
+  }
+}
+
 export async function completeGoal(_: unknown, formData: FormData): Promise<ActionResult> {
   await requireParent()
 
