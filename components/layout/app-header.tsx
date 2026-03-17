@@ -4,6 +4,7 @@ import { requireParent } from '@/lib/auth/require-parent'
 import { getChildrenByFamilyId } from '@/lib/db/queries/children'
 import { ROUTES } from '@/lib/constants/routes'
 import ProfileSwitcher from '@/components/layout/profile-switcher'
+import CoinSproutLogo from '@/components/ui/coin-sprout-logo'
 
 /**
  * Shared top navigation bar for parent mode.
@@ -25,7 +26,8 @@ export default async function AppHeader() {
         href={ROUTES.PARENT.DASHBOARD}
         className="font-bold text-sprout-700 text-lg tracking-tight"
       >
-        🌱 CoinSprout
+        <CoinSproutLogo size={28} />
+        <span>CoinSprout</span>
       </Link>
 
       <div className="flex items-center gap-2">
