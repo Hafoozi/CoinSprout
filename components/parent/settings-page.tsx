@@ -229,14 +229,6 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
                       <ChildAdvancedSettings
                         childId={child.id}
                         settings={settingsMap[child.id]}
-                        hasPinHash={!!child.pin_hash}
-                        onResetPin={() => {
-                          setPinError(undefined)
-                          setPinMode(child.pin_hash
-                            ? { type: 'reset-child-pin', child, step: 'enter' }
-                            : { type: 'set-child-pin',   child, step: 'enter' }
-                          )
-                        }}
                       />
                     </div>
                   </div>

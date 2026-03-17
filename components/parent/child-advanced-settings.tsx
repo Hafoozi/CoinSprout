@@ -9,10 +9,8 @@ import AppleIcon from '@/components/ui/apple-icon'
 import type { ResolvedChildSettings } from '@/types/domain'
 
 interface Props {
-  childId:    string
-  settings:   ResolvedChildSettings
-  hasPinHash: boolean
-  onResetPin: () => void
+  childId:  string
+  settings: ResolvedChildSettings
 }
 
 // ─── Apple color definitions ───────────────────────────────────────────────
@@ -89,9 +87,9 @@ function SaveButton() {
 }
 
 // ─── Main component ────────────────────────────────────────────────────────
-export default function ChildAdvancedSettings({ childId, settings, hasPinHash, onResetPin }: Props) {
+export default function ChildAdvancedSettings({ childId, settings }: Props) {
   const currency        = useCurrency()
-  const [open, setOpen] = useState({ pin: false, tree: false, animals: false, apples: false })
+  const [open, setOpen] = useState({ tree: false, animals: false, apples: false })
   const [state, action] = useFormState(saveChildSettings, null)
 
   function toggle(key: keyof typeof open) {
@@ -100,22 +98,6 @@ export default function ChildAdvancedSettings({ childId, settings, hasPinHash, o
 
   return (
     <div className="space-y-2">
-
-      {/* ── PIN ── */}
-      <Section title="🔒 PIN" open={open.pin} onToggle={() => toggle('pin')}>
-        <p className="text-xs text-gray-400">
-          {hasPinHash
-            ? 'This child has a PIN set. Reset it here.'
-            : 'No PIN set. Add one to protect this profile.'}
-        </p>
-        <button
-          type="button"
-          onClick={onResetPin}
-          className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors text-left"
-        >
-          {hasPinHash ? '🔑 Reset PIN' : '🔑 Set PIN'}
-        </button>
-      </Section>
 
       {/* ── Settings form (tree + animals + apples) ── */}
       <form action={action}>
