@@ -9,7 +9,6 @@ import ActivitySection from '@/components/child/activity-section'
 import GoalActions from '@/components/parent/goal-actions'
 import QuickActions from '@/components/parent/quick-actions'
 import EditChildButton from '@/components/parent/edit-child-button'
-import ChildSettingsForm from '@/components/parent/child-settings-form'
 import { ROUTES } from '@/lib/constants/routes'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 
@@ -101,9 +100,6 @@ export default async function ChildProfilePage({
           </div>
         )}
       </section>
-
-      {/* Visual settings */}
-      <ChildSettingsForm childId={child.id} settings={settings} />
 
       {/* Interactive earnings chart + filterable/sortable activity list */}
       <ActivitySection

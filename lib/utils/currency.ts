@@ -1,17 +1,20 @@
+import { DEFAULT_CURRENCY } from '@/lib/constants/currencies'
+
+const numberFmt = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})
+
 /**
- * Format a numeric dollar amount for display.
- * Examples: 5 → "$5.00", 1234.5 → "$1,234.50"
+ * Format a numeric amount for display using the given currency symbol.
+ * Examples: (1234.5, '$') → "$1,234.50"  (1234.5, '£') → "£1,234.50"
  */
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(amount)
+export function formatCurrency(amount: number, symbol: string = DEFAULT_CURRENCY): string {
+  return symbol + numberFmt.format(amount)
 }
 
 /**
- * Parse a user-entered string into a numeric dollar amount.
+ * Parse a user-entered string into a numeric amount.
  * Returns null if the input is not a valid positive number.
  */
 export function parseCurrencyInput(value: string): number | null {

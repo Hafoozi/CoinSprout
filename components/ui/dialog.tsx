@@ -24,6 +24,13 @@ export default function Dialog({ open, onClose, title, children }: DialogProps) 
     return () => document.removeEventListener('keydown', handler)
   }, [open, onClose])
 
+  // Lock body scroll while open
+  useEffect(() => {
+    if (!open) return
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
   // Focus panel when opened so screen readers announce it
   useEffect(() => {
     if (open) panelRef.current?.focus()
@@ -44,7 +51,7 @@ export default function Dialog({ open, onClose, title, children }: DialogProps) 
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
-        className="card-surface w-full max-w-sm p-6 space-y-4 outline-none"
+        className="card-surface w-full max-w-sm p-6 space-y-4 outline-none max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">

@@ -8,6 +8,7 @@ export const ROUTES = {
 
   PARENT: {
     DASHBOARD:          '/dashboard',
+    SETTINGS:           '/settings',
     CHILD:              (childId: string) => `/children/${childId}`,
     NEW_CHILD:          '/children/new',
     NEW_GOAL:           '/goals/new',

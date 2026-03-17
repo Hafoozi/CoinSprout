@@ -77,7 +77,13 @@ export interface ResolvedChildSettings {
     owl:   number
     fox:   number
   }
-  fruitBaseValue: number
+  fruitValues: {
+    green:     number
+    red:       number
+    silver:    number
+    gold:      number
+    sparkling: number
+  }
 }
 
 // ─── Profile ───────────────────────────────────────────────────────────────

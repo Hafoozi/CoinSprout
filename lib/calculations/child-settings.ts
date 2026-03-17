@@ -15,7 +15,13 @@ export const DEFAULT_SETTINGS: ResolvedChildSettings = {
     owl:   500,
     fox:   1000,
   },
-  fruitBaseValue: 5,
+  fruitValues: {
+    green:     5,
+    red:       10,
+    silver:    20,
+    gold:      250,
+    sparkling: 1000,
+  },
 }
 
 /**
@@ -38,6 +44,12 @@ export function resolveChildSettings(row: ChildSettings | null): ResolvedChildSe
       owl:   row.milestone_owl   ?? DEFAULT_SETTINGS.milestoneThresholds.owl,
       fox:   row.milestone_fox   ?? DEFAULT_SETTINGS.milestoneThresholds.fox,
     },
-    fruitBaseValue: row.fruit_base_value ?? DEFAULT_SETTINGS.fruitBaseValue,
+    fruitValues: {
+      green:     row.fruit_green_value     ?? DEFAULT_SETTINGS.fruitValues.green,
+      red:       row.fruit_red_value       ?? DEFAULT_SETTINGS.fruitValues.red,
+      silver:    row.fruit_silver_value    ?? DEFAULT_SETTINGS.fruitValues.silver,
+      gold:      row.fruit_gold_value      ?? DEFAULT_SETTINGS.fruitValues.gold,
+      sparkling: row.fruit_sparkling_value ?? DEFAULT_SETTINGS.fruitValues.sparkling,
+    },
   }
 }

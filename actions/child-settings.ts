@@ -12,22 +12,31 @@ export async function saveChildSettings(_: unknown, formData: FormData): Promise
   await requireParent()
 
   const raw = {
-    childId:        formData.get('childId'),
-    treeYoung:      Number(formData.get('treeYoung')),
-    treeGrowing:    Number(formData.get('treeGrowing')),
-    treeMature:     Number(formData.get('treeMature')),
-    treeAncient:    Number(formData.get('treeAncient')),
-    milestoneBunny: Number(formData.get('milestoneBunny')),
-    milestoneBird:  Number(formData.get('milestoneBird')),
-    milestoneDeer:  Number(formData.get('milestoneDeer')),
-    milestoneOwl:   Number(formData.get('milestoneOwl')),
-    milestoneFox:   Number(formData.get('milestoneFox')),
-    fruitBaseValue: Number(formData.get('fruitBaseValue')),
+    childId:             formData.get('childId'),
+    treeYoung:           Number(formData.get('treeYoung')),
+    treeGrowing:         Number(formData.get('treeGrowing')),
+    treeMature:          Number(formData.get('treeMature')),
+    treeAncient:         Number(formData.get('treeAncient')),
+    milestoneBunny:      Number(formData.get('milestoneBunny')),
+    milestoneBird:       Number(formData.get('milestoneBird')),
+    milestoneDeer:       Number(formData.get('milestoneDeer')),
+    milestoneOwl:        Number(formData.get('milestoneOwl')),
+    milestoneFox:        Number(formData.get('milestoneFox')),
+    fruitGreenValue:     Number(formData.get('fruitGreenValue')),
+    fruitRedValue:       Number(formData.get('fruitRedValue')),
+    fruitSilverValue:    Number(formData.get('fruitSilverValue')),
+    fruitGoldValue:      Number(formData.get('fruitGoldValue')),
+    fruitSparklingValue: Number(formData.get('fruitSparklingValue')),
   }
 
   const parsed = childSettingsSchema.safeParse(raw)
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message }
+    const first = parsed.error.errors[0]
+    return {
+      success: false,
+      error: first.message,
+      errorField: String(first.path[0] ?? ''),
+    }
   }
 
   const child = await getChildById(parsed.data.childId)

@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
+import { useState } from 'react'
 import { saveChildSettings } from '@/actions/child-settings'
 import { DEFAULT_SETTINGS } from '@/lib/calculations/child-settings'
+import { useCurrency } from '@/components/providers/currency-provider'
+import AppleIcon from '@/components/ui/apple-icon'
 import type { ResolvedChildSettings } from '@/types/domain'
 
 interface Props {
@@ -14,19 +16,19 @@ interface Props {
 }
 
 // ─── Apple color definitions ───────────────────────────────────────────────
-const APPLE_TIERS = [
-  { color: 'green',     hex: '#16a34a', label: 'Green',     multiplier: 1,   description: 'Most common — everyday savings' },
-  { color: 'red',       hex: '#dc2626', label: 'Red',       multiplier: 2,   description: 'Gifts and special earnings' },
-  { color: 'silver',    hex: '#94a3b8', label: 'Silver',    multiplier: 4,   description: 'Growing quickly' },
-  { color: 'gold',      hex: '#d97706', label: 'Gold',      multiplier: 50,  description: 'Big milestones' },
-  { color: 'sparkling', hex: '#f59e0b', label: 'Sparkling', multiplier: 200, description: 'Legendary saver ⭐' },
+const APPLE_COLORS: Array<{
+  key:   keyof ResolvedChildSettings['fruitValues']
+  field: string
+  label: string
+}> = [
+  { key: 'green',     field: 'fruitGreenValue',    label: 'Green'     },
+  { key: 'red',       field: 'fruitRedValue',       label: 'Red'       },
+  { key: 'silver',    field: 'fruitSilverValue',    label: 'Silver'    },
+  { key: 'gold',      field: 'fruitGoldValue',      label: 'Gold'      },
+  { key: 'sparkling', field: 'fruitSparklingValue', label: 'Sparkling' },
 ]
 
-// ─── Helpers ───────────────────────────────────────────────────────────────
-function fmt(n: number) {
-  return '$' + (Number.isInteger(n) ? n : n.toFixed(2))
-}
-
+// ─── Section accordion ───────────────────────────────────────────────────────
 function Section({
   title, open, onToggle, children,
 }: {
@@ -52,11 +54,12 @@ function Section({
 }
 
 function NumberInput({ name, label, defaultValue }: { name: string; label: string; defaultValue: number }) {
+  const currency = useCurrency()
   return (
     <div className="flex items-center justify-between gap-3">
       <label htmlFor={name} className="text-sm text-gray-600 flex-1">{label}</label>
       <div className="flex items-center gap-1 shrink-0">
-        <span className="text-sm text-gray-400">$</span>
+        <span className="text-sm text-gray-400">{currency}</span>
         <input
           id={name}
           name={name}
@@ -87,8 +90,8 @@ function SaveButton() {
 
 // ─── Main component ────────────────────────────────────────────────────────
 export default function ChildAdvancedSettings({ childId, settings, hasPinHash, onResetPin }: Props) {
+  const currency        = useCurrency()
   const [open, setOpen] = useState({ pin: false, tree: false, animals: false, apples: false })
-  const [baseValue, setBaseValue] = useState(settings.fruitBaseValue)
   const [state, action] = useFormState(saveChildSettings, null)
 
   function toggle(key: keyof typeof open) {
@@ -118,9 +121,6 @@ export default function ChildAdvancedSettings({ childId, settings, hasPinHash, o
       <form action={action}>
         <input type="hidden" name="childId" value={childId} />
 
-        {/* Keep apple base value in sync with local state */}
-        <input type="hidden" name="fruitBaseValue" value={baseValue} />
-
         <div className="space-y-2">
 
           {/* Tree Growth */}
@@ -133,7 +133,7 @@ export default function ChildAdvancedSettings({ childId, settings, hasPinHash, o
             <NumberInput name="treeMature"  label="Mature tree"  defaultValue={settings.treeThresholds.mature} />
             <NumberInput name="treeAncient" label="Ancient tree" defaultValue={settings.treeThresholds.ancient} />
             <p className="text-xs text-gray-400 pt-1">
-              Defaults: ${DEFAULT_SETTINGS.treeThresholds.young} / ${DEFAULT_SETTINGS.treeThresholds.growing} / ${DEFAULT_SETTINGS.treeThresholds.mature} / ${DEFAULT_SETTINGS.treeThresholds.ancient}
+              Defaults: {currency}{DEFAULT_SETTINGS.treeThresholds.young} / {currency}{DEFAULT_SETTINGS.treeThresholds.growing} / {currency}{DEFAULT_SETTINGS.treeThresholds.mature} / {currency}{DEFAULT_SETTINGS.treeThresholds.ancient}
             </p>
           </Section>
 
@@ -148,66 +148,57 @@ export default function ChildAdvancedSettings({ childId, settings, hasPinHash, o
             <NumberInput name="milestoneOwl"   label="🦉 Owl"   defaultValue={settings.milestoneThresholds.owl} />
             <NumberInput name="milestoneFox"   label="🦊 Fox"   defaultValue={settings.milestoneThresholds.fox} />
             <p className="text-xs text-gray-400 pt-1">
-              Defaults: ${DEFAULT_SETTINGS.milestoneThresholds.bunny} / ${DEFAULT_SETTINGS.milestoneThresholds.bird} / ${DEFAULT_SETTINGS.milestoneThresholds.deer} / ${DEFAULT_SETTINGS.milestoneThresholds.owl} / ${DEFAULT_SETTINGS.milestoneThresholds.fox}
+              Defaults: {currency}{DEFAULT_SETTINGS.milestoneThresholds.bunny} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.bird} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.deer} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.owl} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.fox}
             </p>
           </Section>
 
           {/* Apple Values */}
           <Section title="🍎 Apple Values" open={open.apples} onToggle={() => toggle('apples')}>
             <p className="text-xs text-gray-400 pb-1">
-              Set what the smallest apple is worth. All other apple colors scale up from there.
+              Set what each apple color is worth in savings.
             </p>
-
-            {/* Base value input */}
-            <div className="flex items-center justify-between gap-3">
-              <label htmlFor="fruitBaseValueInput" className="text-sm text-gray-600 flex-1">
-                Smallest apple (green)
-              </label>
-              <div className="flex items-center gap-1 shrink-0">
-                <span className="text-sm text-gray-400">$</span>
-                <input
-                  id="fruitBaseValueInput"
-                  type="number"
-                  min={1}
-                  step={1}
-                  value={baseValue}
-                  onChange={(e) => setBaseValue(Math.max(1, Number(e.target.value) || 1))}
-                  className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-right font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-sprout-400"
-                />
-              </div>
-            </div>
-
-            {/* Color legend */}
-            <div className="rounded-xl bg-gray-50 p-3 space-y-2">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Apple color guide</p>
-              {APPLE_TIERS.map(({ color, hex, label, multiplier, description }) => (
-                <div key={color} className="flex items-center gap-3">
-                  {/* Apple dot */}
-                  <span
-                    className="h-5 w-5 rounded-full shrink-0 border border-gray-200"
-                    style={{ backgroundColor: hex }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium text-gray-700">{label}</span>
-                    <span className="text-xs text-gray-400 ml-1.5">— {description}</span>
+            {APPLE_COLORS.map(({ key, field, label }) => {
+              const hasError = state && !state.success && state.errorField === field
+              return (
+                <div
+                  key={key}
+                  className={`flex items-center justify-between gap-3 rounded-lg px-2 py-1 -mx-2 transition-colors ${hasError ? 'bg-red-50 ring-1 ring-red-300' : ''}`}
+                >
+                  <div className="flex items-center gap-2 flex-1">
+                    <AppleIcon color={key} size={22} />
+                    <label htmlFor={field} className="text-sm text-gray-600">{label}</label>
                   </div>
-                  <span className="text-sm font-bold text-gray-700 shrink-0 money">
-                    {fmt(baseValue * multiplier)}
-                  </span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className="text-sm text-gray-400">{currency}</span>
+                    <input
+                      id={field}
+                      name={field}
+                      type="number"
+                      min={1}
+                      step={1}
+                      defaultValue={settings.fruitValues[key]}
+                      required
+                      className={`w-24 rounded-lg border px-2 py-1.5 text-sm text-right font-medium text-gray-800 focus:outline-none focus:ring-2 ${hasError ? 'border-red-400 focus:ring-red-400' : 'border-gray-200 focus:ring-sprout-400'}`}
+                    />
+                  </div>
                 </div>
-              ))}
-            </div>
-            <p className="text-xs text-gray-400">Default smallest apple: ${DEFAULT_SETTINGS.fruitBaseValue}</p>
+              )
+            })}
+            {state && !state.success && APPLE_COLORS.some(({ field }) => field === state.errorField) && (
+              <p className="text-xs text-red-500 pt-1">{state.error}</p>
+            )}
+            <p className="text-xs text-gray-400 pt-1">
+              Defaults: {currency}{DEFAULT_SETTINGS.fruitValues.green} / {currency}{DEFAULT_SETTINGS.fruitValues.red} / {currency}{DEFAULT_SETTINGS.fruitValues.silver} / {currency}{DEFAULT_SETTINGS.fruitValues.gold} / {currency}{DEFAULT_SETTINGS.fruitValues.sparkling}
+            </p>
           </Section>
 
         </div>
 
-        {/* Feedback */}
-        {state && !state.success && (
-          <p className="text-sm text-red-500 mt-3">{state.error}</p>
+        {state && !state.success && !APPLE_COLORS.some(({ field }) => field === state.errorField) && (
+          <p className="text-sm text-red-500 mt-3 px-1">{state.error}</p>
         )}
         {state?.success && (
-          <p className="text-sm text-sprout-600 font-medium mt-3">Settings saved!</p>
+          <p className="text-sm text-sprout-600 font-medium mt-3 px-1">Settings saved!</p>
         )}
 
         <div className="mt-3">

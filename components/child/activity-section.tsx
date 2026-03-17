@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition, useMemo } from 'react'
+import { useCurrency } from '@/components/providers/currency-provider'
 import { removeTransaction } from '@/actions/transactions'
 import SourceBreakdown from '@/components/child/source-breakdown'
 import Dialog from '@/components/ui/dialog'
@@ -121,6 +122,7 @@ interface Props {
 }
 
 export default function ActivitySection({ transactions, breakdown, childId }: Props) {
+  const currency                        = useCurrency()
   const [activeSource, setActiveSource] = useState<IncomeSource | null>(null)
   const [sortKey,      setSortKey]      = useState<SortKey>('date')
   const [sortDir,      setSortDir]      = useState<SortDir>('desc')
@@ -312,7 +314,7 @@ export default function ActivitySection({ transactions, breakdown, childId }: Pr
               <div className="flex justify-between">
                 <span className="text-gray-500">Amount</span>
                 <span className="font-medium">
-                  {deletingTx.amount < 0 ? '-' : '+'}${Math.abs(deletingTx.amount).toFixed(2)}
+                  {deletingTx.amount < 0 ? '-' : '+'}{currency}{Math.abs(deletingTx.amount).toFixed(2)}
                 </span>
               </div>
               {deletingTx.note && (

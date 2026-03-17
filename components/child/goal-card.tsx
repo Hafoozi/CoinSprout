@@ -5,19 +5,21 @@ import Progress from '@/components/ui/progress'
 import MoneyAmount from '@/components/shared/money-amount'
 import { childAllocateToGoal, childDeallocateFromGoal } from '@/actions/goals'
 import type { GoalWithProgress } from '@/types/domain'
+import { useCurrency } from '@/components/providers/currency-provider'
 
 interface Props {
   goal:      GoalWithProgress
   freeToUse: number
 }
 
-function fmt(n: number) {
-  return '$' + n.toFixed(2)
+function fmt(n: number, currency: string) {
+  return currency + n.toFixed(2)
 }
 
 type Mode = 'add' | 'remove' | null
 
 export default function GoalCard({ goal, freeToUse }: Props) {
+  const currency     = useCurrency()
   const [mode,       setMode]       = useState<Mode>(null)
   const [selected,   setSelected]   = useState<number | null>(null)
   const [error,      setError]      = useState<string>()
@@ -145,7 +147,7 @@ export default function GoalCard({ goal, freeToUse }: Props) {
               {mode === 'add' ? 'How much to add?' : 'How much to take back?'}
             </p>
             <p className="text-xs text-gray-400">
-              {mode === 'add' ? `${fmt(freeToUse)} free` : `${fmt(maxRemove)} in goal`}
+              {mode === 'add' ? `${fmt(freeToUse, currency)} free` : `${fmt(maxRemove, currency)} in goal`}
             </p>
           </div>
 
@@ -164,7 +166,7 @@ export default function GoalCard({ goal, freeToUse }: Props) {
                     : 'bg-white border-gray-200 text-gray-700 hover:border-sprout-300',
                 ].join(' ')}
               >
-                {fmt(amount)}
+                {fmt(amount, currency)}
               </button>
             ))}
             {/* "All" button */}
@@ -183,7 +185,7 @@ export default function GoalCard({ goal, freeToUse }: Props) {
                     : 'bg-white border-gray-200 text-gray-700 hover:border-sprout-300',
                 ].join(' ')}
               >
-                All ({fmt(mode === 'add' ? addAllAmount : removeAllAmount)})
+                All ({fmt(mode === 'add' ? addAllAmount : removeAllAmount, currency)})
               </button>
             )}
           </div>
@@ -209,7 +211,7 @@ export default function GoalCard({ goal, freeToUse }: Props) {
                   : 'bg-red-500 hover:bg-red-600',
               ].join(' ')}
             >
-              {isPending ? 'Saving…' : `${mode === 'add' ? 'Add' : 'Take back'} ${selected ? fmt(selected) : ''}`}
+              {isPending ? 'Saving…' : `${mode === 'add' ? 'Add' : 'Take back'} ${selected ? fmt(selected, currency) : ''}`}
             </button>
           </div>
         </div>

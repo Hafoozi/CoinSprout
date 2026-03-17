@@ -10,6 +10,8 @@ import { calculateFruitClusters } from '@/lib/calculations/fruit'
 import { getNextMilestone, amountToNextMilestone, getEarnedMilestones } from '@/lib/calculations/milestones'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 import { ROUTES } from '@/lib/constants/routes'
+import AppleIcon from '@/components/ui/apple-icon'
+import { useCurrency } from '@/components/providers/currency-provider'
 import Link from 'next/link'
 
 interface Props {
@@ -21,8 +23,8 @@ interface Props {
 }
 
 
-function fmt(n: number) {
-  return '$' + Math.abs(n).toFixed(2)
+function fmt(n: number, currency: string) {
+  return currency + Math.abs(n).toFixed(2)
 }
 
 function fmtDate(iso: string) {
@@ -33,39 +35,11 @@ const ANIMAL_EMOJI: Record<MilestoneType, string> = {
   bunny: '🐰', bird: '🐦', deer: '🦌', owl: '🦉', fox: '🦊',
 }
 
-const APPLE_COLOR_HEX: Record<string, string> = {
-  green:     '#16a34a',
-  red:       '#dc2626',
-  silver:    '#dde8f0',
-  gold:      '#d97706',
-  sparkling: '#f8fafc',
-}
-
-function AppleDot({ color }: { color: string }) {
-  const fill = APPLE_COLOR_HEX[color] ?? '#16a34a'
-  const isSparkling = color === 'sparkling'
-  return (
-    <svg width="18" height="20" viewBox="0 0 18 20" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-      {/* Stem */}
-      <path d="M9 3 Q9.5 0.5 11.5 2" stroke="#78350f" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
-      {/* Leaf */}
-      <path d="M9 3 Q13 0 14.5 3.5" stroke="#16a34a" strokeWidth="1.2" fill="#22c55e"/>
-      {/* Round body */}
-      <circle cx="9" cy="12" r="7.5" fill={fill} stroke={isSparkling ? '#f59e0b' : 'none'} strokeWidth={isSparkling ? 1 : 0}/>
-      {/* Top cleft */}
-      <path d="M6 5.5 Q9 4.5 12 5.5" fill="none" stroke={isSparkling ? 'rgba(245,158,11,0.3)' : 'rgba(0,0,0,0.13)'} strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Highlight or star */}
-      {isSparkling
-        ? <text x="9" y="16.5" textAnchor="middle" fontSize="11" fill="#f59e0b">★</text>
-        : <circle cx="5.5" cy="9" r="2" fill="white" opacity="0.35"/>
-      }
-    </svg>
-  )
-}
 
 export default function ChildDashboard({ child, summary, transactions, goals, settings }: Props) {
+  const currency      = useCurrency()
   const stage         = calculateTreeStage(summary.lifetimeEarnings, settings.treeThresholds)
-  const fruitClusters = calculateFruitClusters(summary.savingsBalance, settings.fruitBaseValue)
+  const fruitClusters = calculateFruitClusters(summary.savingsBalance, settings.fruitValues)
   const unlockedTypes = getEarnedMilestones(summary.lifetimeEarnings, settings.milestoneThresholds)
   const nextMilestone = getNextMilestone(summary.lifetimeEarnings, settings.milestoneThresholds)
   const amountToNext  = amountToNextMilestone(summary.lifetimeEarnings, settings.milestoneThresholds)
@@ -111,9 +85,9 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
           {/* Savings balance */}
           <div className="card-surface p-5 text-center space-y-1">
             <p className="text-sm text-gray-500 font-medium">My Savings</p>
-            <p className="text-4xl font-bold text-sprout-700 money">{fmt(summary.savingsBalance)}</p>
-            <p className="text-xs text-gray-400">Free to use: {fmt(summary.freeToUse)}</p>
-            <p className="text-xs text-gray-400">Lifetime earned: {fmt(summary.lifetimeEarnings)}</p>
+            <p className="text-4xl font-bold text-sprout-700 money">{fmt(summary.savingsBalance, currency)}</p>
+            <p className="text-xs text-gray-400">Free to use: {fmt(summary.freeToUse, currency)}</p>
+            <p className="text-xs text-gray-400">Lifetime earned: {fmt(summary.lifetimeEarnings, currency)}</p>
           </div>
 
           {/* Next milestone progress */}
@@ -123,7 +97,7 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
                 <span className="font-medium text-gray-700">
                   Next friend: {ANIMAL_EMOJI[nextMilestone.type]} {nextMilestone.label}
                 </span>
-                <span className="text-gray-400">{fmt(amountToNext)} to go</span>
+                <span className="text-gray-400">{fmt(amountToNext, currency)} to go</span>
               </div>
               <div className="h-3 rounded-full bg-gray-100 overflow-hidden">
                 <div
@@ -147,7 +121,7 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
                 <div key={goal.id} className="card-surface p-4 space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <p className="font-medium text-gray-800">{goal.name}</p>
-                    <p className="text-gray-500">{fmt(goal.allocatedAmount)} / {fmt(goal.targetPrice)}</p>
+                    <p className="text-gray-500">{fmt(goal.allocatedAmount, currency)} / {fmt(goal.targetPrice, currency)}</p>
                   </div>
                   <div className="h-2.5 rounded-full bg-gray-100 overflow-hidden">
                     <div
@@ -182,7 +156,7 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
                 <div key={key} className="flex items-center gap-2 text-sm">
                   <span className="text-base leading-none">{icon}</span>
                   <span className="text-gray-600">{label}</span>
-                  <span className="ml-auto font-medium text-gray-700 money">{fmt(summary.sourceBreakdown[key])}</span>
+                  <span className="ml-auto font-medium text-gray-700 money">{fmt(summary.sourceBreakdown[key], currency)}</span>
                 </div>
               ))}
             </div>
@@ -194,8 +168,8 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
                 <div className="flex flex-wrap gap-3">
                   {[...fruitClusters].reverse().map((cluster) => (
                     <div key={cluster.denomination} className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <AppleDot color={cluster.color} />
-                      <span className="money">{cluster.count} × ${cluster.denomination}</span>
+                      <AppleIcon color={cluster.color} />
+                      <span className="money">{cluster.count} × {currency}{cluster.denomination}</span>
                     </div>
                   ))}
                 </div>
@@ -229,7 +203,7 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
                   </p>
                 </div>
                 <span className={`font-semibold money ${tx.amount >= 0 ? 'text-sprout-600' : 'text-red-500'}`}>
-                  {tx.amount >= 0 ? '+' : '-'}{fmt(tx.amount)}
+                  {tx.amount >= 0 ? '+' : '-'}{fmt(tx.amount, currency)}
                 </span>
               </div>
             ))}

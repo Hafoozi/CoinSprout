@@ -2,12 +2,9 @@ import Link from 'next/link'
 import { signOut } from '@/actions/auth'
 import { requireParent } from '@/lib/auth/require-parent'
 import { getChildrenByFamilyId } from '@/lib/db/queries/children'
-import { getChildSettings } from '@/lib/db/queries/child-settings'
-import { resolveChildSettings } from '@/lib/calculations/child-settings'
 import { ROUTES } from '@/lib/constants/routes'
 import ProfileSwitcher from '@/components/layout/profile-switcher'
 import CoinSproutLogo from '@/components/ui/coin-sprout-logo'
-import type { ResolvedChildSettings } from '@/types/domain'
 
 /**
  * Shared top navigation bar for parent mode.
@@ -19,12 +16,6 @@ export default async function AppHeader() {
     getChildrenByFamilyId(family.id),
     (await import('@/lib/supabase/server')).createClient().then(sb => sb.auth.getUser()),
   ])
-
-  // Fetch settings for all children in parallel
-  const settingsRows = await Promise.all(children.map(c => getChildSettings(c.id)))
-  const settingsMap: Record<string, ResolvedChildSettings> = Object.fromEntries(
-    children.map((c, i) => [c.id, resolveChildSettings(settingsRows[i])])
-  )
 
   const parentName = (user?.user_metadata?.full_name as string | undefined)
     || user?.email?.split('@')[0]
@@ -45,8 +36,15 @@ export default async function AppHeader() {
           children={children}
           hasParentPin={!!family.parent_pin_hash}
           parentName={parentName}
-          settingsMap={settingsMap}
         />
+
+        <Link
+          href={ROUTES.PARENT.SETTINGS}
+          className="flex items-center justify-center rounded-lg w-8 h-8 text-gray-500 hover:bg-gray-100 transition-colors"
+          title="Settings"
+        >
+          ⚙️
+        </Link>
 
         <form action={signOut}>
           <button

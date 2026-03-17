@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
-const threshold = z.number().positive().max(99999)
+const threshold  = z.number({ invalid_type_error: 'Must be a number' }).positive('Value must be at least $1').max(99999)
+const fruitValue = z.number({ invalid_type_error: 'Must be a number' }).positive('Apple value must be at least $1').max(9999)
 
 export const childSettingsSchema = z.object({
   childId: z.string().uuid(),
@@ -18,8 +19,12 @@ export const childSettingsSchema = z.object({
   milestoneOwl:   threshold,
   milestoneFox:   threshold,
 
-  // Fruit base value
-  fruitBaseValue: z.number().positive().max(9999),
+  // Individual apple color values
+  fruitGreenValue:     fruitValue,
+  fruitRedValue:       fruitValue,
+  fruitSilverValue:    fruitValue,
+  fruitGoldValue:      fruitValue,
+  fruitSparklingValue: fruitValue,
 }).superRefine((data, ctx) => {
   // Tree ascending order
   const tree = [
@@ -35,6 +40,25 @@ export const childSettingsSchema = z.object({
         message: `${tree[i].label} threshold must be greater than ${tree[i - 1].label}`,
         path: [tree[i].path],
       })
+    }
+  }
+
+  // Apple ascending order — report a single generic error on the first out-of-order field
+  const apples = [
+    { val: data.fruitGreenValue,     path: 'fruitGreenValue'     },
+    { val: data.fruitRedValue,       path: 'fruitRedValue'       },
+    { val: data.fruitSilverValue,    path: 'fruitSilverValue'    },
+    { val: data.fruitGoldValue,      path: 'fruitGoldValue'      },
+    { val: data.fruitSparklingValue, path: 'fruitSparklingValue' },
+  ]
+  for (let i = 1; i < apples.length; i++) {
+    if (apples[i].val <= apples[i - 1].val) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Apple values must be in order from smallest to largest (green → sparkling)',
+        path: [apples[i].path],
+      })
+      break  // one message is enough
     }
   }
 

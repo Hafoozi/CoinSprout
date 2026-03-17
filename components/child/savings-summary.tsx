@@ -1,4 +1,7 @@
+'use client'
+
 import MoneyAmount from '@/components/shared/money-amount'
+import { useCurrency } from '@/components/providers/currency-provider'
 import type { ChildFinancialSummary } from '@/types/domain'
 
 function Stat({
@@ -22,6 +25,7 @@ function Stat({
 }
 
 export default function SavingsSummary({ summary }: { summary: ChildFinancialSummary }) {
+  const currency = useCurrency()
   return (
     <div className="card-surface overflow-hidden">
       {/* Top row — the two most important numbers */}
@@ -50,7 +54,7 @@ export default function SavingsSummary({ summary }: { summary: ChildFinancialSum
           label="In Goals"
           amount={summary.allocatedToGoals}
           amountClass="text-blue-500"
-          sub={summary.freeToUse > 0 ? `$${summary.freeToUse.toFixed(2)} free to use` : undefined}
+          sub={summary.freeToUse > 0 ? `${currency}${summary.freeToUse.toFixed(2)} free to use` : undefined}
         />
       </div>
     </div>
