@@ -8,9 +8,8 @@ interface MoneyAmountProps {
   className?: string
 }
 
-// TODO: Wire up formatCurrency once lib/utils/currency.ts is implemented
 export default function MoneyAmount({ amount, size = 'md', showSign = false, className }: MoneyAmountProps) {
-  const formatted = `$${Math.abs(amount).toFixed(2)}`
+  const formatted = formatCurrency(Math.abs(amount))
   const sign = showSign && amount !== 0 ? (amount > 0 ? '+' : '−') : ''
 
   return (

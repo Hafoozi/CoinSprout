@@ -61,16 +61,6 @@ export interface MilestoneDefinition {
   iconPath: string    // path to SVG in /public/icons/
 }
 
-// ─── Allowance Prompt ──────────────────────────────────────────────────────
-
-/** Data shown to the parent in the Sunday allowance prompt. */
-export interface AllowancePromptEntry {
-  childId: string
-  childName: string
-  defaultAmount: number   // from recurring_allowances config
-  adjustedAmount: number  // editable by parent before confirming
-}
-
 // ─── Profile ───────────────────────────────────────────────────────────────
 
 /** App-level session mode. */

@@ -7,7 +7,6 @@ export type {
   Goal,
   GoalAllocation,
   Milestone,
-  RecurringAllowance,
   TransactionSource,
   MilestoneType,
 } from '@/types/database'
