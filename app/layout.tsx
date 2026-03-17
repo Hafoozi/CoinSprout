@@ -11,6 +11,13 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: 'CoinSprout',
   description: 'Grow your savings, one coin at a time.',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    title: 'CoinSprout',
+    statusBarStyle: 'default',
+  },
+  formatDetection: { telephone: false },
 }
 
 export default function RootLayout({
