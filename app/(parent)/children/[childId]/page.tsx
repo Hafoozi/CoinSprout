@@ -4,11 +4,13 @@ import type { Metadata } from 'next'
 import { requireParent } from '@/lib/auth/require-parent'
 import { getChildById } from '@/lib/db/queries/children'
 import { getChildDashboardData } from '@/lib/db/queries/dashboards'
+import { getRecurringAllowanceByChildId } from '@/lib/db/queries/recurring-allowances'
 import SavingsSummary from '@/components/child/savings-summary'
 import ActivitySection from '@/components/child/activity-section'
 import GoalActions from '@/components/parent/goal-actions'
 import QuickActions from '@/components/parent/quick-actions'
 import EditChildButton from '@/components/parent/edit-child-button'
+import RecurringAllowanceForm from '@/components/parent/recurring-allowance-form'
 import { ROUTES } from '@/lib/constants/routes'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 
@@ -25,9 +27,10 @@ export default async function ChildProfilePage({
   await requireParent()
 
   // Fetch child profile and full financial data in parallel
-  const [child, dashboardData] = await Promise.all([
+  const [child, dashboardData, allowance] = await Promise.all([
     getChildById(params.childId),
     getChildDashboardData(params.childId),
+    getRecurringAllowanceByChildId(params.childId),
   ])
 
   // RLS will have returned null if the child doesn't belong to this parent
@@ -99,6 +102,14 @@ export default async function ChildProfilePage({
             ))}
           </div>
         )}
+      </section>
+
+      {/* Recurring allowance */}
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Allowance</h2>
+        <div className="card-surface p-4">
+          <RecurringAllowanceForm childId={child.id} existing={allowance} />
+        </div>
       </section>
 
       {/* Interactive earnings chart + filterable/sortable activity list */}

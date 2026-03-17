@@ -6,11 +6,10 @@ import { useRouter } from 'next/navigation'
 import { saveCurrencySettings } from '@/actions/family-settings'
 import { setChildPin, setParentPin } from '@/actions/profile-switch'
 import ChildAdvancedSettings from '@/components/parent/child-advanced-settings'
-import RecurringAllowanceForm from '@/components/parent/recurring-allowance-form'
 import PinPad from '@/components/ui/pin-pad'
 import Dialog from '@/components/ui/dialog'
 import { CURRENCY_OPTIONS } from '@/lib/constants/currencies'
-import type { Child, CurrencySymbol, RecurringAllowance } from '@/lib/db/types'
+import type { Child, CurrencySymbol } from '@/lib/db/types'
 import type { ResolvedChildSettings } from '@/types/domain'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -26,7 +25,6 @@ interface Props {
   hasParentPin: boolean
   children:     Child[]
   settingsMap:  Record<string, ResolvedChildSettings>
-  allowanceMap: Record<string, RecurringAllowance | null>
 }
 
 // ─── Save button (needs useFormStatus inside the form) ───────────────────────
@@ -46,7 +44,7 @@ function SaveButton() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function SettingsPage({ currency, hasParentPin, children, settingsMap, allowanceMap }: Props) {
+export default function SettingsPage({ currency, hasParentPin, children, settingsMap }: Props) {
   const router = useRouter()
   const [currencyState, currencyAction] = useFormState(saveCurrencySettings, null)
   const [pinMode,    setPinMode]    = useState<PinMode>({ type: 'closed' })
@@ -191,6 +189,24 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
         </div>
       </section>
 
+      {/* ── Export ───────────────────────────────────────────────────────── */}
+      <section className="space-y-2">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Export</h2>
+        <div className="card-surface p-5 space-y-2">
+          <p className="text-sm text-gray-600">
+            Download all transactions and savings data as an Excel spreadsheet.
+            Includes a summary sheet plus a sheet per child.
+          </p>
+          <a
+            href="/api/export"
+            download
+            className="inline-flex items-center gap-2 rounded-xl bg-sprout-500 hover:bg-sprout-600 text-white font-bold px-5 py-2.5 text-sm transition-colors"
+          >
+            📥 Download Excel
+          </a>
+        </div>
+      </section>
+
       {/* ── Advanced Settings (per child) ────────────────────────────────── */}
       {children.length > 0 && (
         <section className="space-y-2">
@@ -212,25 +228,11 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
                   <span className={`text-gray-400 text-xs transition-transform duration-200 ${openChild === child.id ? 'rotate-180' : ''}`}>▾</span>
                 </button>
                 {openChild === child.id && (
-                  <div className="px-4 pb-4 pt-2 border-t border-gray-100 space-y-4">
-                    {/* Recurring allowance */}
-                    <div>
-                      <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 pb-1">
-                        💵 Allowance
-                      </h3>
-                      <RecurringAllowanceForm
-                        childId={child.id}
-                        existing={allowanceMap[child.id]}
-                      />
-                    </div>
-
-                    {/* Advanced thresholds */}
-                    <div className="border-t border-gray-100 pt-4">
-                      <ChildAdvancedSettings
-                        childId={child.id}
-                        settings={settingsMap[child.id]}
-                      />
-                    </div>
+                  <div className="px-4 pb-4 pt-2 border-t border-gray-100">
+                    <ChildAdvancedSettings
+                      childId={child.id}
+                      settings={settingsMap[child.id]}
+                    />
                   </div>
                 )}
               </div>
@@ -238,24 +240,6 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
           </div>
         </section>
       )}
-
-      {/* ── Export ───────────────────────────────────────────────────────── */}
-      <section className="space-y-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Export</h2>
-        <div className="card-surface p-5 space-y-2">
-          <p className="text-sm text-gray-600">
-            Download all transactions and savings data as an Excel spreadsheet.
-            Includes a summary sheet plus a sheet per child.
-          </p>
-          <a
-            href="/api/export"
-            download
-            className="inline-flex items-center gap-2 rounded-xl bg-sprout-500 hover:bg-sprout-600 text-white font-bold px-5 py-2.5 text-sm transition-colors"
-          >
-            📥 Download Excel
-          </a>
-        </div>
-      </section>
 
       {/* ── PIN Dialogs ───────────────────────────────────────────────────── */}
       {pinMode.type === 'set-child-pin' && (
