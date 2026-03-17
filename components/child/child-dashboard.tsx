@@ -1,7 +1,7 @@
 'use client'
 
 import type { Child } from '@/lib/db/types'
-import type { ChildFinancialSummary, GoalWithProgress } from '@/types/domain'
+import type { ChildFinancialSummary, GoalWithProgress, ResolvedChildSettings } from '@/types/domain'
 import type { Transaction } from '@/lib/db/types'
 import TreeHero from '@/components/tree/tree-hero'
 import TransactionNotifications from '@/components/child/transaction-notifications'
@@ -17,6 +17,7 @@ interface Props {
   summary:      ChildFinancialSummary
   transactions: Transaction[]
   goals:        GoalWithProgress[]
+  settings:     ResolvedChildSettings
 }
 
 
@@ -62,12 +63,12 @@ function AppleDot({ color }: { color: string }) {
   )
 }
 
-export default function ChildDashboard({ child, summary, transactions, goals }: Props) {
-  const stage         = calculateTreeStage(summary.lifetimeEarnings)
-  const fruitClusters = calculateFruitClusters(summary.savingsBalance)
-  const unlockedTypes = getEarnedMilestones(summary.lifetimeEarnings)
-  const nextMilestone = getNextMilestone(summary.lifetimeEarnings)
-  const amountToNext  = amountToNextMilestone(summary.lifetimeEarnings)
+export default function ChildDashboard({ child, summary, transactions, goals, settings }: Props) {
+  const stage         = calculateTreeStage(summary.lifetimeEarnings, settings.treeThresholds)
+  const fruitClusters = calculateFruitClusters(summary.savingsBalance, settings.fruitBaseValue)
+  const unlockedTypes = getEarnedMilestones(summary.lifetimeEarnings, settings.milestoneThresholds)
+  const nextMilestone = getNextMilestone(summary.lifetimeEarnings, settings.milestoneThresholds)
+  const amountToNext  = amountToNextMilestone(summary.lifetimeEarnings, settings.milestoneThresholds)
   const colorClass    = AVATAR_BG[child.avatar_color ?? 'sprout'] ?? AVATAR_BG.sprout
   const milestoneProgress = nextMilestone
     ? Math.round(((nextMilestone.threshold - amountToNext) / nextMilestone.threshold) * 100)

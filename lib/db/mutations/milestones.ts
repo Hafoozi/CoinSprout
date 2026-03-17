@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getEarnedMilestones } from '@/lib/calculations/milestones'
+import { getChildSettings } from '@/lib/db/queries/child-settings'
+import { resolveChildSettings } from '@/lib/calculations/child-settings'
 import { roundMoney } from '@/lib/utils/math'
 import type { MilestoneType } from '@/lib/db/types'
 
@@ -7,6 +9,7 @@ import type { MilestoneType } from '@/lib/db/types'
  * After a positive transaction is recorded, recompute lifetime earnings for
  * the child and insert rows for any milestones whose threshold was just crossed.
  *
+ * Respects per-child milestone thresholds if configured.
  * Safe to call repeatedly — the unique constraint on (child_id, milestone_type)
  * prevents duplicates. Returns the list of newly unlocked milestone types.
  */
@@ -24,11 +27,15 @@ export async function syncMilestones(childId: string): Promise<MilestoneType[]> 
     (positiveRows ?? []).reduce((sum, r) => sum + r.amount, 0)
   )
 
-  // 2. Which milestones should be earned by now?
-  const shouldBeEarned = getEarnedMilestones(lifetimeEarnings)
+  // 2. Resolve per-child milestone thresholds.
+  const settingsRow = await getChildSettings(childId)
+  const { milestoneThresholds } = resolveChildSettings(settingsRow)
+
+  // 3. Which milestones should be earned by now?
+  const shouldBeEarned = getEarnedMilestones(lifetimeEarnings, milestoneThresholds)
   if (shouldBeEarned.length === 0) return []
 
-  // 3. Which milestones are already recorded in the DB?
+  // 4. Which milestones are already recorded in the DB?
   const { data: existing } = await supabase
     .from('milestones')
     .select('milestone_type')
@@ -36,7 +43,7 @@ export async function syncMilestones(childId: string): Promise<MilestoneType[]> 
 
   const existingSet = new Set((existing ?? []).map((m) => m.milestone_type))
 
-  // 4. Insert only the newly crossed ones.
+  // 5. Insert only the newly crossed ones.
   const newlyEarned = shouldBeEarned.filter((t) => !existingSet.has(t))
   if (newlyEarned.length > 0) {
     await supabase

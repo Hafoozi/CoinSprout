@@ -61,6 +61,25 @@ export interface MilestoneDefinition {
   iconPath: string    // path to SVG in /public/icons/
 }
 
+// ─── Child visual settings (resolved — nulls replaced with defaults) ───────
+
+export interface ResolvedChildSettings {
+  treeThresholds: {
+    young:   number
+    growing: number
+    mature:  number
+    ancient: number
+  }
+  milestoneThresholds: {
+    bunny: number
+    bird:  number
+    deer:  number
+    owl:   number
+    fox:   number
+  }
+  fruitBaseValue: number
+}
+
 // ─── Profile ───────────────────────────────────────────────────────────────
 
 /** App-level session mode. */

@@ -9,6 +9,7 @@ import ActivitySection from '@/components/child/activity-section'
 import GoalActions from '@/components/parent/goal-actions'
 import QuickActions from '@/components/parent/quick-actions'
 import EditChildButton from '@/components/parent/edit-child-button'
+import ChildSettingsForm from '@/components/parent/child-settings-form'
 import { ROUTES } from '@/lib/constants/routes'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 
@@ -33,7 +34,7 @@ export default async function ChildProfilePage({
   // RLS will have returned null if the child doesn't belong to this parent
   if (!child || !dashboardData) notFound()
 
-  const { summary, transactions, goals } = dashboardData
+  const { summary, transactions, goals, settings } = dashboardData
   const colorClass = AVATAR_BG[child.avatar_color ?? 'sprout'] ?? AVATAR_BG.sprout
 
   return (
@@ -100,6 +101,9 @@ export default async function ChildProfilePage({
           </div>
         )}
       </section>
+
+      {/* Visual settings */}
+      <ChildSettingsForm childId={child.id} settings={settings} />
 
       {/* Interactive earnings chart + filterable/sortable activity list */}
       <ActivitySection

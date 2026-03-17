@@ -7,6 +7,7 @@ export type {
   Goal,
   GoalAllocation,
   Milestone,
+  ChildSettings,
   TransactionSource,
   MilestoneType,
 } from '@/types/database'

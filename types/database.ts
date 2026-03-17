@@ -173,6 +173,55 @@ export interface Database {
         }
         Relationships: []
       }
+
+      child_settings: {
+        Row: {
+          id: string
+          child_id: string
+          tree_young:   number | null
+          tree_growing: number | null
+          tree_mature:  number | null
+          tree_ancient: number | null
+          milestone_bunny: number | null
+          milestone_bird:  number | null
+          milestone_deer:  number | null
+          milestone_owl:   number | null
+          milestone_fox:   number | null
+          fruit_base_value: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          child_id: string
+          tree_young?:   number | null
+          tree_growing?: number | null
+          tree_mature?:  number | null
+          tree_ancient?: number | null
+          milestone_bunny?: number | null
+          milestone_bird?:  number | null
+          milestone_deer?:  number | null
+          milestone_owl?:   number | null
+          milestone_fox?:   number | null
+          fruit_base_value?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          child_id?: string
+          tree_young?:   number | null
+          tree_growing?: number | null
+          tree_mature?:  number | null
+          tree_ancient?: number | null
+          milestone_bunny?: number | null
+          milestone_bird?:  number | null
+          milestone_deer?:  number | null
+          milestone_owl?:   number | null
+          milestone_fox?:   number | null
+          fruit_base_value?: number | null
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: { [_ in never]: never }
@@ -188,3 +237,4 @@ export type Transaction = Database['public']['Tables']['transactions']['Row']
 export type Goal = Database['public']['Tables']['goals']['Row']
 export type GoalAllocation = Database['public']['Tables']['goal_allocations']['Row']
 export type Milestone = Database['public']['Tables']['milestones']['Row']
+export type ChildSettings = Database['public']['Tables']['child_settings']['Row']

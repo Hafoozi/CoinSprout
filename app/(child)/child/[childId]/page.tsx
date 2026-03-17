@@ -37,6 +37,7 @@ export default async function ChildTreePage({
       summary={dashboardData.summary}
       transactions={dashboardData.transactions}
       goals={dashboardData.goals}
+      settings={dashboardData.settings}
     />
   )
 }
