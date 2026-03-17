@@ -1,6 +1,7 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useState } from 'react'
+import { useFormState, useFormStatus } from 'react-dom'
 import { saveChildSettings } from '@/actions/child-settings'
 import { DEFAULT_SETTINGS } from '@/lib/calculations/child-settings'
 import type { ResolvedChildSettings } from '@/types/domain'
@@ -37,9 +38,22 @@ function SettingsInput({
   )
 }
 
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="w-full rounded-xl bg-sprout-500 hover:bg-sprout-600 disabled:opacity-50 text-white font-bold py-2.5 text-sm transition-colors"
+    >
+      {pending ? 'Saving…' : 'Save Settings'}
+    </button>
+  )
+}
+
 export default function ChildSettingsForm({ childId, settings }: Props) {
   const [open, setOpen] = useState(false)
-  const [state, action, isPending] = useActionState(saveChildSettings, null)
+  const [state, action] = useFormState(saveChildSettings, null)
 
   return (
     <div className="card-surface overflow-hidden">
@@ -114,13 +128,7 @@ export default function ChildSettingsForm({ childId, settings }: Props) {
             <p className="text-sm text-sprout-600 font-medium">Settings saved!</p>
           )}
 
-          <button
-            type="submit"
-            disabled={isPending}
-            className="w-full rounded-xl bg-sprout-500 hover:bg-sprout-600 disabled:opacity-50 text-white font-bold py-2.5 text-sm transition-colors"
-          >
-            {isPending ? 'Saving…' : 'Save Settings'}
-          </button>
+          <SubmitButton />
         </form>
       )}
     </div>
