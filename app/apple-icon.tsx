@@ -1,6 +1,5 @@
 import { ImageResponse } from 'next/og'
 
-// 180×180 — the size iOS uses for home screen icons
 export const size        = { width: 180, height: 180 }
 export const contentType = 'image/png'
 
@@ -18,19 +17,19 @@ export default function AppleIcon() {
     >
       <svg viewBox="0 0 180 180" width="180" height="180">
         {/* Ground strip */}
-        <rect x="0" y="148" width="180" height="32" fill="rgba(0,0,0,0.15)"/>
-        {/* Trunk */}
-        <rect x="83" y="118" width="14" height="34" rx="4" fill="rgba(0,0,0,0.35)"/>
-        {/* Canopy layers */}
-        <ellipse cx="90" cy="92"  rx="52" ry="48" fill="white" opacity="0.95"/>
-        <ellipse cx="68" cy="100" rx="32" ry="30" fill="white" opacity="0.7"/>
-        <ellipse cx="112" cy="98" rx="30" ry="28" fill="white" opacity="0.7"/>
-        <ellipse cx="90" cy="72"  rx="34" ry="30" fill="white" opacity="0.8"/>
-        {/* Gold fruit dots */}
-        <circle cx="82"  cy="84"  r="5" fill="#fbbf24"/>
-        <circle cx="98"  cy="80"  r="5" fill="#fbbf24"/>
-        <circle cx="74"  cy="98"  r="4" fill="#fbbf24"/>
-        <circle cx="106" cy="96"  r="4" fill="#fbbf24"/>
+        <rect x="0" y="152" width="180" height="28" fill="rgba(0,0,0,0.18)"/>
+        {/* Trunk — wide and prominent */}
+        <rect x="76" y="108" width="28" height="46" rx="6" fill="rgba(0,0,0,0.40)"/>
+        {/* Canopy — simplified to 2 layers for clarity */}
+        <ellipse cx="90" cy="88" rx="56" ry="52" fill="white" opacity="0.95"/>
+        <ellipse cx="90" cy="68" rx="38" ry="34" fill="white" opacity="0.75"/>
+        {/* Fruit — large and clearly visible */}
+        <circle cx="72"  cy="78"  r="9" fill="#fbbf24"/>
+        <circle cx="72"  cy="78"  r="5" fill="#f59e0b"/>
+        <circle cx="108" cy="76"  r="9" fill="#fbbf24"/>
+        <circle cx="108" cy="76"  r="5" fill="#f59e0b"/>
+        <circle cx="90"  cy="100" r="9" fill="#fbbf24"/>
+        <circle cx="90"  cy="100" r="5" fill="#f59e0b"/>
       </svg>
     </div>,
     { ...size }
