@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Dialog from '@/components/ui/dialog'
 import PinPad from '@/components/ui/pin-pad'
-import ChildSettingsForm from '@/components/parent/child-settings-form'
+import ChildAdvancedSettings from '@/components/parent/child-advanced-settings'
 import { setChildPin, setParentPin, verifyChildPin, verifyParentPin } from '@/actions/profile-switch'
 import { ROUTES } from '@/lib/constants/routes'
 import type { Child } from '@/lib/db/types'
@@ -164,29 +164,15 @@ export default function ProfileSwitcher({ children, hasParentPin, parentName: _p
           onClose={() => { close(); setMode({ type: 'select' }) }}
           title={`${mode.child.name}'s Settings`}
         >
-          <div className="space-y-5">
-            {/* PIN section */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">PIN</p>
-              <button
-                type="button"
-                onClick={() => { setError(undefined); setMode({ type: mode.child.pin_hash ? 'reset-child-pin' : 'set-child-pin', child: mode.child, step: 'enter' }) }}
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors text-left"
-              >
-                🔒 {mode.child.pin_hash ? 'Reset PIN' : 'Set PIN'}
-              </button>
-            </div>
-
-            {/* Visual preferences */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Visual Preferences</p>
-              <ChildSettingsForm
-                childId={mode.child.id}
-                settings={settingsMap[mode.child.id]}
-                accordion={false}
-              />
-            </div>
-          </div>
+          <ChildAdvancedSettings
+            childId={mode.child.id}
+            settings={settingsMap[mode.child.id]}
+            hasPinHash={!!mode.child.pin_hash}
+            onResetPin={() => {
+              setError(undefined)
+              setMode({ type: mode.child.pin_hash ? 'reset-child-pin' : 'set-child-pin', child: (mode as { child: Child }).child, step: 'enter' })
+            }}
+          />
         </Dialog>
       )}
 
