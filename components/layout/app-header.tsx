@@ -24,7 +24,7 @@ export default async function AppHeader() {
     <header className="sticky top-0 z-10 h-14 bg-white border-b border-sprout-100 flex items-center justify-between px-4">
       <Link
         href={ROUTES.PARENT.DASHBOARD}
-        className="font-bold text-sprout-700 text-lg tracking-tight"
+        className="flex items-center gap-2 font-bold text-sprout-700 text-lg tracking-tight"
       >
         <CoinSproutLogo size={38} />
         <span>CoinSprout</span>
