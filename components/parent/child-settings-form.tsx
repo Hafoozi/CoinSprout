@@ -9,6 +9,8 @@ import type { ResolvedChildSettings } from '@/types/domain'
 interface Props {
   childId:  string
   settings: ResolvedChildSettings
+  /** When true renders as a collapsible card. When false renders fields directly. */
+  accordion?: boolean
 }
 
 const ANIMAL_EMOJI = { bunny: '🐰', bird: '🐦', deer: '🦌', owl: '🦉', fox: '🦊' }
@@ -51,13 +53,85 @@ function SubmitButton() {
   )
 }
 
-export default function ChildSettingsForm({ childId, settings }: Props) {
+function SettingsFields({ childId, settings, state }: {
+  childId: string
+  settings: ResolvedChildSettings
+  state: { success: boolean; error?: string } | null
+}) {
+  return (
+    <>
+      <input type="hidden" name="childId" value={childId} />
+
+      {/* ── Tree growth ── */}
+      <div className="space-y-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+          🌱 Tree Growth (lifetime earnings)
+        </h3>
+        <div className="space-y-2.5">
+          <SettingsInput name="treeYoung"   label="Young tree"   defaultValue={settings.treeThresholds.young} />
+          <SettingsInput name="treeGrowing" label="Growing tree" defaultValue={settings.treeThresholds.growing} />
+          <SettingsInput name="treeMature"  label="Mature tree"  defaultValue={settings.treeThresholds.mature} />
+          <SettingsInput name="treeAncient" label="Ancient tree" defaultValue={settings.treeThresholds.ancient} />
+        </div>
+        <p className="text-xs text-gray-400">
+          Defaults: ${DEFAULT_SETTINGS.treeThresholds.young} / ${DEFAULT_SETTINGS.treeThresholds.growing} / ${DEFAULT_SETTINGS.treeThresholds.mature} / ${DEFAULT_SETTINGS.treeThresholds.ancient}
+        </p>
+      </div>
+
+      {/* ── Animal friends ── */}
+      <div className="space-y-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+          🐾 Animal Friends (lifetime earnings)
+        </h3>
+        <div className="space-y-2.5">
+          <SettingsInput name="milestoneBunny" label={`${ANIMAL_EMOJI.bunny} Bunny`} defaultValue={settings.milestoneThresholds.bunny} />
+          <SettingsInput name="milestoneBird"  label={`${ANIMAL_EMOJI.bird} Bird`}   defaultValue={settings.milestoneThresholds.bird} />
+          <SettingsInput name="milestoneDeer"  label={`${ANIMAL_EMOJI.deer} Deer`}   defaultValue={settings.milestoneThresholds.deer} />
+          <SettingsInput name="milestoneOwl"   label={`${ANIMAL_EMOJI.owl} Owl`}     defaultValue={settings.milestoneThresholds.owl} />
+          <SettingsInput name="milestoneFox"   label={`${ANIMAL_EMOJI.fox} Fox`}     defaultValue={settings.milestoneThresholds.fox} />
+        </div>
+        <p className="text-xs text-gray-400">
+          Defaults: ${DEFAULT_SETTINGS.milestoneThresholds.bunny} / ${DEFAULT_SETTINGS.milestoneThresholds.bird} / ${DEFAULT_SETTINGS.milestoneThresholds.deer} / ${DEFAULT_SETTINGS.milestoneThresholds.owl} / ${DEFAULT_SETTINGS.milestoneThresholds.fox}
+        </p>
+      </div>
+
+      {/* ── Fruit value ── */}
+      <div className="space-y-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+          🍎 Apple Values
+        </h3>
+        <SettingsInput name="fruitBaseValue" label="Smallest apple worth" defaultValue={settings.fruitBaseValue} />
+        <p className="text-xs text-gray-400">
+          Other apples scale up proportionally. Default: ${DEFAULT_SETTINGS.fruitBaseValue} per apple.
+        </p>
+      </div>
+
+      {state && !state.success && (
+        <p className="text-sm text-red-500">{state.error}</p>
+      )}
+      {state?.success && (
+        <p className="text-sm text-sprout-600 font-medium">Settings saved!</p>
+      )}
+
+      <SubmitButton />
+    </>
+  )
+}
+
+export default function ChildSettingsForm({ childId, settings, accordion = true }: Props) {
   const [open, setOpen] = useState(false)
   const [state, action] = useFormState(saveChildSettings, null)
 
+  if (!accordion) {
+    return (
+      <form action={action} className="space-y-6">
+        <SettingsFields childId={childId} settings={settings} state={state} />
+      </form>
+    )
+  }
+
   return (
     <div className="card-surface overflow-hidden">
-      {/* Accordion header */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -74,61 +148,7 @@ export default function ChildSettingsForm({ childId, settings }: Props) {
 
       {open && (
         <form action={action} className="px-5 pb-5 space-y-6 border-t border-gray-100 pt-4">
-          <input type="hidden" name="childId" value={childId} />
-
-          {/* ── Tree growth ── */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-              🌱 Tree Growth (lifetime earnings)
-            </h3>
-            <div className="space-y-2.5">
-              <SettingsInput name="treeYoung"   label="Young tree"   defaultValue={settings.treeThresholds.young} />
-              <SettingsInput name="treeGrowing" label="Growing tree" defaultValue={settings.treeThresholds.growing} />
-              <SettingsInput name="treeMature"  label="Mature tree"  defaultValue={settings.treeThresholds.mature} />
-              <SettingsInput name="treeAncient" label="Ancient tree" defaultValue={settings.treeThresholds.ancient} />
-            </div>
-            <p className="text-xs text-gray-400">
-              Defaults: ${DEFAULT_SETTINGS.treeThresholds.young} / ${DEFAULT_SETTINGS.treeThresholds.growing} / ${DEFAULT_SETTINGS.treeThresholds.mature} / ${DEFAULT_SETTINGS.treeThresholds.ancient}
-            </p>
-          </div>
-
-          {/* ── Animal friends ── */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-              🐾 Animal Friends (lifetime earnings)
-            </h3>
-            <div className="space-y-2.5">
-              <SettingsInput name="milestoneBunny" label={`${ANIMAL_EMOJI.bunny} Bunny`} defaultValue={settings.milestoneThresholds.bunny} />
-              <SettingsInput name="milestoneBird"  label={`${ANIMAL_EMOJI.bird} Bird`}   defaultValue={settings.milestoneThresholds.bird} />
-              <SettingsInput name="milestoneDeer"  label={`${ANIMAL_EMOJI.deer} Deer`}   defaultValue={settings.milestoneThresholds.deer} />
-              <SettingsInput name="milestoneOwl"   label={`${ANIMAL_EMOJI.owl} Owl`}     defaultValue={settings.milestoneThresholds.owl} />
-              <SettingsInput name="milestoneFox"   label={`${ANIMAL_EMOJI.fox} Fox`}     defaultValue={settings.milestoneThresholds.fox} />
-            </div>
-            <p className="text-xs text-gray-400">
-              Defaults: ${DEFAULT_SETTINGS.milestoneThresholds.bunny} / ${DEFAULT_SETTINGS.milestoneThresholds.bird} / ${DEFAULT_SETTINGS.milestoneThresholds.deer} / ${DEFAULT_SETTINGS.milestoneThresholds.owl} / ${DEFAULT_SETTINGS.milestoneThresholds.fox}
-            </p>
-          </div>
-
-          {/* ── Fruit value ── */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-              🍎 Apple Values
-            </h3>
-            <SettingsInput name="fruitBaseValue" label="Smallest apple worth" defaultValue={settings.fruitBaseValue} />
-            <p className="text-xs text-gray-400">
-              Other apples scale up proportionally. Default: ${DEFAULT_SETTINGS.fruitBaseValue} per apple.
-            </p>
-          </div>
-
-          {/* Feedback + save */}
-          {state && !state.success && (
-            <p className="text-sm text-red-500">{state.error}</p>
-          )}
-          {state?.success && (
-            <p className="text-sm text-sprout-600 font-medium">Settings saved!</p>
-          )}
-
-          <SubmitButton />
+          <SettingsFields childId={childId} settings={settings} state={state} />
         </form>
       )}
     </div>
