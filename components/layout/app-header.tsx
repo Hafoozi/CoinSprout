@@ -26,7 +26,7 @@ export default async function AppHeader() {
         href={ROUTES.PARENT.DASHBOARD}
         className="font-bold text-sprout-700 text-lg tracking-tight"
       >
-        <CoinSproutLogo size={28} />
+        <CoinSproutLogo size={38} />
         <span>CoinSprout</span>
       </Link>
 

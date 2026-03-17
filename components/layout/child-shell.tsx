@@ -114,7 +114,7 @@ export default function ChildShell({ children }: { children: React.ReactNode }) 
     <div className="child-bg min-h-screen">
       <header className="sticky top-0 z-10 h-14 bg-white/80 backdrop-blur border-b border-sprout-100 flex items-center justify-between px-4">
         <div className="flex items-center gap-2.5">
-          <CoinSproutLogo size={28} />
+          <CoinSproutLogo size={38} />
           <span className="font-bold text-sprout-700 text-lg tracking-tight">CoinSprout</span>
           <ChildAvatar />
         </div>
