@@ -40,7 +40,7 @@ export default function RecurringAllowanceForm({ childId, existing }: Props) {
   const isActive = existing?.is_active ?? false
 
   return (
-    <form action={action} className="space-y-4 pt-3">
+    <form action={action} className="space-y-3 pt-1">
       <input type="hidden" name="childId" value={childId} />
 
       {/* On/Off toggle */}

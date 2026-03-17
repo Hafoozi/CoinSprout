@@ -102,15 +102,15 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
   }
 
   return (
-    <div className="py-4 space-y-6">
+    <div className="py-3 space-y-4">
       <h1 className="text-xl font-bold text-gray-800">Settings</h1>
 
       {/* ── Currency ─────────────────────────────────────────────────────── */}
       <section className="space-y-2">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Currency</h2>
-        <div className="card-surface p-5">
-          <form action={currencyAction} className="space-y-4">
-            <div className="space-y-1.5">
+        <div className="card-surface p-4">
+          <form action={currencyAction} className="space-y-3">
+            <div className="space-y-1">
               <label htmlFor="currencySymbol" className="text-sm font-medium text-gray-700">
                 Currency symbol
               </label>
@@ -146,7 +146,7 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
         <div className="card-surface divide-y divide-gray-100">
 
           {/* Parent PIN */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-4 py-3">
             <div>
               <p className="text-sm font-medium text-gray-800">Parent PIN</p>
               <p className="text-xs text-gray-400">
@@ -164,7 +164,7 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
 
           {/* Per-child PINs */}
           {children.map((child) => (
-            <div key={child.id} className="flex items-center justify-between px-5 py-4">
+            <div key={child.id} className="flex items-center justify-between px-4 py-3">
               <div>
                 <p className="text-sm font-medium text-gray-800">{child.name}'s PIN</p>
                 <p className="text-xs text-gray-400">
@@ -192,7 +192,7 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
       {/* ── Export ───────────────────────────────────────────────────────── */}
       <section className="space-y-2">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Export</h2>
-        <div className="card-surface p-5 space-y-2">
+        <div className="card-surface p-4 space-y-2">
           <p className="text-sm text-gray-600">
             Download all transactions and savings data as an Excel spreadsheet.
             Includes a summary sheet plus a sheet per child.
@@ -217,7 +217,7 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
                 <button
                   type="button"
                   onClick={() => setOpenChild(openChild === child.id ? null : child.id)}
-                  className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sprout-100 text-sprout-700 font-bold text-sm">

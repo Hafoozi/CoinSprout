@@ -40,7 +40,7 @@ export default async function ChildProfilePage({
   const colorClass = AVATAR_BG[child.avatar_color ?? 'sprout'] ?? AVATAR_BG.sprout
 
   return (
-    <div className="space-y-6 py-6">
+    <div className="space-y-4 py-4">
 
       {/* Back navigation */}
       <Link
