@@ -1,17 +1,20 @@
+'use client'
+
 import { clsx } from 'clsx'
 import { formatCurrency } from '@/lib/utils/currency'
+import { useCurrency } from '@/components/providers/currency-provider'
 
 interface MoneyAmountProps {
-  amount: number
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  amount:    number
+  size?:     'sm' | 'md' | 'lg' | 'xl'
   showSign?: boolean
   className?: string
 }
 
-// TODO: Wire up formatCurrency once lib/utils/currency.ts is implemented
 export default function MoneyAmount({ amount, size = 'md', showSign = false, className }: MoneyAmountProps) {
-  const formatted = `$${Math.abs(amount).toFixed(2)}`
-  const sign = showSign && amount !== 0 ? (amount > 0 ? '+' : '−') : ''
+  const currency  = useCurrency()
+  const formatted = formatCurrency(Math.abs(amount), currency)
+  const sign      = showSign && amount !== 0 ? (amount > 0 ? '+' : '−') : ''
 
   return (
     <span

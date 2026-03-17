@@ -1,19 +1,17 @@
-import type { TreeStage } from '@/types/domain'
+import type { TreeStage, ResolvedChildSettings } from '@/types/domain'
+import { DEFAULT_SETTINGS } from '@/lib/calculations/child-settings'
 
 /**
  * Determine the tree's visual stage based on lifetime earnings.
- *
- * Thresholds:
- *   $0    → sapling
- *   $50   → young
- *   $200  → growing
- *   $500  → mature
- *   $1000 → ancient
+ * Thresholds come from per-child settings, falling back to app defaults.
  */
-export function calculateTreeStage(lifetimeEarnings: number): TreeStage {
-  if (lifetimeEarnings >= 1000) return 'ancient'
-  if (lifetimeEarnings >= 500)  return 'mature'
-  if (lifetimeEarnings >= 200)  return 'growing'
-  if (lifetimeEarnings >= 50)   return 'young'
+export function calculateTreeStage(
+  lifetimeEarnings: number,
+  thresholds: ResolvedChildSettings['treeThresholds'] = DEFAULT_SETTINGS.treeThresholds
+): TreeStage {
+  if (lifetimeEarnings >= thresholds.ancient) return 'ancient'
+  if (lifetimeEarnings >= thresholds.mature)  return 'mature'
+  if (lifetimeEarnings >= thresholds.growing) return 'growing'
+  if (lifetimeEarnings >= thresholds.young)   return 'young'
   return 'sapling'
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { SOURCE_COLORS, SOURCE_LABELS } from '@/lib/constants/sources'
+import { useCurrency } from '@/components/providers/currency-provider'
 import type { SourceBreakdown } from '@/types/domain'
 import type { IncomeSource } from '@/lib/constants/sources'
 
@@ -22,6 +23,7 @@ function DonutChart({
   activeSource:   IncomeSource | null
   onSegmentClick: (key: IncomeSource | null) => void
 }) {
+  const currency = useCurrency()
   const r             = 36
   const cx            = 50
   const cy            = 50
@@ -33,7 +35,7 @@ function DonutChart({
       <svg viewBox="0 0 100 100" className="w-28 h-28">
         <circle cx={cx} cy={cy} r={r} fill="none" stroke="#e5e7eb" strokeWidth="18" />
         <text x={cx} y={cy + 5} textAnchor="middle" className="text-xs fill-gray-400" fontSize="10">
-          $0
+          {currency}0
         </text>
       </svg>
     )
@@ -100,6 +102,7 @@ function LegendRow({
   isActive:  boolean
   onClick:   () => void
 }) {
+  const currency = useCurrency()
   return (
     <button
       type="button"
@@ -115,7 +118,7 @@ function LegendRow({
       />
       <span className="flex-1 text-sm text-gray-700">{label}</span>
       <span className="text-sm font-semibold text-gray-800 tabular-nums">
-        ${amount.toFixed(2)}
+        {currency}{amount.toFixed(2)}
       </span>
       <span className="w-10 text-right text-xs text-gray-400 tabular-nums">
         {percent.toFixed(0)}%
@@ -133,6 +136,7 @@ interface Props {
 }
 
 export default function SourceBreakdown({ breakdown, activeSource, onSegmentClick }: Props) {
+  const currency = useCurrency()
   const sources = (
     ['allowance', 'gift', 'interest', 'jobs'] as const
   ).map((key) => ({
@@ -192,7 +196,7 @@ export default function SourceBreakdown({ breakdown, activeSource, onSegmentClic
           ))}
           <div className="border-t border-gray-100 pt-2 flex justify-between text-xs text-gray-500">
             <span>Total earned</span>
-            <span className="font-semibold tabular-nums">${total.toFixed(2)}</span>
+            <span className="font-semibold tabular-nums">{currency}{total.toFixed(2)}</span>
           </div>
         </div>
       </div>

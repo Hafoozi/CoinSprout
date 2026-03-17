@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useCurrency } from '@/components/providers/currency-provider'
 import type { Transaction } from '@/lib/db/types'
 
 const SOURCE_CONFIG = {
@@ -58,6 +59,7 @@ interface Props {
 }
 
 export default function TransactionNotifications({ childId, transactions }: Props) {
+  const currency                  = useCurrency()
   const [queue,     setQueue]     = useState<Transaction[]>([])
   const [accepting, setAccepting] = useState(false)
   const [showCoins, setShowCoins] = useState(false)
@@ -154,7 +156,7 @@ export default function TransactionNotifications({ childId, transactions }: Prop
           <div className="rounded-2xl bg-white/70 px-4 py-3 space-y-0.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">My Savings</p>
             <p className="text-3xl font-bold text-sprout-700 money tabular-nums">
-              ${countVal.toFixed(2)}
+              {currency}{countVal.toFixed(2)}
             </p>
           </div>
 
@@ -169,7 +171,7 @@ export default function TransactionNotifications({ childId, transactions }: Prop
 
           {/* Amount — always green */}
           <p className="text-5xl font-bold money text-emerald-500">
-            +${current.amount.toFixed(2)}
+            +{currency}{current.amount.toFixed(2)}
           </p>
 
           {/* Optional note */}

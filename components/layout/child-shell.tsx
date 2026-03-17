@@ -9,6 +9,7 @@ import { verifyParentPin } from '@/actions/profile-switch'
 import { getChildDisplayInfo } from '@/actions/children'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 import { ROUTES } from '@/lib/constants/routes'
+import CoinSproutLogo from '@/components/ui/coin-sprout-logo'
 
 function ChildAvatar() {
   const params  = useParams<{ childId: string }>()
@@ -113,7 +114,8 @@ export default function ChildShell({ children }: { children: React.ReactNode }) 
     <div className="child-bg min-h-screen">
       <header className="sticky top-0 z-10 h-14 bg-white/80 backdrop-blur border-b border-sprout-100 flex items-center justify-between px-4">
         <div className="flex items-center gap-2.5">
-          <span className="font-bold text-sprout-700 text-lg tracking-tight">🌱 CoinSprout</span>
+          <CoinSproutLogo size={38} />
+          <span className="font-bold text-sprout-700 text-lg tracking-tight">CoinSprout</span>
           <ChildAvatar />
         </div>
         <BackToParentButton />

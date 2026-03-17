@@ -61,14 +61,29 @@ export interface MilestoneDefinition {
   iconPath: string    // path to SVG in /public/icons/
 }
 
-// ─── Allowance Prompt ──────────────────────────────────────────────────────
+// ─── Child visual settings (resolved — nulls replaced with defaults) ───────
 
-/** Data shown to the parent in the Sunday allowance prompt. */
-export interface AllowancePromptEntry {
-  childId: string
-  childName: string
-  defaultAmount: number   // from recurring_allowances config
-  adjustedAmount: number  // editable by parent before confirming
+export interface ResolvedChildSettings {
+  treeThresholds: {
+    young:   number
+    growing: number
+    mature:  number
+    ancient: number
+  }
+  milestoneThresholds: {
+    bunny: number
+    bird:  number
+    deer:  number
+    owl:   number
+    fox:   number
+  }
+  fruitValues: {
+    green:     number
+    red:       number
+    silver:    number
+    gold:      number
+    sparkling: number
+  }
 }
 
 // ─── Profile ───────────────────────────────────────────────────────────────

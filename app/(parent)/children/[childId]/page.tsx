@@ -33,7 +33,7 @@ export default async function ChildProfilePage({
   // RLS will have returned null if the child doesn't belong to this parent
   if (!child || !dashboardData) notFound()
 
-  const { summary, transactions, goals } = dashboardData
+  const { summary, transactions, goals, settings } = dashboardData
   const colorClass = AVATAR_BG[child.avatar_color ?? 'sprout'] ?? AVATAR_BG.sprout
 
   return (

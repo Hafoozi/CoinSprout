@@ -14,7 +14,7 @@ export type Json =
 
 export type TransactionSource = 'allowance' | 'gift' | 'interest' | 'jobs' | 'spend'
 export type MilestoneType = 'bunny' | 'bird' | 'deer' | 'owl' | 'fox'
-export type AllowanceFrequency = 'weekly'
+export type CurrencySymbol = '$' | '£' | '€' | '¥' | '₹' | '₩' | 'Fr'
 
 export interface Database {
   public: {
@@ -153,6 +153,40 @@ export interface Database {
         Relationships: []
       }
 
+      recurring_allowances: {
+        Row: {
+          id:               string
+          child_id:         string
+          amount:           number
+          frequency:        string
+          day_of_week:      number
+          is_active:        boolean
+          last_prompted_at: string | null
+          created_at:       string
+        }
+        Insert: {
+          id?:               string
+          child_id:          string
+          amount:            number
+          frequency?:        string
+          day_of_week:       number
+          is_active?:        boolean
+          last_prompted_at?: string | null
+          created_at?:       string
+        }
+        Update: {
+          id?:               string
+          child_id?:         string
+          amount?:           number
+          frequency?:        string
+          day_of_week?:      number
+          is_active?:        boolean
+          last_prompted_at?: string | null
+          created_at?:       string
+        }
+        Relationships: []
+      }
+
       milestones: {
         Row: {
           id: string
@@ -175,36 +209,84 @@ export interface Database {
         Relationships: []
       }
 
-      recurring_allowances: {
+      child_settings: {
         Row: {
           id: string
           child_id: string
-          amount: number
-          frequency: AllowanceFrequency
-          day_of_week: number
-          is_active: boolean
-          last_prompted_at: string | null
+          tree_young:   number | null
+          tree_growing: number | null
+          tree_mature:  number | null
+          tree_ancient: number | null
+          milestone_bunny: number | null
+          milestone_bird:  number | null
+          milestone_deer:  number | null
+          milestone_owl:   number | null
+          milestone_fox:   number | null
+          fruit_green_value:     number | null
+          fruit_red_value:       number | null
+          fruit_silver_value:    number | null
+          fruit_gold_value:      number | null
+          fruit_sparkling_value: number | null
           created_at: string
         }
         Insert: {
           id?: string
           child_id: string
-          amount: number
-          frequency?: AllowanceFrequency
-          day_of_week: number
-          is_active?: boolean
-          last_prompted_at?: string | null
+          tree_young?:   number | null
+          tree_growing?: number | null
+          tree_mature?:  number | null
+          tree_ancient?: number | null
+          milestone_bunny?: number | null
+          milestone_bird?:  number | null
+          milestone_deer?:  number | null
+          milestone_owl?:   number | null
+          milestone_fox?:   number | null
+          fruit_green_value?:     number | null
+          fruit_red_value?:       number | null
+          fruit_silver_value?:    number | null
+          fruit_gold_value?:      number | null
+          fruit_sparkling_value?: number | null
           created_at?: string
         }
         Update: {
           id?: string
           child_id?: string
-          amount?: number
-          frequency?: AllowanceFrequency
-          day_of_week?: number
-          is_active?: boolean
-          last_prompted_at?: string | null
+          tree_young?:   number | null
+          tree_growing?: number | null
+          tree_mature?:  number | null
+          tree_ancient?: number | null
+          milestone_bunny?: number | null
+          milestone_bird?:  number | null
+          milestone_deer?:  number | null
+          milestone_owl?:   number | null
+          milestone_fox?:   number | null
+          fruit_green_value?:     number | null
+          fruit_red_value?:       number | null
+          fruit_silver_value?:    number | null
+          fruit_gold_value?:      number | null
+          fruit_sparkling_value?: number | null
           created_at?: string
+        }
+        Relationships: []
+      }
+      family_settings: {
+        Row: {
+          id:              string
+          family_id:       string
+          currency_symbol: string
+          created_at:      string
+        }
+        Insert: {
+          id?:              string
+          family_id:        string
+          currency_symbol?: string
+          created_at?:      string
+        }
+        Update: {
+          id?:              string
+          family_id?:       string
+          currency_symbol?: string
+          created_at?:      string
         }
         Relationships: []
       }
@@ -223,4 +305,6 @@ export type Transaction = Database['public']['Tables']['transactions']['Row']
 export type Goal = Database['public']['Tables']['goals']['Row']
 export type GoalAllocation = Database['public']['Tables']['goal_allocations']['Row']
 export type Milestone = Database['public']['Tables']['milestones']['Row']
-export type RecurringAllowance = Database['public']['Tables']['recurring_allowances']['Row']
+export type ChildSettings       = Database['public']['Tables']['child_settings']['Row']
+export type FamilySettings      = Database['public']['Tables']['family_settings']['Row']
+export type RecurringAllowance  = Database['public']['Tables']['recurring_allowances']['Row']

@@ -9,6 +9,8 @@ export type LoadingState = 'idle' | 'loading' | 'success' | 'error'
 export interface ActionResult {
   success: boolean
   error?: string
+  /** The form field name that caused the error, if applicable. */
+  errorField?: string
   /** Non-error message to surface to the user (e.g. "Check your email"). */
   message?: string
 }

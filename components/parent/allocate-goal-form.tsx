@@ -3,6 +3,7 @@
 import { useFormState, useFormStatus } from 'react-dom'
 import { useEffect } from 'react'
 import { allocateToGoal } from '@/actions/goals'
+import { useCurrency } from '@/components/providers/currency-provider'
 import Button from '@/components/ui/button'
 import Input from '@/components/ui/input'
 import Select from '@/components/ui/select'
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export default function AllocateGoalForm({ goals, freeToUse, onSuccess }: Props) {
+  const currency        = useCurrency()
   const [state, action] = useFormState(allocateToGoal, INITIAL)
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function AllocateGoalForm({ goals, freeToUse, onSuccess }: Props)
 
   const goalOptions = goals.map((g) => ({
     value: g.id,
-    label: `${g.name} — $${(g.targetPrice - g.allocatedAmount).toFixed(2)} left`,
+    label: `${g.name} — ${currency}${(g.targetPrice - g.allocatedAmount).toFixed(2)} left`,
   }))
 
   return (
@@ -56,7 +58,7 @@ export default function AllocateGoalForm({ goals, freeToUse, onSuccess }: Props)
         id="allocate-amount"
         name="amount"
         type="number"
-        label="Amount ($)"
+        label={`Amount (${currency})`}
         placeholder="0.00"
         min="0.01"
         max={freeToUse}

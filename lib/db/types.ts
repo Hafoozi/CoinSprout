@@ -7,7 +7,10 @@ export type {
   Goal,
   GoalAllocation,
   Milestone,
+  ChildSettings,
+  FamilySettings,
   RecurringAllowance,
   TransactionSource,
   MilestoneType,
+  CurrencySymbol,
 } from '@/types/database'

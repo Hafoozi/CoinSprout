@@ -1,20 +1,47 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
+import { requireParent } from '@/lib/auth/require-parent'
+import { upsertRecurringAllowance } from '@/lib/db/mutations/recurring-allowances'
+import { getChildrenByFamilyId } from '@/lib/db/queries/children'
+import { ROUTES } from '@/lib/constants/routes'
 import type { ActionResult } from '@/types/ui'
 
-export async function saveRecurringAllowance(_: unknown, formData: FormData): Promise<ActionResult> {
-  // TODO: Implement
-  // Saves/updates recurring allowance config for one or more children
-  return { success: false, error: 'Not implemented' }
-}
+export async function saveRecurringAllowance(
+  _: unknown,
+  formData: FormData
+): Promise<ActionResult> {
+  const { family } = await requireParent()
 
-/**
- * Called by the Vercel Cron job at /api/cron/allowance.
- * Checks all active recurring_allowances, creates allowance transactions for
- * any that are due today and haven't been prompted yet this week.
- * NOT a user-facing action — called from a Route Handler with a secret header check.
- */
-export async function processAllowanceCron(): Promise<{ processed: number }> {
-  // TODO: Implement
-  return { processed: 0 }
+  const childId    = formData.get('childId')    as string
+  const amountStr  = formData.get('amount')     as string
+  const dayStr     = formData.get('dayOfWeek')  as string
+  const isActiveStr = formData.get('isActive')  as string
+
+  if (!childId || !amountStr || !dayStr) {
+    return { success: false, error: 'Missing required fields' }
+  }
+
+  // Verify this child belongs to the family
+  const children = await getChildrenByFamilyId(family.id)
+  if (!children.some((c) => c.id === childId)) {
+    return { success: false, error: 'Child not found' }
+  }
+
+  const amount    = parseFloat(amountStr)
+  const dayOfWeek = parseInt(dayStr, 10)
+  const isActive  = isActiveStr === 'true'
+
+  if (isNaN(amount) || amount <= 0) {
+    return { success: false, error: 'Amount must be greater than 0' }
+  }
+  if (isNaN(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
+    return { success: false, error: 'Invalid day of week' }
+  }
+
+  const result = await upsertRecurringAllowance({ childId, amount, dayOfWeek, isActive })
+  if (!result) return { success: false, error: 'Failed to save' }
+
+  revalidatePath(ROUTES.PARENT.SETTINGS)
+  return { success: true }
 }

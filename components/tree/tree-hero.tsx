@@ -5,6 +5,7 @@ import type { TreeStage, FruitCluster } from '@/types/domain'
 import type { MilestoneType } from '@/types/database'
 import AnimalIcon from '@/components/ui/animal-icon'
 import TreeAnimalSprite from '@/components/tree/tree-animal-sprite'
+import { APPLE_HEX } from '@/lib/constants/fruit-colors'
 
 interface Props {
   stage:              TreeStage
@@ -23,13 +24,6 @@ const ANIMAL_OVERLAY: Record<MilestoneType, { style: React.CSSProperties; size: 
   fox:   { style: { left: '26%', bottom: '3%' }, size: 52 },
 }
 
-const FRUIT_COLOR_HEX: Record<string, string> = {
-  green:     '#16a34a',
-  red:       '#dc2626',
-  silver:    '#dde8f0',
-  gold:      '#d97706',
-  sparkling: '#f8fafc',
-}
 
 // ─── Fruit positions ──────────────────────────────────────────────────────────
 const STAGE_FRUIT_POS: Record<TreeStage, Array<{ x: number; y: number }>> = {
@@ -186,7 +180,7 @@ function TreeSvg({
   // Interleave fruits across clusters
   const flatFruits: { color: string; sparkling: boolean }[] = []
   const buckets = fruitClusters.map(b => ({
-    color:     FRUIT_COLOR_HEX[b.color] ?? '#16a34a',
+    color:     APPLE_HEX[b.color] ?? '#16a34a',
     sparkling: b.color === 'sparkling',
     count:     b.count,
   }))

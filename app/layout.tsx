@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
   },
   formatDetection: { telephone: false },
+  icons: {
+    apple: [{ url: '/apple-icon', sizes: '180x180', type: 'image/png' }],
+  },
 }
 
 export default function RootLayout({

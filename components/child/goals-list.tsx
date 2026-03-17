@@ -2,11 +2,12 @@ import type { GoalWithProgress } from '@/types/domain'
 import GoalCard from './goal-card'
 
 interface Props {
-  childId: string
-  goals: GoalWithProgress[]
+  childId:   string
+  goals:     GoalWithProgress[]
+  freeToUse: number
 }
 
-export default function GoalsList({ childId: _childId, goals }: Props) {
+export default function GoalsList({ childId: _childId, goals, freeToUse }: Props) {
   const incomplete = goals.filter((g) => !g.isComplete)
   const complete   = goals.filter((g) => g.isComplete)
 
@@ -27,7 +28,7 @@ export default function GoalsList({ childId: _childId, goals }: Props) {
       {incomplete.length > 0 && (
         <div className="space-y-3">
           {incomplete.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} />
+            <GoalCard key={goal.id} goal={goal} freeToUse={freeToUse} />
           ))}
         </div>
       )}
@@ -38,7 +39,7 @@ export default function GoalsList({ childId: _childId, goals }: Props) {
             Completed
           </h2>
           {complete.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} />
+            <GoalCard key={goal.id} goal={goal} freeToUse={0} />
           ))}
         </div>
       )}

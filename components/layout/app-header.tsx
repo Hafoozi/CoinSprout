@@ -4,6 +4,7 @@ import { requireParent } from '@/lib/auth/require-parent'
 import { getChildrenByFamilyId } from '@/lib/db/queries/children'
 import { ROUTES } from '@/lib/constants/routes'
 import ProfileSwitcher from '@/components/layout/profile-switcher'
+import CoinSproutLogo from '@/components/ui/coin-sprout-logo'
 
 /**
  * Shared top navigation bar for parent mode.
@@ -15,6 +16,7 @@ export default async function AppHeader() {
     getChildrenByFamilyId(family.id),
     (await import('@/lib/supabase/server')).createClient().then(sb => sb.auth.getUser()),
   ])
+
   const parentName = (user?.user_metadata?.full_name as string | undefined)
     || user?.email?.split('@')[0]
     || 'Parent'
@@ -23,9 +25,10 @@ export default async function AppHeader() {
     <header className="sticky top-0 z-10 h-14 bg-white border-b border-sprout-100 flex items-center justify-between px-4">
       <Link
         href={ROUTES.PARENT.DASHBOARD}
-        className="font-bold text-sprout-700 text-lg tracking-tight"
+        className="flex items-center gap-2 font-bold text-sprout-700 text-lg tracking-tight"
       >
-        🌱 CoinSprout
+        <CoinSproutLogo size={38} />
+        <span>CoinSprout</span>
       </Link>
 
       <div className="flex items-center gap-2">
@@ -34,6 +37,14 @@ export default async function AppHeader() {
           hasParentPin={!!family.parent_pin_hash}
           parentName={parentName}
         />
+
+        <Link
+          href={ROUTES.PARENT.SETTINGS}
+          className="flex items-center justify-center rounded-lg w-8 h-8 text-gray-500 hover:bg-gray-100 transition-colors"
+          title="Settings"
+        >
+          ⚙️
+        </Link>
 
         <form action={signOut}>
           <button
