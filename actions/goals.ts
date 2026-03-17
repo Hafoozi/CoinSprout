@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireParent } from '@/lib/auth/require-parent'
-import { createGoal as createGoalMutation, allocateToGoal as allocateToGoalMutation, deleteGoal as deleteGoalMutation, completeGoal as completeGoalMutation } from '@/lib/db/mutations/goals'
+import { createGoal as createGoalMutation, allocateToGoal as allocateToGoalMutation, deallocateFromGoal as deallocateFromGoalMutation, deleteGoal as deleteGoalMutation, completeGoal as completeGoalMutation } from '@/lib/db/mutations/goals'
 import { getGoalById } from '@/lib/db/queries/goals'
 import { getTransactionsByChildId } from '@/lib/db/queries/transactions'
 import { getGoalsByChildId } from '@/lib/db/queries/goals'
@@ -139,6 +139,29 @@ export async function childAllocateToGoal(goalId: string, amount: number): Promi
     return { success: true }
   } catch {
     return { success: false, error: 'Failed to allocate' }
+  }
+}
+
+/**
+ * Child-facing deallocation — removes money from a goal back to free savings.
+ * Parent session is always present when a child views the app.
+ */
+export async function childDeallocateFromGoal(goalId: string, amount: number): Promise<ActionResult> {
+  try {
+    await requireParent()
+
+    const goal = await getGoalById(goalId)
+    if (!goal) return { success: false, error: 'Goal not found' }
+
+    const updated = await deallocateFromGoalMutation({ goalId, amount })
+    if (!updated) return { success: false, error: 'Amount exceeds what is saved for this goal' }
+
+    revalidatePath(ROUTES.CHILD.HOME(goal.child_id))
+    revalidatePath(ROUTES.CHILD.GOALS(goal.child_id))
+    revalidatePath(ROUTES.PARENT.CHILD(goal.child_id))
+    return { success: true }
+  } catch {
+    return { success: false, error: 'Failed to remove from goal' }
   }
 }
 

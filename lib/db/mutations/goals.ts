@@ -86,6 +86,47 @@ export async function deleteGoal(goalId: string): Promise<boolean> {
 }
 
 /**
+ * Remove money from a goal, returning it to the child's free savings.
+ *
+ * Invariant: amount ≤ goal.allocated_amount (can't remove more than what's there).
+ * Inserts a negative goal_allocations row for audit trail, then reduces the cached total.
+ *
+ * Returns the updated goal, or null if the amount exceeds what's allocated.
+ */
+export async function deallocateFromGoal(data: {
+  goalId: string
+  amount: number
+}): Promise<Goal | null> {
+  const { goalId, amount } = data
+
+  const supabase = await createClient()
+
+  const { data: goal } = await supabase
+    .from('goals')
+    .select('*')
+    .eq('id', goalId)
+    .single()
+  if (!goal) return null
+
+  if (amount > goal.allocated_amount) return null
+
+  const newAllocated = roundMoney(goal.allocated_amount - amount)
+
+  await supabase
+    .from('goal_allocations')
+    .insert({ goal_id: goalId, amount: -amount })
+
+  const { data: updated } = await supabase
+    .from('goals')
+    .update({ allocated_amount: newAllocated })
+    .eq('id', goalId)
+    .select()
+    .single()
+
+  return updated ?? null
+}
+
+/**
  * Mark a goal as complete by setting allocated_amount = target_price.
  * Used when a parent wants to close a goal the child has physically achieved.
  */
