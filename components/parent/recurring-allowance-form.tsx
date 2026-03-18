@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 import { saveRecurringAllowance } from '@/actions/recurring-allowance'
 import { useCurrency } from '@/components/providers/currency-provider'
@@ -45,7 +46,9 @@ export default function RecurringAllowanceForm({ childId, existing, onSuccess }:
   const currency = useCurrency()
   const [state, action] = useFormState(saveRecurringAllowance, null)
 
-  if (state?.success && onSuccess) onSuccess()
+  useEffect(() => {
+    if (state?.success && onSuccess) onSuccess()
+  }, [state?.success])
 
   const isActive = existing?.is_active ?? false
 

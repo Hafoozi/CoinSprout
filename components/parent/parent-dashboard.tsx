@@ -2,12 +2,13 @@ import Link from 'next/link'
 import Button from '@/components/ui/button'
 import ChildSummaryCard from '@/components/parent/child-summary-card'
 import { ROUTES } from '@/lib/constants/routes'
-import type { Child, Family } from '@/lib/db/types'
+import type { Child, Family, RecurringAllowance } from '@/lib/db/types'
 
 interface ChildEntry {
   child:          Child
   savingsBalance: number
   activeGoals:    number
+  allowance:      RecurringAllowance | null
 }
 
 interface Props {
@@ -46,12 +47,13 @@ export default function ParentDashboard({ family, childEntries }: Props) {
           <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
             Children ({childEntries.length})
           </p>
-          {childEntries.map(({ child, savingsBalance, activeGoals }) => (
+          {childEntries.map(({ child, savingsBalance, activeGoals, allowance }) => (
             <ChildSummaryCard
               key={child.id}
               child={child}
               savingsBalance={savingsBalance}
               activeGoals={activeGoals}
+              allowance={allowance}
             />
           ))}
         </div>
