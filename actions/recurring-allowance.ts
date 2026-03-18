@@ -13,10 +13,11 @@ export async function saveRecurringAllowance(
 ): Promise<ActionResult> {
   const { family } = await requireParent()
 
-  const childId    = formData.get('childId')    as string
-  const amountStr  = formData.get('amount')     as string
-  const dayStr     = formData.get('dayOfWeek')  as string
-  const isActiveStr = formData.get('isActive')  as string
+  const childId     = formData.get('childId')    as string
+  const amountStr   = formData.get('amount')     as string
+  const dayStr      = formData.get('dayOfWeek')  as string
+  const hourStr     = formData.get('hourOfDay')  as string
+  const isActiveStr = formData.get('isActive')   as string
 
   if (!childId || !amountStr || !dayStr) {
     return { success: false, error: 'Missing required fields' }
@@ -30,6 +31,7 @@ export async function saveRecurringAllowance(
 
   const amount    = parseFloat(amountStr)
   const dayOfWeek = parseInt(dayStr, 10)
+  const hourOfDay = parseInt(hourStr ?? '9', 10)
   const isActive  = isActiveStr === 'true'
 
   if (isNaN(amount) || amount <= 0) {
@@ -38,8 +40,11 @@ export async function saveRecurringAllowance(
   if (isNaN(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
     return { success: false, error: 'Invalid day of week' }
   }
+  if (isNaN(hourOfDay) || hourOfDay < 0 || hourOfDay > 23) {
+    return { success: false, error: 'Invalid time' }
+  }
 
-  const result = await upsertRecurringAllowance({ childId, amount, dayOfWeek, isActive })
+  const result = await upsertRecurringAllowance({ childId, amount, dayOfWeek, hourOfDay, isActive })
   if (!result) return { success: false, error: 'Failed to save' }
 
   revalidatePath(ROUTES.PARENT.SETTINGS)

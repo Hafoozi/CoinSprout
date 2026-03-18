@@ -160,6 +160,7 @@ export interface Database {
           amount:           number
           frequency:        string
           day_of_week:      number
+          hour_of_day:      number
           is_active:        boolean
           last_prompted_at: string | null
           created_at:       string
@@ -170,6 +171,7 @@ export interface Database {
           amount:            number
           frequency?:        string
           day_of_week:       number
+          hour_of_day?:      number
           is_active?:        boolean
           last_prompted_at?: string | null
           created_at?:       string
@@ -180,6 +182,7 @@ export interface Database {
           amount?:           number
           frequency?:        string
           day_of_week?:      number
+          hour_of_day?:      number
           is_active?:        boolean
           last_prompted_at?: string | null
           created_at?:       string
