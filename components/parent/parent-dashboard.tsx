@@ -7,6 +7,7 @@ import type { Child, Family } from '@/lib/db/types'
 interface ChildEntry {
   child:          Child
   savingsBalance: number
+  activeGoals:    number
 }
 
 interface Props {
@@ -45,11 +46,12 @@ export default function ParentDashboard({ family, childEntries }: Props) {
           <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
             Children ({childEntries.length})
           </p>
-          {childEntries.map(({ child, savingsBalance }) => (
+          {childEntries.map(({ child, savingsBalance, activeGoals }) => (
             <ChildSummaryCard
               key={child.id}
               child={child}
               savingsBalance={savingsBalance}
+              activeGoals={activeGoals}
             />
           ))}
         </div>

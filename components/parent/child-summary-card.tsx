@@ -16,9 +16,10 @@ const AVATAR_EMOJI: Record<string, string> = {
 interface Props {
   child:          Child
   savingsBalance: number
+  activeGoals:    number
 }
 
-export default function ChildSummaryCard({ child, savingsBalance }: Props) {
+export default function ChildSummaryCard({ child, savingsBalance, activeGoals }: Props) {
   const colorClass = AVATAR_BG[child.avatar_color ?? 'sprout'] ?? AVATAR_BG.sprout
   const emoji      = AVATAR_EMOJI[child.avatar_color ?? 'sprout'] ?? '🌱'
 
@@ -36,9 +37,16 @@ export default function ChildSummaryCard({ child, savingsBalance }: Props) {
 
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-gray-800 truncate">{child.name}</p>
-        <div className="mt-0.5 flex items-center gap-1.5">
-          <span className="text-xs text-gray-400">Savings</span>
-          <MoneyAmount amount={savingsBalance} size="sm" className="text-sprout-700" />
+        <div className="mt-0.5 flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-400">Savings</span>
+            <MoneyAmount amount={savingsBalance} size="sm" className="text-sprout-700" />
+          </div>
+          {activeGoals > 0 && (
+            <span className="text-xs text-blue-500">
+              🎯 {activeGoals} goal{activeGoals !== 1 ? 's' : ''}
+            </span>
+          )}
         </div>
       </div>
 
