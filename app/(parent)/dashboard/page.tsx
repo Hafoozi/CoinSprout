@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+
+export const dynamic = 'force-dynamic'
+
 import { requireParent } from '@/lib/auth/require-parent'
 import { getChildrenByFamilyId } from '@/lib/db/queries/children'
 import { getTransactionsByChildId } from '@/lib/db/queries/transactions'
