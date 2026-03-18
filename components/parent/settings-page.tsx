@@ -3,12 +3,14 @@
 import { useFormState, useFormStatus } from 'react-dom'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { saveCurrencySettings } from '@/actions/family-settings'
 import { setChildPin, setParentPin } from '@/actions/profile-switch'
 import ChildAdvancedSettings from '@/components/parent/child-advanced-settings'
 import PinPad from '@/components/ui/pin-pad'
 import Dialog from '@/components/ui/dialog'
 import { CURRENCY_OPTIONS } from '@/lib/constants/currencies'
+import { ROUTES } from '@/lib/constants/routes'
 import type { Child, CurrencySymbol } from '@/lib/db/types'
 import type { ResolvedChildSettings } from '@/types/domain'
 
@@ -103,6 +105,9 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
 
   return (
     <div className="py-3 space-y-4">
+      <Link href={ROUTES.PARENT.DASHBOARD} className="inline-flex items-center gap-1 text-sm text-sprout-600 hover:text-sprout-800 transition-colors">
+        ← Parent
+      </Link>
       <h1 className="text-xl font-bold text-gray-800">Settings</h1>
 
       {/* ── Currency ─────────────────────────────────────────────────────── */}

@@ -1,9 +1,17 @@
 import Link from 'next/link'
-import Button from '@/components/ui/button'
 import MoneyAmount from '@/components/shared/money-amount'
 import { ROUTES } from '@/lib/constants/routes'
 import type { Child } from '@/lib/db/types'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
+
+const AVATAR_EMOJI: Record<string, string> = {
+  sprout: '🌱',
+  sky:    '🔵',
+  gold:   '🌟',
+  rose:   '🌸',
+  violet: '💜',
+  orange: '🍊',
+}
 
 interface Props {
   child:          Child
@@ -12,14 +20,18 @@ interface Props {
 
 export default function ChildSummaryCard({ child, savingsBalance }: Props) {
   const colorClass = AVATAR_BG[child.avatar_color ?? 'sprout'] ?? AVATAR_BG.sprout
+  const emoji      = AVATAR_EMOJI[child.avatar_color ?? 'sprout'] ?? '🌱'
 
   return (
-    <div className="card-surface flex items-center gap-4 p-4">
-      {/* Avatar initial */}
+    <Link
+      href={ROUTES.PARENT.CHILD(child.id)}
+      className="card-surface flex items-center gap-4 p-4 hover:bg-sprout-50 transition-colors cursor-pointer"
+    >
+      {/* Avatar */}
       <div
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl font-bold ${colorClass}`}
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl ${colorClass}`}
       >
-        {child.name.charAt(0).toUpperCase()}
+        {emoji}
       </div>
 
       <div className="flex-1 min-w-0">
@@ -30,11 +42,7 @@ export default function ChildSummaryCard({ child, savingsBalance }: Props) {
         </div>
       </div>
 
-      <Link href={ROUTES.PARENT.CHILD(child.id)}>
-        <Button variant="secondary" size="sm">
-          View
-        </Button>
-      </Link>
-    </div>
+      <span className="text-gray-300 text-lg">›</span>
+    </Link>
   )
 }

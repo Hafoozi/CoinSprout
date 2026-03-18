@@ -20,7 +20,7 @@ export default function ParentDashboard({ family, childEntries }: Props) {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-sprout-800">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-sprout-800">Parent Dashboard</h1>
         <Link href={ROUTES.PARENT.NEW_CHILD}>
           <Button size="sm">+ Add child</Button>
         </Link>
