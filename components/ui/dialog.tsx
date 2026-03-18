@@ -51,7 +51,7 @@ export default function Dialog({ open, onClose, title, children }: DialogProps) 
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
-        className="card-surface w-full max-w-sm p-6 space-y-4 outline-none max-h-[85vh] overflow-y-auto"
+        className="card-surface w-full max-w-md p-6 space-y-4 outline-none max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">

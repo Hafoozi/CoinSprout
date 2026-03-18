@@ -30,7 +30,7 @@ export default function Select({ label, error, options, className, id, ...props 
           </option>
         ))}
       </select>
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-red-500 break-words">{error}</p>}
     </div>
   )
 }
