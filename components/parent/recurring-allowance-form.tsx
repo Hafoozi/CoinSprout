@@ -29,13 +29,16 @@ function SubmitButton() {
 }
 
 interface Props {
-  childId:  string
-  existing: RecurringAllowance | null
+  childId:   string
+  existing:  RecurringAllowance | null
+  onSuccess?: () => void
 }
 
-export default function RecurringAllowanceForm({ childId, existing }: Props) {
+export default function RecurringAllowanceForm({ childId, existing, onSuccess }: Props) {
   const currency = useCurrency()
   const [state, action] = useFormState(saveRecurringAllowance, null)
+
+  if (state?.success && onSuccess) onSuccess()
 
   const isActive = existing?.is_active ?? false
 

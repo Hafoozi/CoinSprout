@@ -7,11 +7,12 @@ import Link from 'next/link'
 import { saveCurrencySettings } from '@/actions/family-settings'
 import { setChildPin, setParentPin } from '@/actions/profile-switch'
 import ChildAdvancedSettings from '@/components/parent/child-advanced-settings'
+import RecurringAllowanceForm from '@/components/parent/recurring-allowance-form'
 import PinPad from '@/components/ui/pin-pad'
 import Dialog from '@/components/ui/dialog'
 import { CURRENCY_OPTIONS } from '@/lib/constants/currencies'
 import { ROUTES } from '@/lib/constants/routes'
-import type { Child, CurrencySymbol } from '@/lib/db/types'
+import type { Child, CurrencySymbol, RecurringAllowance } from '@/lib/db/types'
 import type { ResolvedChildSettings } from '@/types/domain'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -27,6 +28,7 @@ interface Props {
   hasParentPin: boolean
   children:     Child[]
   settingsMap:  Record<string, ResolvedChildSettings>
+  allowanceMap: Record<string, RecurringAllowance | null>
 }
 
 // ─── Save button (needs useFormStatus inside the form) ───────────────────────
@@ -46,7 +48,7 @@ function SaveButton() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function SettingsPage({ currency, hasParentPin, children, settingsMap }: Props) {
+export default function SettingsPage({ currency, hasParentPin, children, settingsMap, allowanceMap }: Props) {
   const router = useRouter()
   const [currencyState, currencyAction] = useFormState(saveCurrencySettings, null)
   const [pinMode,    setPinMode]    = useState<PinMode>({ type: 'closed' })
@@ -233,11 +235,20 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
                   <span className={`text-gray-400 text-xs transition-transform duration-200 ${openChild === child.id ? 'rotate-180' : ''}`}>▾</span>
                 </button>
                 {openChild === child.id && (
-                  <div className="px-4 pb-4 pt-2 border-t border-gray-100">
-                    <ChildAdvancedSettings
-                      childId={child.id}
-                      settings={settingsMap[child.id]}
-                    />
+                  <div className="px-4 pb-4 pt-2 border-t border-gray-100 space-y-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 pb-1">💵 Allowance</p>
+                      <RecurringAllowanceForm
+                        childId={child.id}
+                        existing={allowanceMap[child.id]}
+                      />
+                    </div>
+                    <div className="border-t border-gray-100 pt-4">
+                      <ChildAdvancedSettings
+                        childId={child.id}
+                        settings={settingsMap[child.id]}
+                      />
+                    </div>
                   </div>
                 )}
               </div>

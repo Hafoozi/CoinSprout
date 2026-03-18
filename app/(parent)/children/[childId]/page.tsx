@@ -10,7 +10,7 @@ import ActivitySection from '@/components/child/activity-section'
 import GoalActions from '@/components/parent/goal-actions'
 import QuickActions from '@/components/parent/quick-actions'
 import EditChildButton from '@/components/parent/edit-child-button'
-import RecurringAllowanceForm from '@/components/parent/recurring-allowance-form'
+import AllowanceWidget from '@/components/parent/allowance-widget'
 import { ROUTES } from '@/lib/constants/routes'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 
@@ -104,13 +104,8 @@ export default async function ChildProfilePage({
         )}
       </section>
 
-      {/* Recurring allowance */}
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Allowance</h2>
-        <div className="card-surface p-4">
-          <RecurringAllowanceForm childId={child.id} existing={allowance} />
-        </div>
-      </section>
+      {/* Allowance widget — only shows if an active allowance is configured */}
+      <AllowanceWidget childId={child.id} allowance={allowance} />
 
       {/* Interactive earnings chart + filterable/sortable activity list */}
       <ActivitySection

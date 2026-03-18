@@ -43,5 +43,35 @@ export async function saveRecurringAllowance(
   if (!result) return { success: false, error: 'Failed to save' }
 
   revalidatePath(ROUTES.PARENT.SETTINGS)
+  revalidatePath(ROUTES.PARENT.CHILD(childId))
+  return { success: true }
+}
+
+export async function skipNextAllowance(childId: string): Promise<ActionResult> {
+  const { family } = await requireParent()
+
+  const children = await getChildrenByFamilyId(family.id)
+  if (!children.some((c) => c.id === childId)) {
+    return { success: false, error: 'Child not found' }
+  }
+
+  // Find the allowance to get day_of_week
+  const { getRecurringAllowanceByChildId } = await import('@/lib/db/queries/recurring-allowances')
+  const allowance = await getRecurringAllowanceByChildId(childId)
+  if (!allowance?.is_active) return { success: false, error: 'No active allowance' }
+
+  // Calculate next occurrence date
+  const today      = new Date()
+  const todayDay   = today.getDay()
+  let daysUntil    = (allowance.day_of_week - todayDay + 7) % 7
+  if (daysUntil === 0) daysUntil = 7 // already ran today or same day next week
+  const nextDate   = new Date(today)
+  nextDate.setDate(today.getDate() + daysUntil)
+  const nextDateStr = nextDate.toISOString().slice(0, 10)
+
+  const { updateLastPromptedAt } = await import('@/lib/db/mutations/recurring-allowances')
+  await updateLastPromptedAt(childId, nextDateStr + 'T00:00:00.000Z')
+
+  revalidatePath(ROUTES.PARENT.CHILD(childId))
   return { success: true }
 }
