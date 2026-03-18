@@ -48,10 +48,6 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
 
   const next    = nextOccurrence(allowance.day_of_week)
   const nextStr = next.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-  const h       = allowance.hour_of_day
-  const ampm    = h < 12 ? 'AM' : 'PM'
-  const h12     = h % 12 === 0 ? 12 : h % 12
-  const timeStr = `${h12}:00 ${ampm}`
 
   const hasOverride    = allowance.next_amount_override != null
   const displayAmount  = allowance.next_amount_override ?? allowance.amount
@@ -198,7 +194,7 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
             )}
             {overrideError && <p className="text-xs text-red-500">{overrideError}</p>}
             <p className="text-xs text-gray-400">
-              every {DAY_NAMES[allowance.day_of_week]} at {timeStr} · next {nextStr}
+              every {DAY_NAMES[allowance.day_of_week]} · next {nextStr}
             </p>
           </div>
 

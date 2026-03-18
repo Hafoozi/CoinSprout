@@ -16,12 +16,6 @@ const DAYS = [
   { value: 0, label: 'Sunday'    },
 ]
 
-const HOURS = Array.from({ length: 16 }, (_, i) => {
-  const h24 = i + 6 // 6 AM to 9 PM
-  const ampm = h24 < 12 ? 'AM' : 'PM'
-  const h12  = h24 % 12 === 0 ? 12 : h24 % 12
-  return { value: h24, label: `${h12}:00 ${ampm}` }
-})
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -100,40 +94,23 @@ export default function RecurringAllowanceForm({ childId, existing, onSuccess }:
         </div>
       </div>
 
-      {/* Day of week + Time */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label htmlFor={`day-${childId}`} className="text-sm font-medium text-gray-700">
-            Day
-          </label>
-          <select
-            id={`day-${childId}`}
-            name="dayOfWeek"
-            defaultValue={existing?.day_of_week ?? 1}
-            className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-sprout-300"
-          >
-            {DAYS.map((d) => (
-              <option key={d.value} value={d.value}>{d.label}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-1">
-          <label htmlFor={`hour-${childId}`} className="text-sm font-medium text-gray-700">
-            Time
-          </label>
-          <select
-            id={`hour-${childId}`}
-            name="hourOfDay"
-            defaultValue={existing?.hour_of_day ?? 9}
-            className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-sprout-300"
-          >
-            {HOURS.map((h) => (
-              <option key={h.value} value={h.value}>{h.label}</option>
-            ))}
-          </select>
-        </div>
+      {/* Day of week */}
+      <div className="space-y-1">
+        <label htmlFor={`day-${childId}`} className="text-sm font-medium text-gray-700">
+          Day
+        </label>
+        <select
+          id={`day-${childId}`}
+          name="dayOfWeek"
+          defaultValue={existing?.day_of_week ?? 1}
+          className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-sprout-300"
+        >
+          {DAYS.map((d) => (
+            <option key={d.value} value={d.value}>{d.label}</option>
+          ))}
+        </select>
       </div>
+      <input type="hidden" name="hourOfDay" value="9" />
 
       {state && !state.success && (
         <p className="text-sm text-red-500">{state.error}</p>
