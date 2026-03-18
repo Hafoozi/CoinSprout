@@ -11,7 +11,7 @@ import { resolveChildSettings } from '@/lib/calculations/child-settings'
 import { DEFAULT_CURRENCY } from '@/lib/constants/currencies'
 import SettingsPage from '@/components/parent/settings-page'
 import type { ResolvedChildSettings } from '@/types/domain'
-import type { RecurringAllowance, CurrencySymbol } from '@/lib/db/types'
+import type { CurrencySymbol, RecurringAllowance } from '@/lib/db/types'
 
 export const metadata: Metadata = {
   title: 'Settings — CoinSprout',

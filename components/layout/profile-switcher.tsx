@@ -1,11 +1,9 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Dialog from '@/components/ui/dialog'
-import PinPad from '@/components/ui/pin-pad'
-import { verifyChildPin } from '@/actions/profile-switch'
 import { ROUTES } from '@/lib/constants/routes'
 import type { Child } from '@/lib/db/types'
 
@@ -15,43 +13,19 @@ interface ProfileSwitcherProps {
   parentName:   string
 }
 
-type Mode =
-  | { type: 'closed' }
-  | { type: 'select' }
-  | { type: 'enter-child-pin'; child: Child }
+type Mode = { type: 'closed' } | { type: 'select' }
 
 export default function ProfileSwitcher({ children, hasParentPin: _hasParentPin, parentName: _parentName }: ProfileSwitcherProps) {
   const router = useRouter()
-  const [mode,      setMode]      = useState<Mode>({ type: 'closed' })
-  const [error,     setError]     = useState<string>()
-  const [isPending, startTransition] = useTransition()
+  const [mode, setMode] = useState<Mode>({ type: 'closed' })
 
   function close() {
     setMode({ type: 'closed' })
-    setError(undefined)
   }
 
   function handleChildClick(child: Child) {
-    if (child.pin_hash) {
-      setError(undefined)
-      setMode({ type: 'enter-child-pin', child })
-    } else {
-      close()
-      router.push(ROUTES.CHILD.HOME(child.id))
-    }
-  }
-
-  function handleChildPinEntry(child: Child, pin: string) {
-    setError(undefined)
-    startTransition(async () => {
-      const result = await verifyChildPin(child.id, pin)
-      if (result.success) {
-        close()
-        router.push(ROUTES.CHILD.HOME(child.id))
-      } else {
-        setError(result.error ?? 'Incorrect PIN')
-      }
-    })
+    close()
+    router.push(ROUTES.CHILD.HOME(child.id))
   }
 
   return (
@@ -59,7 +33,7 @@ export default function ProfileSwitcher({ children, hasParentPin: _hasParentPin,
       {/* Trigger button */}
       <button
         type="button"
-        onClick={() => { setError(undefined); setMode({ type: 'select' }) }}
+        onClick={() => setMode({ type: 'select' })}
         className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
       >
         <span>👤</span>
@@ -81,7 +55,7 @@ export default function ProfileSwitcher({ children, hasParentPin: _hasParentPin,
               </div>
               <div>
                 <p className="font-medium text-gray-800">{child.name}</p>
-                <p className="text-xs text-gray-400">{child.pin_hash ? 'PIN protected' : 'Child'}</p>
+                <p className="text-xs text-gray-400">Child</p>
               </div>
               <span className="ml-auto text-gray-300">›</span>
             </button>
@@ -99,18 +73,6 @@ export default function ProfileSwitcher({ children, hasParentPin: _hasParentPin,
         </div>
       </Dialog>
 
-      {/* ── Enter child PIN dialog ── */}
-      {mode.type === 'enter-child-pin' && (
-        <Dialog open={true} onClose={close} title={`Enter PIN for ${mode.child.name}`}>
-          <PinPad
-            title={`Enter ${mode.child.name}'s PIN`}
-            subtitle="Enter the 4-digit PIN to access this profile"
-            error={error}
-            isLoading={isPending}
-            onComplete={(pin) => handleChildPinEntry((mode as { type: 'enter-child-pin'; child: Child }).child, pin)}
-          />
-        </Dialog>
-      )}
     </>
   )
 }

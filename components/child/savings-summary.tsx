@@ -16,7 +16,7 @@ function Stat({
   sub?:        string
 }) {
   return (
-    <div className="flex flex-col gap-1 p-4">
+    <div className="flex flex-col gap-0.5 p-3">
       <span className="text-xs font-medium uppercase tracking-wide text-gray-400">{label}</span>
       <MoneyAmount amount={amount} size="lg" className={amountClass} />
       {sub && <span className="text-xs text-gray-400">{sub}</span>}

@@ -155,34 +155,40 @@ export interface Database {
 
       recurring_allowances: {
         Row: {
-          id:               string
-          child_id:         string
-          amount:           number
-          frequency:        string
-          day_of_week:      number
-          is_active:        boolean
-          last_prompted_at: string | null
-          created_at:       string
+          id:                    string
+          child_id:              string
+          amount:                number
+          frequency:             string
+          day_of_week:           number
+          hour_of_day:           number
+          is_active:             boolean
+          last_prompted_at:      string | null
+          next_amount_override:  number | null
+          created_at:            string
         }
         Insert: {
-          id?:               string
-          child_id:          string
-          amount:            number
-          frequency?:        string
-          day_of_week:       number
-          is_active?:        boolean
-          last_prompted_at?: string | null
-          created_at?:       string
+          id?:                    string
+          child_id:               string
+          amount:                 number
+          frequency?:             string
+          day_of_week:            number
+          hour_of_day?:           number
+          is_active?:             boolean
+          last_prompted_at?:      string | null
+          next_amount_override?:  number | null
+          created_at?:            string
         }
         Update: {
-          id?:               string
-          child_id?:         string
-          amount?:           number
-          frequency?:        string
-          day_of_week?:      number
-          is_active?:        boolean
-          last_prompted_at?: string | null
-          created_at?:       string
+          id?:                    string
+          child_id?:              string
+          amount?:                number
+          frequency?:             string
+          day_of_week?:           number
+          hour_of_day?:           number
+          is_active?:             boolean
+          last_prompted_at?:      string | null
+          next_amount_override?:  number | null
+          created_at?:            string
         }
         Relationships: []
       }

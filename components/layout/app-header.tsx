@@ -31,7 +31,7 @@ export default async function AppHeader() {
         <span>CoinSprout</span>
       </Link>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <ProfileSwitcher
           children={children}
           hasParentPin={!!family.parent_pin_hash}
@@ -40,11 +40,13 @@ export default async function AppHeader() {
 
         <Link
           href={ROUTES.PARENT.SETTINGS}
-          className="flex items-center justify-center rounded-lg w-8 h-8 text-gray-500 hover:bg-gray-100 transition-colors"
+          className="flex items-center justify-center rounded-lg w-10 h-10 text-xl text-gray-500 hover:bg-gray-100 transition-colors"
           title="Settings"
         >
           ⚙️
         </Link>
+
+        <div className="w-px h-6 bg-gray-200 mx-2" />
 
         <form action={signOut}>
           <button

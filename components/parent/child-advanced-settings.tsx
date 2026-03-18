@@ -62,8 +62,8 @@ function NumberInput({ name, label, defaultValue }: { name: string; label: strin
           id={name}
           name={name}
           type="number"
-          min={1}
-          step={1}
+          min={0.01}
+          step={0.01}
           defaultValue={defaultValue}
           required
           className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-right font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-sprout-400"
@@ -156,8 +156,8 @@ export default function ChildAdvancedSettings({ childId, settings }: Props) {
                       id={field}
                       name={field}
                       type="number"
-                      min={1}
-                      step={1}
+                      min={0.01}
+                      step={0.01}
                       defaultValue={settings.fruitValues[key]}
                       required
                       className={`w-24 rounded-lg border px-2 py-1.5 text-sm text-right font-medium text-gray-800 focus:outline-none focus:ring-2 ${hasError ? 'border-red-400 focus:ring-red-400' : 'border-gray-200 focus:ring-sprout-400'}`}

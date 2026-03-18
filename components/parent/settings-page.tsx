@@ -3,6 +3,7 @@
 import { useFormState, useFormStatus } from 'react-dom'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { saveCurrencySettings } from '@/actions/family-settings'
 import { setChildPin, setParentPin } from '@/actions/profile-switch'
 import ChildAdvancedSettings from '@/components/parent/child-advanced-settings'
@@ -10,6 +11,7 @@ import RecurringAllowanceForm from '@/components/parent/recurring-allowance-form
 import PinPad from '@/components/ui/pin-pad'
 import Dialog from '@/components/ui/dialog'
 import { CURRENCY_OPTIONS } from '@/lib/constants/currencies'
+import { ROUTES } from '@/lib/constants/routes'
 import type { Child, CurrencySymbol, RecurringAllowance } from '@/lib/db/types'
 import type { ResolvedChildSettings } from '@/types/domain'
 
@@ -104,15 +106,18 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
   }
 
   return (
-    <div className="py-4 space-y-6">
+    <div className="py-3 space-y-4">
+      <Link href={ROUTES.PARENT.DASHBOARD} className="inline-flex items-center gap-1 text-sm text-sprout-600 hover:text-sprout-800 transition-colors">
+        ← Parent
+      </Link>
       <h1 className="text-xl font-bold text-gray-800">Settings</h1>
 
       {/* ── Currency ─────────────────────────────────────────────────────── */}
       <section className="space-y-2">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Currency</h2>
-        <div className="card-surface p-5">
-          <form action={currencyAction} className="space-y-4">
-            <div className="space-y-1.5">
+        <div className="card-surface p-4">
+          <form action={currencyAction} className="space-y-3">
+            <div className="space-y-1">
               <label htmlFor="currencySymbol" className="text-sm font-medium text-gray-700">
                 Currency symbol
               </label>
@@ -148,7 +153,7 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
         <div className="card-surface divide-y divide-gray-100">
 
           {/* Parent PIN */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-4 py-3">
             <div>
               <p className="text-sm font-medium text-gray-800">Parent PIN</p>
               <p className="text-xs text-gray-400">
@@ -166,7 +171,7 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
 
           {/* Per-child PINs */}
           {children.map((child) => (
-            <div key={child.id} className="flex items-center justify-between px-5 py-4">
+            <div key={child.id} className="flex items-center justify-between px-4 py-3">
               <div>
                 <p className="text-sm font-medium text-gray-800">{child.name}'s PIN</p>
                 <p className="text-xs text-gray-400">
@@ -191,58 +196,10 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
         </div>
       </section>
 
-      {/* ── Advanced Settings (per child) ────────────────────────────────── */}
-      {children.length > 0 && (
-        <section className="space-y-2">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Advanced</h2>
-          <div className="space-y-2">
-            {children.map((child) => (
-              <div key={child.id} className="card-surface overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setOpenChild(openChild === child.id ? null : child.id)}
-                  className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sprout-100 text-sprout-700 font-bold text-sm">
-                      {child.name.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="font-medium text-gray-800">{child.name}</span>
-                  </div>
-                  <span className={`text-gray-400 text-xs transition-transform duration-200 ${openChild === child.id ? 'rotate-180' : ''}`}>▾</span>
-                </button>
-                {openChild === child.id && (
-                  <div className="px-4 pb-4 pt-2 border-t border-gray-100 space-y-4">
-                    {/* Recurring allowance */}
-                    <div>
-                      <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 pb-1">
-                        💵 Allowance
-                      </h3>
-                      <RecurringAllowanceForm
-                        childId={child.id}
-                        existing={allowanceMap[child.id]}
-                      />
-                    </div>
-
-                    {/* Advanced thresholds */}
-                    <div className="border-t border-gray-100 pt-4">
-                      <ChildAdvancedSettings
-                        childId={child.id}
-                        settings={settingsMap[child.id]}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
       {/* ── Export ───────────────────────────────────────────────────────── */}
       <section className="space-y-2">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Export</h2>
-        <div className="card-surface p-5 space-y-2">
+        <div className="card-surface p-4 space-y-2">
           <p className="text-sm text-gray-600">
             Download all transactions and savings data as an Excel spreadsheet.
             Includes a summary sheet plus a sheet per child.
@@ -256,6 +213,49 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
           </a>
         </div>
       </section>
+
+      {/* ── Advanced Settings (per child) ────────────────────────────────── */}
+      {children.length > 0 && (
+        <section className="space-y-2">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Advanced</h2>
+          <div className="space-y-2">
+            {children.map((child) => (
+              <div key={child.id} className="card-surface overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setOpenChild(openChild === child.id ? null : child.id)}
+                  className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sprout-100 text-sprout-700 font-bold text-sm">
+                      {child.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="font-medium text-gray-800">{child.name}</span>
+                  </div>
+                  <span className={`text-gray-400 text-xs transition-transform duration-200 ${openChild === child.id ? 'rotate-180' : ''}`}>▾</span>
+                </button>
+                {openChild === child.id && (
+                  <div className="px-4 pb-4 pt-2 border-t border-gray-100 space-y-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 pb-1">💵 Allowance</p>
+                      <RecurringAllowanceForm
+                        childId={child.id}
+                        existing={allowanceMap[child.id]}
+                      />
+                    </div>
+                    <div className="border-t border-gray-100 pt-4">
+                      <ChildAdvancedSettings
+                        childId={child.id}
+                        settings={settingsMap[child.id]}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── PIN Dialogs ───────────────────────────────────────────────────── */}
       {pinMode.type === 'set-child-pin' && (

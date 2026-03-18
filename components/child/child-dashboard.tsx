@@ -69,25 +69,15 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
       {/* ── Responsive two-column on desktop ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
 
-        {/* LEFT — tree */}
-        <div className="card-surface overflow-hidden">
-          <TreeHero
-            stage={stage}
-            fruitClusters={fruitClusters}
-            unlockedMilestones={unlockedTypes}
-            childId={child.id}
-          />
-        </div>
-
-        {/* RIGHT — info panels */}
+        {/* LEFT — tree + next friend tracker */}
         <div className="space-y-4">
-
-          {/* Savings balance */}
-          <div className="card-surface p-5 text-center space-y-1">
-            <p className="text-sm text-gray-500 font-medium">My Savings</p>
-            <p className="text-4xl font-bold text-sprout-700 money">{fmt(summary.savingsBalance, currency)}</p>
-            <p className="text-xs text-gray-400">Free to use: {fmt(summary.freeToUse, currency)}</p>
-            <p className="text-xs text-gray-400">Lifetime earned: {fmt(summary.lifetimeEarnings, currency)}</p>
+          <div className="card-surface overflow-hidden">
+            <TreeHero
+              stage={stage}
+              fruitClusters={fruitClusters}
+              unlockedMilestones={unlockedTypes}
+              childId={child.id}
+            />
           </div>
 
           {/* Next milestone progress */}
@@ -112,6 +102,18 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
               <p className="font-semibold text-sprout-700">All friends unlocked!</p>
             </div>
           )}
+        </div>
+
+        {/* RIGHT — info panels */}
+        <div className="space-y-4">
+
+          {/* Savings balance */}
+          <div className="card-surface p-5 text-center space-y-1">
+            <p className="text-sm text-gray-500 font-medium">My Savings</p>
+            <p className="text-4xl font-bold text-sprout-700 money">{fmt(summary.savingsBalance, currency)}</p>
+            <p className="text-xs text-gray-400">Free to use: {fmt(summary.freeToUse, currency)}</p>
+            <p className="text-xs text-gray-400">Lifetime earned: {fmt(summary.lifetimeEarnings, currency)}</p>
+          </div>
 
           {/* Goals */}
           {incompleteGoals.length > 0 && (

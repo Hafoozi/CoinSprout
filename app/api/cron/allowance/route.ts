@@ -14,17 +14,19 @@ export async function GET(request: Request) {
     return new Response('Unauthorized', { status: 401 })
   }
 
-  const supabase = createServiceClient()
-  const today    = new Date()
-  const dayOfWeek = today.getDay()  // 0=Sun … 6=Sat
+  const supabase  = createServiceClient()
+  const today     = new Date()
+  const dayOfWeek = today.getUTCDay()    // 0=Sun … 6=Sat (UTC)
+  const hourOfDay = today.getUTCHours()  // 0–23 (UTC)
   const todayStr  = today.toISOString().slice(0, 10) // 'YYYY-MM-DD'
 
-  // Fetch all active allowances for today's day
+  // Fetch active allowances for today's day AND this UTC hour
   const { data: allowances, error: fetchError } = await supabase
     .from('recurring_allowances')
     .select()
     .eq('is_active', true)
     .eq('day_of_week', dayOfWeek)
+    .eq('hour_of_day', hourOfDay)
 
   if (fetchError) {
     console.error('[cron/allowance] fetch error:', fetchError)
@@ -46,12 +48,15 @@ export async function GET(request: Request) {
       continue
     }
 
+    // Use one-time override amount if set, otherwise fall back to recurring amount
+    const payoutAmount = allowance.next_amount_override ?? allowance.amount
+
     // Insert the allowance transaction
     const { error: txError } = await supabase
       .from('transactions')
       .insert({
         child_id: allowance.child_id,
-        amount:   allowance.amount,
+        amount:   payoutAmount,
         source:   'allowance',
         note:     'Weekly allowance',
       })
@@ -61,10 +66,10 @@ export async function GET(request: Request) {
       continue
     }
 
-    // Update last_prompted_at
+    // Mark as run and clear any one-time override
     await supabase
       .from('recurring_allowances')
-      .update({ last_prompted_at: today.toISOString() })
+      .update({ last_prompted_at: today.toISOString(), next_amount_override: null })
       .eq('child_id', allowance.child_id)
 
     processed++

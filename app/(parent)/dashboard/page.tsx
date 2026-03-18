@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { requireParent } from '@/lib/auth/require-parent'
 import { getChildrenByFamilyId } from '@/lib/db/queries/children'
 import { getTransactionsByChildId } from '@/lib/db/queries/transactions'
+import { getGoalsByChildId } from '@/lib/db/queries/goals'
+import { getRecurringAllowanceByChildId } from '@/lib/db/queries/recurring-allowances'
 import { calculateSavingsBalance } from '@/lib/calculations/savings'
 import ParentDashboard from '@/components/parent/parent-dashboard'
 
@@ -16,9 +18,14 @@ export default async function DashboardPage() {
   // Fetch each child's transactions in parallel, then compute balances in memory
   const childEntries = await Promise.all(
     children.map(async (child) => {
-      const transactions  = await getTransactionsByChildId(child.id)
+      const [transactions, goals, allowance] = await Promise.all([
+        getTransactionsByChildId(child.id),
+        getGoalsByChildId(child.id),
+        getRecurringAllowanceByChildId(child.id),
+      ])
       const savingsBalance = calculateSavingsBalance(transactions)
-      return { child, savingsBalance }
+      const activeGoals    = goals.filter((g) => !g.is_complete).length
+      return { child, savingsBalance, activeGoals, allowance }
     })
   )
 

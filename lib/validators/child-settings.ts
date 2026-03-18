@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-const threshold  = z.number({ invalid_type_error: 'Must be a number' }).positive('Value must be at least $1').max(99999)
-const fruitValue = z.number({ invalid_type_error: 'Must be a number' }).positive('Apple value must be at least $1').max(9999)
+const threshold  = z.number({ invalid_type_error: 'Must be a number' }).min(0.01, 'Value must be greater than 0').max(99999)
+const fruitValue = z.number({ invalid_type_error: 'Must be a number' }).min(0.01, 'Apple value must be greater than 0').max(9999)
 
 export const childSettingsSchema = z.object({
   childId: z.string().uuid(),

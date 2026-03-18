@@ -1,14 +1,18 @@
+export const dynamic = 'force-dynamic'
+
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { requireParent } from '@/lib/auth/require-parent'
 import { getChildById } from '@/lib/db/queries/children'
 import { getChildDashboardData } from '@/lib/db/queries/dashboards'
+import { getRecurringAllowanceByChildId } from '@/lib/db/queries/recurring-allowances'
 import SavingsSummary from '@/components/child/savings-summary'
 import ActivitySection from '@/components/child/activity-section'
 import GoalActions from '@/components/parent/goal-actions'
 import QuickActions from '@/components/parent/quick-actions'
 import EditChildButton from '@/components/parent/edit-child-button'
+import AllowanceWidget from '@/components/parent/allowance-widget'
 import { ROUTES } from '@/lib/constants/routes'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 
@@ -25,9 +29,10 @@ export default async function ChildProfilePage({
   await requireParent()
 
   // Fetch child profile and full financial data in parallel
-  const [child, dashboardData] = await Promise.all([
+  const [child, dashboardData, allowance] = await Promise.all([
     getChildById(params.childId),
     getChildDashboardData(params.childId),
+    getRecurringAllowanceByChildId(params.childId),
   ])
 
   // RLS will have returned null if the child doesn't belong to this parent
@@ -37,7 +42,7 @@ export default async function ChildProfilePage({
   const colorClass = AVATAR_BG[child.avatar_color ?? 'sprout'] ?? AVATAR_BG.sprout
 
   return (
-    <div className="space-y-6 py-6">
+    <div className="space-y-4 py-4">
 
       {/* Back navigation */}
       <Link
@@ -79,6 +84,9 @@ export default async function ChildProfilePage({
         goals={goals}
         freeToUse={summary.freeToUse}
       />
+
+      {/* Allowance widget — only shows if an active allowance is configured */}
+      <AllowanceWidget childId={child.id} allowance={allowance} />
 
       {/* Goals */}
       <section className="space-y-3">
