@@ -111,13 +111,22 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
       <div className="card-surface p-4 space-y-3">
         <div className="flex items-center justify-between">
           <p className="text-sm font-semibold text-gray-700">💵 Upcoming Allowance</p>
-          <button
-            type="button"
-            onClick={() => setEditOpen(true)}
-            className="text-xs text-sprout-600 hover:text-sprout-800 font-medium transition-colors"
-          >
-            Edit schedule
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={startEditingAmount}
+              className="text-xs text-sprout-600 hover:text-sprout-800 font-medium transition-colors"
+            >
+              Edit amount
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditOpen(true)}
+              className="text-xs text-sprout-600 hover:text-sprout-800 font-medium transition-colors"
+            >
+              Edit schedule
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center justify-between">
