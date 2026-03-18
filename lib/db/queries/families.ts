@@ -8,6 +8,8 @@ export async function getFamilyByUserId(userId: string): Promise<Family | null> 
     .from('families')
     .select('*')
     .eq('owner_user_id', userId)
-    .single()
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
   return data ?? null
 }
