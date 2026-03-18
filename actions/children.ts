@@ -3,9 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import { requireParent } from '@/lib/auth/require-parent'
 import { getChildById } from '@/lib/db/queries/children'
-import { createChild, updateChild } from '@/lib/db/mutations/children'
+import { createChild, updateChild, deleteChild } from '@/lib/db/mutations/children'
 import { createChildSchema, updateChildSchema } from '@/lib/validators/child'
 import { ROUTES } from '@/lib/constants/routes'
+import { redirect } from 'next/navigation'
 import type { ActionResult } from '@/types/ui'
 
 export async function getChildDisplayInfo(
@@ -33,6 +34,22 @@ export async function addChild(_: unknown, formData: FormData): Promise<ActionRe
 
   revalidatePath(ROUTES.PARENT.DASHBOARD)
   return { success: true }
+}
+
+export async function removeChild(childId: string): Promise<ActionResult> {
+  const { family } = await requireParent()
+
+  const children = await import('@/lib/db/queries/children')
+    .then(m => m.getChildrenByFamilyId(family.id))
+  if (!children.some((c) => c.id === childId)) {
+    return { success: false, error: 'Child not found' }
+  }
+
+  const ok = await deleteChild(childId)
+  if (!ok) return { success: false, error: 'Failed to delete profile' }
+
+  revalidatePath(ROUTES.PARENT.DASHBOARD)
+  redirect(ROUTES.PARENT.DASHBOARD)
 }
 
 export async function editChild(_: unknown, formData: FormData): Promise<ActionResult> {
