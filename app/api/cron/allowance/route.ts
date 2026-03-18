@@ -20,13 +20,12 @@ export async function GET(request: Request) {
   const hourOfDay = today.getUTCHours()  // 0–23 (UTC)
   const todayStr  = today.toISOString().slice(0, 10) // 'YYYY-MM-DD'
 
-  // Fetch active allowances for today's day AND this UTC hour
+  // Fetch active allowances for today's day (runs once daily at 9 AM UTC)
   const { data: allowances, error: fetchError } = await supabase
     .from('recurring_allowances')
     .select()
     .eq('is_active', true)
     .eq('day_of_week', dayOfWeek)
-    .eq('hour_of_day', hourOfDay)
 
   if (fetchError) {
     console.error('[cron/allowance] fetch error:', fetchError)
