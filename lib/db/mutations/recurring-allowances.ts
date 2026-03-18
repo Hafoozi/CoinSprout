@@ -36,3 +36,14 @@ export async function updateLastPromptedAt(
     .update({ last_prompted_at: at })
     .eq('child_id', childId)
 }
+
+export async function setNextAmountOverride(
+  childId: string,
+  override: number | null
+): Promise<void> {
+  const supabase = await createClient()
+  await supabase
+    .from('recurring_allowances')
+    .update({ next_amount_override: override })
+    .eq('child_id', childId)
+}

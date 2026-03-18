@@ -48,12 +48,15 @@ export async function GET(request: Request) {
       continue
     }
 
+    // Use one-time override amount if set, otherwise fall back to recurring amount
+    const payoutAmount = allowance.next_amount_override ?? allowance.amount
+
     // Insert the allowance transaction
     const { error: txError } = await supabase
       .from('transactions')
       .insert({
         child_id: allowance.child_id,
-        amount:   allowance.amount,
+        amount:   payoutAmount,
         source:   'allowance',
         note:     'Weekly allowance',
       })
@@ -63,10 +66,10 @@ export async function GET(request: Request) {
       continue
     }
 
-    // Update last_prompted_at
+    // Mark as run and clear any one-time override
     await supabase
       .from('recurring_allowances')
-      .update({ last_prompted_at: today.toISOString() })
+      .update({ last_prompted_at: today.toISOString(), next_amount_override: null })
       .eq('child_id', allowance.child_id)
 
     processed++

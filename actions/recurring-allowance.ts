@@ -52,6 +52,28 @@ export async function saveRecurringAllowance(
   return { success: true }
 }
 
+export async function setAllowanceOverride(
+  childId: string,
+  override: number | null
+): Promise<ActionResult> {
+  const { family } = await requireParent()
+
+  const children = await getChildrenByFamilyId(family.id)
+  if (!children.some((c) => c.id === childId)) {
+    return { success: false, error: 'Child not found' }
+  }
+
+  if (override !== null && (isNaN(override) || override <= 0)) {
+    return { success: false, error: 'Amount must be greater than 0' }
+  }
+
+  const { setNextAmountOverride } = await import('@/lib/db/mutations/recurring-allowances')
+  await setNextAmountOverride(childId, override)
+
+  revalidatePath(ROUTES.PARENT.CHILD(childId))
+  return { success: true }
+}
+
 export async function undoSkipAllowance(childId: string): Promise<ActionResult> {
   const { family } = await requireParent()
 
