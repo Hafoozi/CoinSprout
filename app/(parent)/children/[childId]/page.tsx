@@ -85,6 +85,9 @@ export default async function ChildProfilePage({
         freeToUse={summary.freeToUse}
       />
 
+      {/* Allowance widget — only shows if an active allowance is configured */}
+      <AllowanceWidget childId={child.id} allowance={allowance} />
+
       {/* Goals */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
@@ -105,9 +108,6 @@ export default async function ChildProfilePage({
           </div>
         )}
       </section>
-
-      {/* Allowance widget — only shows if an active allowance is configured */}
-      <AllowanceWidget childId={child.id} allowance={allowance} />
 
       {/* Interactive earnings chart + filterable/sortable activity list */}
       <ActivitySection

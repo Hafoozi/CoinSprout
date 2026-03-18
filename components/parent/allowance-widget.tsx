@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useFormState } from 'react-dom'
 import Dialog from '@/components/ui/dialog'
 import RecurringAllowanceForm from '@/components/parent/recurring-allowance-form'
-import { skipNextAllowance } from '@/actions/recurring-allowance'
+import { skipNextAllowance, undoSkipAllowance } from '@/actions/recurring-allowance'
 import { useCurrency } from '@/components/providers/currency-provider'
 import type { RecurringAllowance } from '@/lib/db/types'
 
@@ -50,6 +50,15 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
     })
   }
 
+  function handleUndoSkip() {
+    setSkipError(undefined)
+    startTransition(async () => {
+      const result = await undoSkipAllowance(childId)
+      if (result.success) setSkipped(false)
+      else setSkipError(result.error ?? 'Failed to undo')
+    })
+  }
+
   return (
     <>
       <div className="card-surface p-4 space-y-3">
@@ -75,7 +84,17 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
           </div>
 
           {skipped ? (
-            <span className="text-xs text-gray-400 italic">Skipped</span>
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-xs text-gray-400 italic">Skipped</span>
+              <button
+                type="button"
+                onClick={handleUndoSkip}
+                disabled={isPending}
+                className="text-xs text-sprout-600 hover:text-sprout-800 font-medium transition-colors disabled:opacity-50"
+              >
+                {isPending ? '…' : 'Undo'}
+              </button>
+            </div>
           ) : (
             <button
               type="button"

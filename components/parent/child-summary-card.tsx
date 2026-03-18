@@ -50,19 +50,19 @@ export default function ChildSummaryCard({ child, savingsBalance, activeGoals, a
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-gray-800 truncate">{child.name}</p>
-        <div className="mt-0.5 flex items-center gap-3 flex-wrap">
+        <p className="text-base font-semibold text-gray-800 truncate">{child.name}</p>
+        <div className="mt-1 flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-400">Savings</span>
-            <MoneyAmount amount={savingsBalance} size="sm" className="text-sprout-700" />
+            <span className="text-sm text-gray-400">Savings</span>
+            <MoneyAmount amount={savingsBalance} size="sm" className="text-sprout-700 font-semibold" />
           </div>
           {activeGoals > 0 && (
-            <span className="text-xs text-blue-500">
+            <span className="text-sm text-blue-500">
               🎯 {activeGoals} goal{activeGoals !== 1 ? 's' : ''}
             </span>
           )}
           {nextAllowance && (
-            <span className="text-xs text-gray-400">
+            <span className="text-sm text-gray-400">
               💵 ${nextAllowance.amount.toFixed(2)} on {nextAllowance.day}
             </span>
           )}

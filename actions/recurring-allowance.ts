@@ -52,6 +52,21 @@ export async function saveRecurringAllowance(
   return { success: true }
 }
 
+export async function undoSkipAllowance(childId: string): Promise<ActionResult> {
+  const { family } = await requireParent()
+
+  const children = await getChildrenByFamilyId(family.id)
+  if (!children.some((c) => c.id === childId)) {
+    return { success: false, error: 'Child not found' }
+  }
+
+  const { updateLastPromptedAt } = await import('@/lib/db/mutations/recurring-allowances')
+  await updateLastPromptedAt(childId, null)
+
+  revalidatePath(ROUTES.PARENT.CHILD(childId))
+  return { success: true }
+}
+
 export async function skipNextAllowance(childId: string): Promise<ActionResult> {
   const { family } = await requireParent()
 

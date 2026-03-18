@@ -28,7 +28,7 @@ export async function upsertRecurringAllowance(data: {
 
 export async function updateLastPromptedAt(
   childId: string,
-  at: string
+  at: string | null
 ): Promise<void> {
   const supabase = await createClient()
   await supabase
