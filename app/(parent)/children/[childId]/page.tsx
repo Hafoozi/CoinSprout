@@ -12,6 +12,7 @@ import ActivitySection from '@/components/child/activity-section'
 import GoalActions from '@/components/parent/goal-actions'
 import QuickActions from '@/components/parent/quick-actions'
 import EditChildButton from '@/components/parent/edit-child-button'
+import DeleteChildButton from '@/components/parent/delete-child-button'
 import AllowanceWidget from '@/components/parent/allowance-widget'
 import { ROUTES } from '@/lib/constants/routes'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
@@ -115,6 +116,11 @@ export default async function ChildProfilePage({
         breakdown={summary.sourceBreakdown}
         childId={child.id}
       />
+
+      {/* Danger zone */}
+      <div className="border-t border-gray-100 pt-4">
+        <DeleteChildButton childId={child.id} childName={child.name} />
+      </div>
 
     </div>
   )

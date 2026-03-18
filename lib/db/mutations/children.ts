@@ -39,6 +39,15 @@ export async function updateChild(
   return child ?? null
 }
 
+export async function deleteChild(childId: string): Promise<boolean> {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('children')
+    .delete()
+    .eq('id', childId)
+  return !error
+}
+
 export async function updateChildPin(childId: string, pinHash: string): Promise<void> {
   const supabase = await createClient()
   await supabase
