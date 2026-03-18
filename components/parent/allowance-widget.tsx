@@ -31,7 +31,12 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
   const [editOpen, setEditOpen]         = useState(false)
   const [isPending, startTransition]    = useTransition()
   const [skipError, setSkipError]       = useState<string>()
-  const [skipped, setSkipped]           = useState(false)
+  // Seed from DB: if last_prompted_at is a future date the allowance was skipped
+  const [skipped, setSkipped] = useState(() => {
+    if (!allowance?.last_prompted_at) return false
+    const skipDate = allowance.last_prompted_at.slice(0, 10)
+    return skipDate >= new Date().toISOString().slice(0, 10)
+  })
 
   // Inline override editing
   const [editingAmount, setEditingAmount] = useState(false)
@@ -83,8 +88,9 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
 
   function handleClearOverride() {
     startTransition(async () => {
-      await setAllowanceOverride(childId, null)
-      router.refresh()
+      const result = await setAllowanceOverride(childId, null)
+      if (result.success) router.refresh()
+      else setOverrideError(result.error ?? 'Failed to clear')
     })
   }
 
