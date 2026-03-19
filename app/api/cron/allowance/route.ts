@@ -2,10 +2,11 @@ export const dynamic = 'force-dynamic'
 
 import { createServiceClient } from '@/lib/supabase/service'
 
+const MIN_INTEREST_PAYOUT = 0.05
+
 /**
- * Daily cron job — insert allowance transactions for all active recurring allowances
- * whose day_of_week matches today and haven't already run today.
- *
+ * Daily cron job — processes interest first, then allowances.
+ * Both use day_of_week matching and skip if already run today.
  * Protected by CRON_SECRET header set in vercel.json.
  */
 export async function GET(request: Request) {
@@ -17,10 +18,74 @@ export async function GET(request: Request) {
   const supabase  = createServiceClient()
   const today     = new Date()
   const dayOfWeek = today.getUTCDay()    // 0=Sun … 6=Sat (UTC)
-  const hourOfDay = today.getUTCHours()  // 0–23 (UTC)
   const todayStr  = today.toISOString().slice(0, 10) // 'YYYY-MM-DD'
 
-  // Fetch active allowances for today's day (runs once daily at 9 AM UTC)
+  // ── 1. Process interest (before allowance so balance is correct) ──────────
+
+  const { data: interestRows, error: interestFetchError } = await supabase
+    .from('recurring_interest')
+    .select()
+    .eq('is_active', true)
+    .eq('day_of_week', dayOfWeek)
+
+  if (interestFetchError) {
+    console.error('[cron/allowance] interest fetch error:', interestFetchError)
+    return Response.json({ ok: false, error: interestFetchError.message }, { status: 500 })
+  }
+
+  let interestProcessed = 0
+  let interestSkipped   = 0
+
+  for (const interest of (interestRows ?? [])) {
+    const lastRun = interest.last_prompted_at?.slice(0, 10)
+    if (lastRun === todayStr) {
+      interestSkipped++
+      continue
+    }
+
+    // Sum all transactions for this child to get current savings balance
+    const { data: txRows } = await supabase
+      .from('transactions')
+      .select('amount')
+      .eq('child_id', interest.child_id)
+
+    const balance = (txRows ?? []).reduce((sum: number, t: { amount: number }) => sum + t.amount, 0)
+
+    if (balance <= 0) {
+      interestSkipped++
+      continue
+    }
+
+    const rawInterest = Math.round((balance * (interest.rate / 100)) * 100) / 100
+    if (rawInterest < MIN_INTEREST_PAYOUT) {
+      interestSkipped++
+      continue
+    }
+
+    const { error: txError } = await supabase
+      .from('transactions')
+      .insert({
+        child_id: interest.child_id,
+        amount:   rawInterest,
+        source:   'interest',
+        note:     `${interest.rate}% weekly interest`,
+      })
+
+    if (txError) {
+      console.error(`[cron/allowance] interest tx error for child ${interest.child_id}:`, txError)
+      continue
+    }
+
+    await supabase
+      .from('recurring_interest')
+      .update({ last_prompted_at: today.toISOString() })
+      .eq('child_id', interest.child_id)
+
+    interestProcessed++
+  }
+
+  // ── 2. Process allowances ─────────────────────────────────────────────────
+
   const { data: allowances, error: fetchError } = await supabase
     .from('recurring_allowances')
     .select()
@@ -28,29 +93,22 @@ export async function GET(request: Request) {
     .eq('day_of_week', dayOfWeek)
 
   if (fetchError) {
-    console.error('[cron/allowance] fetch error:', fetchError)
+    console.error('[cron/allowance] allowance fetch error:', fetchError)
     return Response.json({ ok: false, error: fetchError.message }, { status: 500 })
-  }
-
-  if (!allowances || allowances.length === 0) {
-    return Response.json({ ok: true, processed: 0 })
   }
 
   let processed = 0
   let skipped   = 0
 
-  for (const allowance of allowances) {
-    // Skip if already ran today
+  for (const allowance of (allowances ?? [])) {
     const lastRun = allowance.last_prompted_at?.slice(0, 10)
     if (lastRun === todayStr) {
       skipped++
       continue
     }
 
-    // Use one-time override amount if set, otherwise fall back to recurring amount
     const payoutAmount = allowance.next_amount_override ?? allowance.amount
 
-    // Insert the allowance transaction
     const { error: txError } = await supabase
       .from('transactions')
       .insert({
@@ -61,11 +119,10 @@ export async function GET(request: Request) {
       })
 
     if (txError) {
-      console.error(`[cron/allowance] tx insert error for child ${allowance.child_id}:`, txError)
+      console.error(`[cron/allowance] allowance tx error for child ${allowance.child_id}:`, txError)
       continue
     }
 
-    // Mark as run and clear any one-time override
     await supabase
       .from('recurring_allowances')
       .update({ last_prompted_at: today.toISOString(), next_amount_override: null })
@@ -74,5 +131,9 @@ export async function GET(request: Request) {
     processed++
   }
 
-  return Response.json({ ok: true, processed, skipped })
+  return Response.json({
+    ok: true,
+    interest: { processed: interestProcessed, skipped: interestSkipped },
+    allowance: { processed, skipped },
+  })
 }

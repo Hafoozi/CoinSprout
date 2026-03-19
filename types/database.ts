@@ -193,6 +193,37 @@ export interface Database {
         Relationships: []
       }
 
+      recurring_interest: {
+        Row: {
+          id:               string
+          child_id:         string
+          rate:             number
+          day_of_week:      number
+          is_active:        boolean
+          last_prompted_at: string | null
+          created_at:       string
+        }
+        Insert: {
+          id?:               string
+          child_id:          string
+          rate:              number
+          day_of_week:       number
+          is_active?:        boolean
+          last_prompted_at?: string | null
+          created_at?:       string
+        }
+        Update: {
+          id?:               string
+          child_id?:         string
+          rate?:             number
+          day_of_week?:      number
+          is_active?:        boolean
+          last_prompted_at?: string | null
+          created_at?:       string
+        }
+        Relationships: []
+      }
+
       milestones: {
         Row: {
           id: string
@@ -305,7 +336,8 @@ export interface Database {
 }
 
 // Convenience row types
-export type Family = Database['public']['Tables']['families']['Row']
+export type Family            = Database['public']['Tables']['families']['Row']
+export type RecurringInterest = Database['public']['Tables']['recurring_interest']['Row']
 export type Child = Database['public']['Tables']['children']['Row']
 export type Transaction = Database['public']['Tables']['transactions']['Row']
 export type Goal = Database['public']['Tables']['goals']['Row']
