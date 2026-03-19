@@ -25,12 +25,14 @@ export interface FruitCluster {
 
 /** Computed financial summary for a child. */
 export interface ChildFinancialSummary {
-  savingsBalance:   number   // current balance (earnings minus spending)
-  lifetimeEarnings: number   // total ever earned (never decreases)
-  totalSpent:       number   // total ever spent (positive number)
-  allocatedToGoals: number   // locked toward goals
-  freeToUse:        number   // savingsBalance minus allocatedToGoals
-  sourceBreakdown:  SourceBreakdown
+  savingsBalance:    number   // current balance (earnings minus spending)
+  lifetimeEarnings:  number   // true all-time total (for display only — never decreases)
+  treeEarnings:      number   // earnings since last tree reset (drives tree stage)
+  milestoneEarnings: number   // earnings since last milestone reset (drives animal unlocks)
+  totalSpent:        number   // total ever spent (positive number)
+  allocatedToGoals:  number   // locked toward goals
+  freeToUse:         number   // savingsBalance minus allocatedToGoals
+  sourceBreakdown:   SourceBreakdown
 }
 
 export interface SourceBreakdown {

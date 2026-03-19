@@ -11,6 +11,9 @@ import type { ActionResult } from '@/types/ui'
 export async function saveChildSettings(_: unknown, formData: FormData): Promise<ActionResult> {
   await requireParent()
 
+  const resetTree       = formData.get('resetTree')       === 'true'
+  const resetMilestones = formData.get('resetMilestones') === 'true'
+
   const raw = {
     childId:             formData.get('childId'),
     treeYoung:           Number(formData.get('treeYoung')),
@@ -42,7 +45,12 @@ export async function saveChildSettings(_: unknown, formData: FormData): Promise
   const child = await getChildById(parsed.data.childId)
   if (!child) return { success: false, error: 'Child not found' }
 
-  const result = await upsertChildSettings(parsed.data)
+  const now    = new Date().toISOString()
+  const result = await upsertChildSettings({
+    ...parsed.data,
+    ...(resetTree       ? { treeProgressResetAt:      now } : {}),
+    ...(resetMilestones ? { milestoneProgressResetAt: now } : {}),
+  })
   if (!result) return { success: false, error: 'Failed to save settings' }
 
   revalidatePath(ROUTES.PARENT.CHILD(parsed.data.childId))

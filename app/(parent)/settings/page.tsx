@@ -7,11 +7,14 @@ import { getFamilySettings } from '@/lib/db/queries/family-settings'
 import { getChildrenByFamilyId } from '@/lib/db/queries/children'
 import { getChildSettings } from '@/lib/db/queries/child-settings'
 import { getRecurringAllowanceByChildId } from '@/lib/db/queries/recurring-allowances'
+import { getRecurringInterestByChildId } from '@/lib/db/queries/recurring-interest'
+import { getTransactionsByChildId } from '@/lib/db/queries/transactions'
 import { resolveChildSettings } from '@/lib/calculations/child-settings'
+import { calculateSavingsBalance } from '@/lib/calculations/savings'
 import { DEFAULT_CURRENCY } from '@/lib/constants/currencies'
 import SettingsPage from '@/components/parent/settings-page'
 import type { ResolvedChildSettings } from '@/types/domain'
-import type { CurrencySymbol, RecurringAllowance } from '@/lib/db/types'
+import type { CurrencySymbol, RecurringAllowance, RecurringInterest } from '@/lib/db/types'
 
 export const metadata: Metadata = {
   title: 'Settings — CoinSprout',
@@ -25,9 +28,11 @@ export default async function SettingsPageRoute() {
     getChildrenByFamilyId(family.id),
   ])
 
-  const [settingsRows, allowanceRows] = await Promise.all([
+  const [settingsRows, allowanceRows, interestRows, txRows] = await Promise.all([
     Promise.all(children.map((c) => getChildSettings(c.id))),
     Promise.all(children.map((c) => getRecurringAllowanceByChildId(c.id))),
+    Promise.all(children.map((c) => getRecurringInterestByChildId(c.id))),
+    Promise.all(children.map((c) => getTransactionsByChildId(c.id))),
   ])
 
   const settingsMap: Record<string, ResolvedChildSettings> = Object.fromEntries(
@@ -38,6 +43,14 @@ export default async function SettingsPageRoute() {
     children.map((c, i) => [c.id, allowanceRows[i]])
   )
 
+  const interestMap: Record<string, RecurringInterest | null> = Object.fromEntries(
+    children.map((c, i) => [c.id, interestRows[i]])
+  )
+
+  const savingsMap: Record<string, number> = Object.fromEntries(
+    children.map((c, i) => [c.id, calculateSavingsBalance(txRows[i])])
+  )
+
   return (
     <SettingsPage
       currency={(familySettings?.currency_symbol ?? DEFAULT_CURRENCY) as CurrencySymbol}
@@ -45,6 +58,8 @@ export default async function SettingsPageRoute() {
       children={children}
       settingsMap={settingsMap}
       allowanceMap={allowanceMap}
+      interestMap={interestMap}
+      savingsMap={savingsMap}
     />
   )
 }

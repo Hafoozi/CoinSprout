@@ -8,11 +8,12 @@ import { saveCurrencySettings } from '@/actions/family-settings'
 import { setChildPin, setParentPin } from '@/actions/profile-switch'
 import ChildAdvancedSettings from '@/components/parent/child-advanced-settings'
 import RecurringAllowanceForm from '@/components/parent/recurring-allowance-form'
+import RecurringInterestForm from '@/components/parent/recurring-interest-form'
 import PinPad from '@/components/ui/pin-pad'
 import Dialog from '@/components/ui/dialog'
 import { CURRENCY_OPTIONS } from '@/lib/constants/currencies'
 import { ROUTES } from '@/lib/constants/routes'
-import type { Child, CurrencySymbol, RecurringAllowance } from '@/lib/db/types'
+import type { Child, CurrencySymbol, RecurringAllowance, RecurringInterest } from '@/lib/db/types'
 import type { ResolvedChildSettings } from '@/types/domain'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -29,6 +30,8 @@ interface Props {
   children:     Child[]
   settingsMap:  Record<string, ResolvedChildSettings>
   allowanceMap: Record<string, RecurringAllowance | null>
+  interestMap:  Record<string, RecurringInterest | null>
+  savingsMap:   Record<string, number>
 }
 
 // ─── Save button (needs useFormStatus inside the form) ───────────────────────
@@ -48,7 +51,7 @@ function SaveButton() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function SettingsPage({ currency, hasParentPin, children, settingsMap, allowanceMap }: Props) {
+export default function SettingsPage({ currency, hasParentPin, children, settingsMap, allowanceMap, interestMap, savingsMap }: Props) {
   const router = useRouter()
   const [currencyState, currencyAction] = useFormState(saveCurrencySettings, null)
   const [pinMode,    setPinMode]    = useState<PinMode>({ type: 'closed' })
@@ -241,6 +244,14 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
                       <RecurringAllowanceForm
                         childId={child.id}
                         existing={allowanceMap[child.id]}
+                      />
+                    </div>
+                    <div className="border-t border-gray-100 pt-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 pb-1">📈 Interest</p>
+                      <RecurringInterestForm
+                        childId={child.id}
+                        existing={interestMap[child.id]}
+                        savingsBalance={savingsMap[child.id] ?? 0}
                       />
                     </div>
                     <div className="border-t border-gray-100 pt-4">

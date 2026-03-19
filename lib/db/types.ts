@@ -10,6 +10,7 @@ export type {
   ChildSettings,
   FamilySettings,
   RecurringAllowance,
+  RecurringInterest,
   TransactionSource,
   MilestoneType,
   CurrencySymbol,
