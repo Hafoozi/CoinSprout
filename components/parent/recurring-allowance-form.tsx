@@ -42,7 +42,7 @@ export default function RecurringAllowanceForm({ childId, existing, onSuccess }:
 
   useEffect(() => {
     if (state?.success && onSuccess) onSuccess()
-  }, [state?.success])
+  }, [state?.success, onSuccess])
 
   const isActive = existing?.is_active ?? false
 

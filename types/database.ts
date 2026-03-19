@@ -263,7 +263,9 @@ export interface Database {
           fruit_red_value:       number | null
           fruit_silver_value:    number | null
           fruit_gold_value:      number | null
-          fruit_sparkling_value: number | null
+          fruit_sparkling_value:        number | null
+          tree_progress_reset_at:      string | null
+          milestone_progress_reset_at: string | null
           created_at: string
         }
         Insert: {
@@ -282,7 +284,9 @@ export interface Database {
           fruit_red_value?:       number | null
           fruit_silver_value?:    number | null
           fruit_gold_value?:      number | null
-          fruit_sparkling_value?: number | null
+          fruit_sparkling_value?:        number | null
+          tree_progress_reset_at?:      string | null
+          milestone_progress_reset_at?: string | null
           created_at?: string
         }
         Update: {
@@ -301,7 +305,9 @@ export interface Database {
           fruit_red_value?:       number | null
           fruit_silver_value?:    number | null
           fruit_gold_value?:      number | null
-          fruit_sparkling_value?: number | null
+          fruit_sparkling_value?:        number | null
+          tree_progress_reset_at?:      string | null
+          milestone_progress_reset_at?: string | null
           created_at?: string
         }
         Relationships: []

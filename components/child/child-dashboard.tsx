@@ -1,8 +1,7 @@
 'use client'
 
-import type { Child } from '@/lib/db/types'
+import type { Child, MilestoneType, Transaction } from '@/lib/db/types'
 import type { ChildFinancialSummary, GoalWithProgress, ResolvedChildSettings } from '@/types/domain'
-import type { Transaction } from '@/lib/db/types'
 import TreeHero from '@/components/tree/tree-hero'
 import TransactionNotifications from '@/components/child/transaction-notifications'
 import { calculateTreeStage } from '@/lib/calculations/tree-stage'
@@ -12,6 +11,8 @@ import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 import { ROUTES } from '@/lib/constants/routes'
 import AppleIcon from '@/components/ui/apple-icon'
 import { useCurrency } from '@/components/providers/currency-provider'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import Link from 'next/link'
 
 interface Props {
@@ -37,12 +38,22 @@ const ANIMAL_EMOJI: Record<MilestoneType, string> = {
 
 
 export default function ChildDashboard({ child, summary, transactions, goals, settings }: Props) {
-  const currency      = useCurrency()
-  const stage         = calculateTreeStage(summary.lifetimeEarnings, settings.treeThresholds)
+  const router   = useRouter()
+  const currency = useCurrency()
+
+  // Refresh data whenever the app comes back to the foreground (e.g. parent added funds)
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (!document.hidden) router.refresh()
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [router])
+  const stage         = calculateTreeStage(summary.treeEarnings, settings.treeThresholds)
   const fruitClusters = calculateFruitClusters(summary.savingsBalance, settings.fruitValues)
-  const unlockedTypes = getEarnedMilestones(summary.lifetimeEarnings, settings.milestoneThresholds)
-  const nextMilestone = getNextMilestone(summary.lifetimeEarnings, settings.milestoneThresholds)
-  const amountToNext  = amountToNextMilestone(summary.lifetimeEarnings, settings.milestoneThresholds)
+  const unlockedTypes = getEarnedMilestones(summary.milestoneEarnings, settings.milestoneThresholds)
+  const nextMilestone = getNextMilestone(summary.milestoneEarnings, settings.milestoneThresholds)
+  const amountToNext  = amountToNextMilestone(summary.milestoneEarnings, settings.milestoneThresholds)
   const colorClass    = AVATAR_BG[child.avatar_color ?? 'sprout'] ?? AVATAR_BG.sprout
   const milestoneProgress = nextMilestone
     ? Math.round(((nextMilestone.threshold - amountToNext) / nextMilestone.threshold) * 100)

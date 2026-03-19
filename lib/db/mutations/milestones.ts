@@ -16,23 +16,28 @@ import type { MilestoneType } from '@/lib/db/types'
 export async function syncMilestones(childId: string): Promise<MilestoneType[]> {
   const supabase = await createClient()
 
-  // 1. Compute current lifetime earnings (positive transactions only).
-  const { data: positiveRows } = await supabase
+  // 1. Resolve per-child milestone thresholds and reset date.
+  const settingsRow = await getChildSettings(childId)
+  const { milestoneThresholds } = resolveChildSettings(settingsRow)
+  const resetAt = settingsRow?.milestone_progress_reset_at ?? null
+
+  // 2. Compute milestone earnings — only count transactions after the reset date (if set).
+  let query = supabase
     .from('transactions')
     .select('amount')
     .eq('child_id', childId)
     .gt('amount', 0)
 
-  const lifetimeEarnings = roundMoney(
+  if (resetAt) query = query.gt('created_at', resetAt)
+
+  const { data: positiveRows } = await query
+
+  const milestoneEarnings = roundMoney(
     (positiveRows ?? []).reduce((sum, r) => sum + r.amount, 0)
   )
 
-  // 2. Resolve per-child milestone thresholds.
-  const settingsRow = await getChildSettings(childId)
-  const { milestoneThresholds } = resolveChildSettings(settingsRow)
-
-  // 3. Which milestones should be earned by now?
-  const shouldBeEarned = getEarnedMilestones(lifetimeEarnings, milestoneThresholds)
+  // 3. Which milestones should be earned based on post-reset earnings?
+  const shouldBeEarned = getEarnedMilestones(milestoneEarnings, milestoneThresholds)
   if (shouldBeEarned.length === 0) return []
 
   // 4. Which milestones are already recorded in the DB?

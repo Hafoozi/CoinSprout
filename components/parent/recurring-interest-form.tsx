@@ -45,7 +45,7 @@ export default function RecurringInterestForm({ childId, existing, savingsBalanc
 
   useEffect(() => {
     if (state?.success && onSuccess) onSuccess()
-  }, [state?.success])
+  }, [state?.success, onSuccess])
 
   const isActive = existing?.is_active ?? false
 

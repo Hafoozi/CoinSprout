@@ -31,16 +31,20 @@ export async function getChildDashboardData(childId: string): Promise<ChildDashb
 
   const settings = resolveChildSettings(settingsRow)
 
-  const savingsBalance   = calculateSavingsBalance(transactions)
-  const lifetimeEarnings = calculateLifetimeEarnings(transactions)
-  const totalSpent       = calculateTotalSpent(transactions)
-  const allocatedToGoals = calculateTotalAllocated(goals)
-  const freeToUse        = calculateUnallocatedSavings(savingsBalance, goals)
-  const sourceBreakdown  = calculateSourceBreakdown(transactions)
+  const savingsBalance    = calculateSavingsBalance(transactions)
+  const lifetimeEarnings  = calculateLifetimeEarnings(transactions)
+  const treeEarnings      = calculateLifetimeEarnings(transactions, settingsRow?.tree_progress_reset_at)
+  const milestoneEarnings = calculateLifetimeEarnings(transactions, settingsRow?.milestone_progress_reset_at)
+  const totalSpent        = calculateTotalSpent(transactions)
+  const allocatedToGoals  = calculateTotalAllocated(goals)
+  const freeToUse         = calculateUnallocatedSavings(savingsBalance, goals)
+  const sourceBreakdown   = calculateSourceBreakdown(transactions)
 
   const summary: ChildFinancialSummary = {
     savingsBalance,
     lifetimeEarnings,
+    treeEarnings,
+    milestoneEarnings,
     totalSpent,
     allocatedToGoals,
     freeToUse,

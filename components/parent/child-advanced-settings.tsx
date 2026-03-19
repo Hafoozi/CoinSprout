@@ -1,7 +1,7 @@
 'use client'
 
 import { useFormState, useFormStatus } from 'react-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { saveChildSettings } from '@/actions/child-settings'
 import { DEFAULT_SETTINGS } from '@/lib/calculations/child-settings'
 import { useCurrency } from '@/components/providers/currency-provider'
@@ -88,9 +88,22 @@ function SaveButton() {
 
 // ─── Main component ────────────────────────────────────────────────────────
 export default function ChildAdvancedSettings({ childId, settings }: Props) {
-  const currency        = useCurrency()
-  const [open, setOpen] = useState({ tree: false, animals: false, apples: false })
-  const [state, action] = useFormState(saveChildSettings, null)
+  const currency           = useCurrency()
+  const [open, setOpen]         = useState({ tree: false, animals: false, apples: false })
+  const [state, action]         = useFormState(saveChildSettings, null)
+  const [resetTree, setResetTree]             = useState(false)
+  const [resetMilestones, setResetMilestones] = useState(false)
+  const anyOpen = open.tree || open.animals || open.apples
+
+  // Clear reset checkboxes after a successful save.
+  // Depend on `state` (object reference) not `state?.success` (boolean) so
+  // consecutive successful saves both trigger the effect.
+  useEffect(() => {
+    if (state?.success) {
+      setResetTree(false)
+      setResetMilestones(false)
+    }
+  }, [state])
 
   function toggle(key: keyof typeof open) {
     setOpen((prev) => ({ ...prev, [key]: !prev[key] }))
@@ -117,6 +130,15 @@ export default function ChildAdvancedSettings({ childId, settings }: Props) {
             <p className="text-xs text-gray-400 pt-1">
               Defaults: {currency}{DEFAULT_SETTINGS.treeThresholds.young} / {currency}{DEFAULT_SETTINGS.treeThresholds.growing} / {currency}{DEFAULT_SETTINGS.treeThresholds.mature} / {currency}{DEFAULT_SETTINGS.treeThresholds.ancient}
             </p>
+            <label className="flex items-start gap-2.5 cursor-pointer select-none pt-2 border-t border-gray-100 mt-1">
+              <input
+                type="checkbox"
+                checked={resetTree}
+                onChange={(e) => setResetTree(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded accent-amber-500"
+              />
+              <span className="text-xs font-medium text-amber-700">Reset tree progress on save — tree stage re-evaluates from scratch</span>
+            </label>
           </Section>
 
           {/* Animal Friends */}
@@ -132,6 +154,15 @@ export default function ChildAdvancedSettings({ childId, settings }: Props) {
             <p className="text-xs text-gray-400 pt-1">
               Defaults: {currency}{DEFAULT_SETTINGS.milestoneThresholds.bunny} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.bird} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.deer} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.owl} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.fox}
             </p>
+            <label className="flex items-start gap-2.5 cursor-pointer select-none pt-2 border-t border-gray-100 mt-1">
+              <input
+                type="checkbox"
+                checked={resetMilestones}
+                onChange={(e) => setResetMilestones(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded accent-amber-500"
+              />
+              <span className="text-xs font-medium text-amber-700">Reset milestone progress on save — animals re-evaluate from scratch</span>
+            </label>
           </Section>
 
           {/* Apple Values */}
@@ -174,18 +205,43 @@ export default function ChildAdvancedSettings({ childId, settings }: Props) {
             </p>
           </Section>
 
+          {/* Fallback values for collapsed sections.
+              formData.get() returns the FIRST match — open sections' visible inputs
+              appear earlier in the DOM and take priority; these only fire when a
+              section is closed (its inputs aren't rendered). */}
+          <input type="hidden" name="treeYoung"   value={settings.treeThresholds.young} />
+          <input type="hidden" name="treeGrowing" value={settings.treeThresholds.growing} />
+          <input type="hidden" name="treeMature"  value={settings.treeThresholds.mature} />
+          <input type="hidden" name="treeAncient" value={settings.treeThresholds.ancient} />
+          <input type="hidden" name="milestoneBunny" value={settings.milestoneThresholds.bunny} />
+          <input type="hidden" name="milestoneBird"  value={settings.milestoneThresholds.bird} />
+          <input type="hidden" name="milestoneDeer"  value={settings.milestoneThresholds.deer} />
+          <input type="hidden" name="milestoneOwl"   value={settings.milestoneThresholds.owl} />
+          <input type="hidden" name="milestoneFox"   value={settings.milestoneThresholds.fox} />
+          <input type="hidden" name="fruitGreenValue"     value={settings.fruitValues.green} />
+          <input type="hidden" name="fruitRedValue"       value={settings.fruitValues.red} />
+          <input type="hidden" name="fruitSilverValue"    value={settings.fruitValues.silver} />
+          <input type="hidden" name="fruitGoldValue"      value={settings.fruitValues.gold} />
+          <input type="hidden" name="fruitSparklingValue" value={settings.fruitValues.sparkling} />
+
+          {/* Reset flags — always submitted */}
+          <input type="hidden" name="resetTree"       value={resetTree       ? 'true' : 'false'} />
+          <input type="hidden" name="resetMilestones" value={resetMilestones ? 'true' : 'false'} />
+
         </div>
 
-        {state && !state.success && !APPLE_COLORS.some(({ field }) => field === state.errorField) && (
+        {anyOpen && state && !state.success && !APPLE_COLORS.some(({ field }) => field === state.errorField) && (
           <p className="text-sm text-red-500 mt-3 px-1">{state.error}</p>
         )}
-        {state?.success && (
+        {anyOpen && state?.success && (
           <p className="text-sm text-sprout-600 font-medium mt-3 px-1">Settings saved!</p>
         )}
 
-        <div className="mt-3">
-          <SaveButton />
-        </div>
+        {anyOpen && (
+          <div className="mt-3">
+            <SaveButton />
+          </div>
+        )}
       </form>
     </div>
   )
