@@ -18,6 +18,7 @@ export const ROUTES = {
   },
 
   CHILD: {
+    KIDS:     '/kids',
     HOME:     (childId: string) => `/child/${childId}`,
     GOALS:    (childId: string) => `/child/${childId}/goals`,
     ACTIVITY: (childId: string) => `/child/${childId}/activity`,
