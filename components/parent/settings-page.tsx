@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { saveCurrencySettings } from '@/actions/family-settings'
 import { setChildPin, setParentPin } from '@/actions/profile-switch'
+import { triggerPayoutsNow } from '@/actions/trigger-payouts'
+import type { ChildPayoutResult } from '@/actions/trigger-payouts'
 import ChildAdvancedSettings from '@/components/parent/child-advanced-settings'
 import RecurringAllowanceForm from '@/components/parent/recurring-allowance-form'
 import RecurringInterestForm from '@/components/parent/recurring-interest-form'
@@ -34,6 +36,24 @@ interface Props {
   savingsMap:   Record<string, number>
 }
 
+// ─── Payout result line ───────────────────────────────────────────────────────
+
+function PayoutLine({ label, result }: { label: string; result: ChildPayoutResult['allowance'] }) {
+  if (result.status === 'none') return null
+  const text =
+    result.status === 'paid'         ? `✓ $${result.amount?.toFixed(2)} paid` :
+    result.status === 'already_paid' ? 'Already paid today' :
+    result.status === 'skipped'      ? `Skipped — ${result.reason}` :
+    `Error — ${result.reason}`
+  const color =
+    result.status === 'paid'    ? 'text-sprout-600' :
+    result.status === 'error'   ? 'text-red-500'    :
+    'text-gray-400'
+  return (
+    <p className={`text-xs ${color}`}>{label}: {text}</p>
+  )
+}
+
 // ─── Save button (needs useFormStatus inside the form) ───────────────────────
 
 function SaveButton() {
@@ -54,10 +74,12 @@ function SaveButton() {
 export default function SettingsPage({ currency, hasParentPin, children, settingsMap, allowanceMap, interestMap, savingsMap }: Props) {
   const router = useRouter()
   const [currencyState, currencyAction] = useFormState(saveCurrencySettings, null)
-  const [pinMode,    setPinMode]    = useState<PinMode>({ type: 'closed' })
-  const [pinError,   setPinError]   = useState<string>()
-  const [openChild,  setOpenChild]  = useState<string | null>(null)
-  const [isPending,  startTransition] = useTransition()
+  const [pinMode,        setPinMode]       = useState<PinMode>({ type: 'closed' })
+  const [pinError,       setPinError]      = useState<string>()
+  const [openChild,      setOpenChild]     = useState<string | null>(null)
+  const [isPending,      startTransition]  = useTransition()
+  const [payoutPending,  startPayoutTx]   = useTransition()
+  const [payoutResults,  setPayoutResults] = useState<ChildPayoutResult[] | null>(null)
 
   function closePinDialog() {
     setPinMode({ type: 'closed' })
@@ -216,6 +238,49 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
           </a>
         </div>
       </section>
+
+      {/* ── Payouts ──────────────────────────────────────────────────────── */}
+      {children.length > 0 && (
+        <section className="space-y-2">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Payouts</h2>
+          <div className="card-surface p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-800">Run payouts now</p>
+                <p className="text-xs text-gray-400">Skips the day-of-week check — won&apos;t double-pay on the same day</p>
+              </div>
+              <button
+                type="button"
+                disabled={payoutPending}
+                onClick={() => {
+                  setPayoutResults(null)
+                  startPayoutTx(async () => {
+                    const { results } = await triggerPayoutsNow()
+                    setPayoutResults(results)
+                  })
+                }}
+                className="shrink-0 rounded-xl bg-sprout-500 hover:bg-sprout-600 disabled:opacity-50 text-white font-bold px-4 py-2 text-sm transition-colors"
+              >
+                {payoutPending ? 'Running…' : '▶ Run'}
+              </button>
+            </div>
+
+            {payoutResults && (
+              <div className="space-y-2 border-t border-gray-100 pt-3">
+                {payoutResults.map((r) => (
+                  <div key={r.childName} className="space-y-1">
+                    <p className="text-sm font-semibold text-gray-700">{r.childName}</p>
+                    <div className="space-y-0.5 pl-2">
+                      <PayoutLine label="Allowance" result={r.allowance} />
+                      <PayoutLine label="Interest"  result={r.interest} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* ── Advanced Settings (per child) ────────────────────────────────── */}
       {children.length > 0 && (
