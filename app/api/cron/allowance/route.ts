@@ -57,16 +57,13 @@ export async function GET(request: Request) {
     }
 
     const rawInterest = Math.round((balance * (interest.rate / 100)) * 100) / 100
-    if (rawInterest < MIN_INTEREST_PAYOUT) {
-      interestSkipped++
-      continue
-    }
+    const amount = Math.max(MIN_INTEREST_PAYOUT, rawInterest)
 
     const { error: txError } = await supabase
       .from('transactions')
       .insert({
         child_id: interest.child_id,
-        amount:   rawInterest,
+        amount,
         source:   'interest',
         note:     `${interest.rate}% weekly interest`,
       })
