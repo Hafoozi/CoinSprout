@@ -235,9 +235,6 @@ function TreeSvg({
       {/* ── Sky background ── */}
       <rect x="0" y="0" width="320" height="228" fill="url(#skyGrad)"/>
 
-      {/* ── Ground ── */}
-      <rect x="0" y="225" width="320" height="40" fill="url(#groundGrad)"/>
-
       {/* ── Stars (night only) ── */}
       {isNight && STARS.map(([x, y, r, delay], i) => (
         <circle
@@ -854,6 +851,9 @@ function TreeSvg({
           <ellipse cx="390" cy="144" rx="10" ry="6" fill="#2E8A12" opacity="0.50" transform="rotate(21,390,144)"/>
         </g>
       </>}
+
+      {/* ── Ground (rendered after tree so it covers the roots) ── */}
+      <rect x="0" y="225" width="320" height="40" fill="url(#groundGrad)"/>
 
       {/* ── Fruit ── */}
       {flatFruits.map((f, i) => {
