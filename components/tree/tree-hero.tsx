@@ -671,7 +671,7 @@ function TreeSvg({
           <stop offset="100%" stopColor="#1E0B02"/>
         </linearGradient>
         </defs>
-        <g transform="translate(25,0) scale(0.396)">
+        <g transform="translate(25,6) scale(0.396)">
           <path d="M306,540 C284,534 254,526 220,530 C202,532 186,538 176,546 C168,552 164,558 162,564" fill="none" stroke="#1E0B02" strokeWidth="9" strokeLinecap="round"/>
           <path d="M298,544 C272,540 240,537 210,542 C196,545 184,551 178,558" fill="none" stroke="#1E0B02" strokeWidth="6" strokeLinecap="round"/>
           <path d="M290,548 C268,546 246,547 228,553 C216,557 206,562 200,568" fill="none" stroke="#1E0B02" strokeWidth="4" strokeLinecap="round"/>

@@ -359,7 +359,7 @@ function Mature() {
 
 function Ancient() {
   return (
-    <g transform="translate(-30,5) scale(0.430)">
+    <g transform="translate(-30,21) scale(0.430)">
       <defs>
     <linearGradient id="stAncTrunkGrad" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stopColor="#120601"/>
