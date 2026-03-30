@@ -52,25 +52,22 @@ export async function triggerPayoutsNow(): Promise<{ results: ChildPayoutResult[
         if (balance <= 0) {
           result.interest = { status: 'skipped', reason: 'No savings balance' }
         } else {
-          const amount = Math.round(balance * (interest.rate / 100) * 100) / 100
-          if (amount < MIN_INTEREST_PAYOUT) {
-            result.interest = { status: 'skipped', reason: `$${amount.toFixed(2)} below minimum` }
+          const rawInterest = Math.round(balance * (interest.rate / 100) * 100) / 100
+          const amount = Math.max(MIN_INTEREST_PAYOUT, rawInterest)
+          const { error } = await supabase.from('transactions').insert({
+            child_id: child.id,
+            amount,
+            source: 'interest',
+            note:   `${interest.rate}% weekly interest`,
+          })
+          if (error) {
+            result.interest = { status: 'error', reason: error.message }
           } else {
-            const { error } = await supabase.from('transactions').insert({
-              child_id: child.id,
-              amount,
-              source: 'interest',
-              note:   `${interest.rate}% weekly interest`,
-            })
-            if (error) {
-              result.interest = { status: 'error', reason: error.message }
-            } else {
-              await supabase
-                .from('recurring_interest')
-                .update({ last_prompted_at: new Date().toISOString() })
-                .eq('child_id', child.id)
-              result.interest = { status: 'paid', amount }
-            }
+            await supabase
+              .from('recurring_interest')
+              .update({ last_prompted_at: new Date().toISOString() })
+              .eq('child_id', child.id)
+            result.interest = { status: 'paid', amount }
           }
         }
       }
