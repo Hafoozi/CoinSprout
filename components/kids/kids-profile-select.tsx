@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ROUTES } from '@/lib/constants/routes'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
@@ -24,6 +24,13 @@ export default function KidsProfileSelect({ children }: Props) {
   const [pending, startTransition] = useTransition()
   const [selected, setSelected] = useState<ChildEntry | null>(null)
   const [error,    setError]    = useState<string | undefined>()
+
+  // Single child with a PIN — open the dialog automatically on mount
+  useEffect(() => {
+    if (children.length === 1 && children[0].hasPin) {
+      setSelected(children[0])
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSelect(child: ChildEntry) {
     if (!child.hasPin) {

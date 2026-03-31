@@ -48,7 +48,7 @@ export async function allocateToGoal(data: {
 
   const supabase = await createClient()
 
-  // Fetch goal to get current allocated_amount.
+  // Fetch goal to get current allocated_amount and target_price.
   const { data: goal } = await supabase
     .from('goals')
     .select('*')
@@ -56,12 +56,17 @@ export async function allocateToGoal(data: {
     .single()
   if (!goal) return null
 
-  const newAllocated = roundMoney(goal.allocated_amount + amount)
+  // Cap at remaining — never overfund. Excess stays in free savings.
+  const remaining = roundMoney(goal.target_price - goal.allocated_amount)
+  if (remaining <= 0) return null // already complete
+  const cappedAmount = roundMoney(Math.min(amount, remaining))
+
+  const newAllocated = roundMoney(goal.allocated_amount + cappedAmount)
 
   // 1. Append to the allocation audit trail.
   await supabase
     .from('goal_allocations')
-    .insert({ goal_id: goalId, amount })
+    .insert({ goal_id: goalId, amount: cappedAmount })
 
   // 2. Update the cached total on the goal row.
   const { data: updated } = await supabase
