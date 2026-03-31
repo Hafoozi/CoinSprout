@@ -113,6 +113,11 @@ export async function childAllocateToGoal(goalId: string, amount: number): Promi
   try {
     await requireParent()
 
+    const rounded = Math.round(amount * 100) / 100
+    if (!Number.isFinite(rounded) || rounded <= 0) {
+      return { success: false, error: 'Invalid amount' }
+    }
+
     const goal = await getGoalById(goalId)
     if (!goal) return { success: false, error: 'Goal not found' }
 
@@ -126,7 +131,7 @@ export async function childAllocateToGoal(goalId: string, amount: number): Promi
 
     const updated = await allocateToGoalMutation({
       goalId,
-      amount,
+      amount:                rounded,
       currentSavingsBalance: savingsBalance,
       currentTotalAllocated: totalAllocated,
     })
