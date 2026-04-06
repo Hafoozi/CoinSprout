@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useTransition } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
-import { saveRecurringAllowance } from '@/actions/recurring-allowance'
+import { saveRecurringAllowance, skipNextAllowance, undoSkipAllowance } from '@/actions/recurring-allowance'
 import { useCurrency } from '@/components/providers/currency-provider'
+import { formatPaymentDate, calcNextPaymentDate, addDaysToDate } from '@/lib/utils/payment-date'
 import type { RecurringAllowance } from '@/lib/db/types'
 
 const DAYS = [
@@ -15,7 +16,6 @@ const DAYS = [
   { value: 6, label: 'Saturday'  },
   { value: 0, label: 'Sunday'    },
 ]
-
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -39,12 +39,33 @@ interface Props {
 export default function RecurringAllowanceForm({ childId, existing, onSuccess }: Props) {
   const currency = useCurrency()
   const [state, action] = useFormState(saveRecurringAllowance, null)
+  const [skipPending, startSkip] = useTransition()
 
   useEffect(() => {
     if (state?.success && onSuccess) onSuccess()
   }, [state?.success, onSuccess])
 
   const isActive = existing?.is_active ?? false
+
+  // Determine the next payment date to display
+  const nextDate = existing?.next_payment_date
+    ?? (existing ? calcNextPaymentDate(existing.day_of_week) : null)
+
+  // A payment is "skipped" if next_payment_date is > 8 days from today
+  const isSkipped = (() => {
+    if (!nextDate) return false
+    const daysUntil = (new Date(nextDate + 'T00:00:00Z').getTime() - Date.now()) / 86_400_000
+    return daysUntil > 8
+  })()
+
+  // What skipping WOULD set it to
+  const skippedDate = nextDate ? addDaysToDate(nextDate, 7) : null
+
+  function handleSkip() {
+    startSkip(async () => {
+      await (isSkipped ? undoSkipAllowance(childId) : skipNextAllowance(childId))
+    })
+  }
 
   return (
     <form action={action} className="space-y-3 pt-1">
@@ -64,7 +85,6 @@ export default function RecurringAllowanceForm({ childId, existing, onSuccess }:
             defaultChecked={isActive}
             className="sr-only peer"
             onChange={(e) => {
-              // Keep hidden field in sync so unchecked sends 'false'
               const hidden = e.currentTarget.form?.elements.namedItem('isActive') as HTMLInputElement | null
               if (hidden) hidden.value = e.currentTarget.checked ? 'true' : 'false'
             }}
@@ -111,6 +131,29 @@ export default function RecurringAllowanceForm({ childId, existing, onSuccess }:
         </select>
       </div>
       <input type="hidden" name="hourOfDay" value="9" />
+
+      {/* Next payment date + skip control */}
+      {isActive && nextDate && (
+        <div className="flex items-center justify-between rounded-xl bg-sprout-50 px-3 py-2.5">
+          <div>
+            <p className="text-xs font-medium text-sprout-700">
+              {isSkipped ? 'Skipped — next payment' : 'Next payment'}
+            </p>
+            <p className="text-sm font-bold text-sprout-800">{formatPaymentDate(nextDate)}</p>
+            {isSkipped && skippedDate && (
+              <p className="text-xs text-gray-400">Was: {formatPaymentDate(addDaysToDate(nextDate, -7))}</p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={handleSkip}
+            disabled={skipPending}
+            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-sprout-200 hover:bg-sprout-100 text-sprout-700 transition-colors disabled:opacity-50"
+          >
+            {skipPending ? '…' : isSkipped ? 'Undo skip' : 'Skip week'}
+          </button>
+        </div>
+      )}
 
       {state && !state.success && (
         <p className="text-sm text-red-500">{state.error}</p>

@@ -2,10 +2,17 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireParent } from '@/lib/auth/require-parent'
-import { upsertRecurringAllowance } from '@/lib/db/mutations/recurring-allowances'
+import { upsertRecurringAllowance, setNextPaymentDate } from '@/lib/db/mutations/recurring-allowances'
+import { getRecurringAllowanceByChildId } from '@/lib/db/queries/recurring-allowances'
 import { getChildrenByFamilyId } from '@/lib/db/queries/children'
+import { calcNextPaymentDate, addDaysToDate } from '@/lib/utils/payment-date'
 import { ROUTES } from '@/lib/constants/routes'
 import type { ActionResult } from '@/types/ui'
+
+async function verifyChild(familyId: string, childId: string): Promise<boolean> {
+  const children = await getChildrenByFamilyId(familyId)
+  return children.some((c) => c.id === childId)
+}
 
 export async function saveRecurringAllowance(
   _: unknown,
@@ -23,9 +30,7 @@ export async function saveRecurringAllowance(
     return { success: false, error: 'Missing required fields' }
   }
 
-  // Verify this child belongs to the family
-  const children = await getChildrenByFamilyId(family.id)
-  if (!children.some((c) => c.id === childId)) {
+  if (!await verifyChild(family.id, childId)) {
     return { success: false, error: 'Child not found' }
   }
 
@@ -40,12 +45,56 @@ export async function saveRecurringAllowance(
   if (isNaN(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
     return { success: false, error: 'Invalid day of week' }
   }
-  if (isNaN(hourOfDay) || hourOfDay < 0 || hourOfDay > 23) {
-    return { success: false, error: 'Invalid time' }
+
+  // Preserve existing next_payment_date if the day hasn't changed.
+  // Recalculate if new record or day changed.
+  const existing = await getRecurringAllowanceByChildId(childId)
+  const nextPaymentDate =
+    existing && existing.day_of_week === dayOfWeek && existing.next_payment_date
+      ? existing.next_payment_date
+      : calcNextPaymentDate(dayOfWeek)
+
+  const result = await upsertRecurringAllowance({
+    childId, amount, dayOfWeek, hourOfDay, isActive, nextPaymentDate,
+  })
+  if (!result) return { success: false, error: 'Failed to save' }
+
+  revalidatePath(ROUTES.PARENT.SETTINGS)
+  revalidatePath(ROUTES.PARENT.CHILD(childId))
+  return { success: true }
+}
+
+/** Skip the next allowance payout — pushes next_payment_date forward by 7 days. */
+export async function skipNextAllowance(childId: string): Promise<ActionResult> {
+  const { family } = await requireParent()
+
+  if (!await verifyChild(family.id, childId)) {
+    return { success: false, error: 'Child not found' }
   }
 
-  const result = await upsertRecurringAllowance({ childId, amount, dayOfWeek, hourOfDay, isActive })
-  if (!result) return { success: false, error: 'Failed to save' }
+  const allowance = await getRecurringAllowanceByChildId(childId)
+  if (!allowance?.is_active) return { success: false, error: 'No active allowance' }
+
+  const base = allowance.next_payment_date ?? calcNextPaymentDate(allowance.day_of_week)
+  await setNextPaymentDate(childId, addDaysToDate(base, 7))
+
+  revalidatePath(ROUTES.PARENT.SETTINGS)
+  revalidatePath(ROUTES.PARENT.CHILD(childId))
+  return { success: true }
+}
+
+/** Undo a skip — resets next_payment_date to the next natural occurrence. */
+export async function undoSkipAllowance(childId: string): Promise<ActionResult> {
+  const { family } = await requireParent()
+
+  if (!await verifyChild(family.id, childId)) {
+    return { success: false, error: 'Child not found' }
+  }
+
+  const allowance = await getRecurringAllowanceByChildId(childId)
+  if (!allowance?.is_active) return { success: false, error: 'No active allowance' }
+
+  await setNextPaymentDate(childId, calcNextPaymentDate(allowance.day_of_week))
 
   revalidatePath(ROUTES.PARENT.SETTINGS)
   revalidatePath(ROUTES.PARENT.CHILD(childId))
@@ -58,8 +107,7 @@ export async function setAllowanceOverride(
 ): Promise<ActionResult> {
   const { family } = await requireParent()
 
-  const children = await getChildrenByFamilyId(family.id)
-  if (!children.some((c) => c.id === childId)) {
+  if (!await verifyChild(family.id, childId)) {
     return { success: false, error: 'Child not found' }
   }
 
@@ -69,50 +117,6 @@ export async function setAllowanceOverride(
 
   const { setNextAmountOverride } = await import('@/lib/db/mutations/recurring-allowances')
   await setNextAmountOverride(childId, override)
-
-  revalidatePath(ROUTES.PARENT.CHILD(childId))
-  return { success: true }
-}
-
-export async function undoSkipAllowance(childId: string): Promise<ActionResult> {
-  const { family } = await requireParent()
-
-  const children = await getChildrenByFamilyId(family.id)
-  if (!children.some((c) => c.id === childId)) {
-    return { success: false, error: 'Child not found' }
-  }
-
-  const { updateLastPromptedAt } = await import('@/lib/db/mutations/recurring-allowances')
-  await updateLastPromptedAt(childId, null)
-
-  revalidatePath(ROUTES.PARENT.CHILD(childId))
-  return { success: true }
-}
-
-export async function skipNextAllowance(childId: string): Promise<ActionResult> {
-  const { family } = await requireParent()
-
-  const children = await getChildrenByFamilyId(family.id)
-  if (!children.some((c) => c.id === childId)) {
-    return { success: false, error: 'Child not found' }
-  }
-
-  // Find the allowance to get day_of_week
-  const { getRecurringAllowanceByChildId } = await import('@/lib/db/queries/recurring-allowances')
-  const allowance = await getRecurringAllowanceByChildId(childId)
-  if (!allowance?.is_active) return { success: false, error: 'No active allowance' }
-
-  // Calculate next occurrence date
-  const today      = new Date()
-  const todayDay   = today.getDay()
-  let daysUntil    = (allowance.day_of_week - todayDay + 7) % 7
-  if (daysUntil === 0) daysUntil = 7 // already ran today or same day next week
-  const nextDate   = new Date(today)
-  nextDate.setDate(today.getDate() + daysUntil)
-  const nextDateStr = nextDate.toISOString().slice(0, 10)
-
-  const { updateLastPromptedAt } = await import('@/lib/db/mutations/recurring-allowances')
-  await updateLastPromptedAt(childId, nextDateStr + 'T00:00:00.000Z')
 
   revalidatePath(ROUTES.PARENT.CHILD(childId))
   return { success: true }

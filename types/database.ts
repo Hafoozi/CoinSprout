@@ -164,6 +164,7 @@ export interface Database {
           is_active:             boolean
           last_prompted_at:      string | null
           next_amount_override:  number | null
+          next_payment_date:     string | null
           created_at:            string
         }
         Insert: {
@@ -176,6 +177,7 @@ export interface Database {
           is_active?:             boolean
           last_prompted_at?:      string | null
           next_amount_override?:  number | null
+          next_payment_date?:     string | null
           created_at?:            string
         }
         Update: {
@@ -188,6 +190,7 @@ export interface Database {
           is_active?:             boolean
           last_prompted_at?:      string | null
           next_amount_override?:  number | null
+          next_payment_date?:     string | null
           created_at?:            string
         }
         Relationships: []
@@ -195,31 +198,34 @@ export interface Database {
 
       recurring_interest: {
         Row: {
-          id:               string
-          child_id:         string
-          rate:             number
-          day_of_week:      number
-          is_active:        boolean
-          last_prompted_at: string | null
-          created_at:       string
-        }
-        Insert: {
-          id?:               string
+          id:                string
           child_id:          string
           rate:              number
           day_of_week:       number
-          is_active?:        boolean
-          last_prompted_at?: string | null
-          created_at?:       string
+          is_active:         boolean
+          last_prompted_at:  string | null
+          next_payment_date: string | null
+          created_at:        string
+        }
+        Insert: {
+          id?:                string
+          child_id:           string
+          rate:               number
+          day_of_week:        number
+          is_active?:         boolean
+          last_prompted_at?:  string | null
+          next_payment_date?: string | null
+          created_at?:        string
         }
         Update: {
-          id?:               string
-          child_id?:         string
-          rate?:             number
-          day_of_week?:      number
-          is_active?:        boolean
-          last_prompted_at?: string | null
-          created_at?:       string
+          id?:                string
+          child_id?:          string
+          rate?:              number
+          day_of_week?:       number
+          is_active?:         boolean
+          last_prompted_at?:  string | null
+          next_payment_date?: string | null
+          created_at?:        string
         }
         Relationships: []
       }
