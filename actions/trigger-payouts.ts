@@ -3,6 +3,7 @@
 import { requireParent } from '@/lib/auth/require-parent'
 import { getChildrenByFamilyId } from '@/lib/db/queries/children'
 import { createClient } from '@/lib/supabase/server'
+import { addDaysToDate, todayUTC } from '@/lib/utils/payment-date'
 
 const MIN_INTEREST_PAYOUT = 0.05
 
@@ -63,9 +64,10 @@ export async function triggerPayoutsNow(): Promise<{ results: ChildPayoutResult[
           if (error) {
             result.interest = { status: 'error', reason: error.message }
           } else {
+            const nextDate = addDaysToDate(todayUTC(), 7)
             await supabase
               .from('recurring_interest')
-              .update({ last_prompted_at: new Date().toISOString() })
+              .update({ last_prompted_at: new Date().toISOString(), next_payment_date: nextDate })
               .eq('child_id', child.id)
             result.interest = { status: 'paid', amount }
           }
@@ -95,9 +97,10 @@ export async function triggerPayoutsNow(): Promise<{ results: ChildPayoutResult[
         if (error) {
           result.allowance = { status: 'error', reason: error.message }
         } else {
+          const nextDate = addDaysToDate(todayUTC(), 7)
           await supabase
             .from('recurring_allowances')
-            .update({ last_prompted_at: new Date().toISOString(), next_amount_override: null })
+            .update({ last_prompted_at: new Date().toISOString(), next_amount_override: null, next_payment_date: nextDate })
             .eq('child_id', child.id)
           result.allowance = { status: 'paid', amount }
         }

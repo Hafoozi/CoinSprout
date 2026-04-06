@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
-import { saveRecurringInterest } from '@/actions/recurring-interest'
+import { saveRecurringInterest, skipNextInterest, undoSkipInterest } from '@/actions/recurring-interest'
 import { useCurrency } from '@/components/providers/currency-provider'
+import { formatPaymentDate, calcNextPaymentDate, addDaysToDate } from '@/lib/utils/payment-date'
 import type { RecurringInterest } from '@/lib/db/types'
 
 const DAYS = [
@@ -42,6 +43,7 @@ export default function RecurringInterestForm({ childId, existing, savingsBalanc
   const currency = useCurrency()
   const [state, action] = useFormState(saveRecurringInterest, null)
   const [rate, setRate] = useState<string>(existing?.rate?.toString() ?? '')
+  const [skipPending, startSkip] = useTransition()
 
   useEffect(() => {
     if (state?.success && onSuccess) onSuccess()
@@ -54,8 +56,24 @@ export default function RecurringInterestForm({ childId, existing, savingsBalanc
   const rawInterest = savingsBalance > 0 && !isNaN(rateNum) && rateNum >= 0.01
     ? savingsBalance * (rateNum / 100)
     : 0
-  const willPay     = rawInterest >= MIN_PAYOUT
-  const previewAmt  = Math.round(rawInterest * 100) / 100
+  const willPay    = rawInterest >= MIN_PAYOUT
+  const previewAmt = Math.round(rawInterest * 100) / 100
+
+  // Next payment date display
+  const nextDate = existing?.next_payment_date
+    ?? (existing ? calcNextPaymentDate(existing.day_of_week) : null)
+
+  const isSkipped = (() => {
+    if (!nextDate) return false
+    const daysUntil = (new Date(nextDate + 'T00:00:00Z').getTime() - Date.now()) / 86_400_000
+    return daysUntil > 8
+  })()
+
+  function handleSkip() {
+    startSkip(async () => {
+      await (isSkipped ? undoSkipInterest(childId) : skipNextInterest(childId))
+    })
+  }
 
   return (
     <form action={action} className="space-y-3 pt-1">
@@ -135,6 +153,26 @@ export default function RecurringInterestForm({ childId, existing, savingsBalanc
 
       {savingsBalance === 0 && (
         <p className="text-xs text-gray-400">Interest will calculate once the child has a savings balance.</p>
+      )}
+
+      {/* Next payment date + skip control */}
+      {isActive && nextDate && (
+        <div className="flex items-center justify-between rounded-xl bg-sprout-50 px-3 py-2.5">
+          <div>
+            <p className="text-xs font-medium text-sprout-700">
+              {isSkipped ? 'Skipped — next payment' : 'Next payment'}
+            </p>
+            <p className="text-sm font-bold text-sprout-800">{formatPaymentDate(nextDate)}</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleSkip}
+            disabled={skipPending}
+            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-sprout-200 hover:bg-sprout-100 text-sprout-700 transition-colors disabled:opacity-50"
+          >
+            {skipPending ? '…' : isSkipped ? 'Undo skip' : 'Skip week'}
+          </button>
+        </div>
       )}
 
       {state && !state.success && (
