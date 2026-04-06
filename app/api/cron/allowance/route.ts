@@ -6,8 +6,16 @@ const MIN_INTEREST_PAYOUT = 0.05
 
 /**
  * Daily cron job — processes interest first, then allowances.
- * Both use day_of_week matching and skip if already run today.
- * Protected by CRON_SECRET header set in vercel.json.
+ *
+ * Payment logic: pay if it has been ≥6 days since the last payment (or never
+ * paid). This replaces the old day_of_week exact-match which silently skipped
+ * payments whenever the UTC day didn't align or Vercel missed a fire.
+ *
+ * The 6-day window (not 7) gives a one-day grace buffer so a cron that fires
+ * slightly early never skips a week.
+ *
+ * Still prevents double-paying on the same calendar day via todayStr check.
+ * Protected by CRON_SECRET header set automatically by Vercel.
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET
@@ -17,8 +25,15 @@ export async function GET(request: Request) {
 
   const supabase  = createServiceClient()
   const today     = new Date()
-  const dayOfWeek = today.getUTCDay()    // 0=Sun … 6=Sat (UTC)
   const todayStr  = today.toISOString().slice(0, 10) // 'YYYY-MM-DD'
+
+  // A record is due if it has never been paid, or last paid ≥6 days ago.
+  function isDue(lastPromptedAt: string | null): boolean {
+    if (!lastPromptedAt) return true
+    if (lastPromptedAt.slice(0, 10) === todayStr) return false // already ran today
+    const daysSince = (today.getTime() - new Date(lastPromptedAt).getTime()) / 86_400_000
+    return daysSince >= 6
+  }
 
   // ── 1. Process interest (before allowance so balance is correct) ──────────
 
@@ -26,7 +41,6 @@ export async function GET(request: Request) {
     .from('recurring_interest')
     .select()
     .eq('is_active', true)
-    .eq('day_of_week', dayOfWeek)
 
   if (interestFetchError) {
     console.error('[cron/allowance] interest fetch error:', interestFetchError)
@@ -37,13 +51,11 @@ export async function GET(request: Request) {
   let interestSkipped   = 0
 
   for (const interest of (interestRows ?? [])) {
-    const lastRun = interest.last_prompted_at?.slice(0, 10)
-    if (lastRun === todayStr) {
+    if (!isDue(interest.last_prompted_at)) {
       interestSkipped++
       continue
     }
 
-    // Sum all transactions for this child to get current savings balance
     const { data: txRows } = await supabase
       .from('transactions')
       .select('amount')
@@ -87,7 +99,6 @@ export async function GET(request: Request) {
     .from('recurring_allowances')
     .select()
     .eq('is_active', true)
-    .eq('day_of_week', dayOfWeek)
 
   if (fetchError) {
     console.error('[cron/allowance] allowance fetch error:', fetchError)
@@ -98,8 +109,7 @@ export async function GET(request: Request) {
   let skipped   = 0
 
   for (const allowance of (allowances ?? [])) {
-    const lastRun = allowance.last_prompted_at?.slice(0, 10)
-    if (lastRun === todayStr) {
+    if (!isDue(allowance.last_prompted_at)) {
       skipped++
       continue
     }
