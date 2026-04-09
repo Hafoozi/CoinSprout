@@ -5,20 +5,11 @@ import Dialog from '@/components/ui/dialog'
 import RecurringAllowanceForm from '@/components/parent/recurring-allowance-form'
 import { skipNextAllowance, undoSkipAllowance, setAllowanceOverride } from '@/actions/recurring-allowance'
 import { useCurrency } from '@/components/providers/currency-provider'
+import { formatPaymentDate, calcNextPaymentDate } from '@/lib/utils/payment-date'
 import { useRouter } from 'next/navigation'
 import type { RecurringAllowance } from '@/lib/db/types'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-function nextOccurrence(dayOfWeek: number): Date {
-  const today     = new Date()
-  const todayDay  = today.getDay()
-  let daysUntil   = (dayOfWeek - todayDay + 7) % 7
-  if (daysUntil === 0) daysUntil = 7
-  const next = new Date(today)
-  next.setDate(today.getDate() + daysUntil)
-  return next
-}
 
 interface Props {
   childId:   string
@@ -31,12 +22,6 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
   const [editOpen, setEditOpen]         = useState(false)
   const [isPending, startTransition]    = useTransition()
   const [skipError, setSkipError]       = useState<string>()
-  // Seed from DB: if last_prompted_at is a future date the allowance was skipped
-  const [skipped, setSkipped] = useState(() => {
-    if (!allowance?.last_prompted_at) return false
-    const skipDate = allowance.last_prompted_at.slice(0, 10)
-    return skipDate >= new Date().toISOString().slice(0, 10)
-  })
 
   // Inline override editing
   const [editingAmount, setEditingAmount] = useState(false)
@@ -46,8 +31,17 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
 
   if (!allowance?.is_active) return null
 
-  const next    = nextOccurrence(allowance.day_of_week)
-  const nextStr = next.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+  // Use the DB's next_payment_date as the authoritative source for the display date.
+  // Fall back to calculating from day_of_week for legacy records without a date.
+  const nextDate = allowance.next_payment_date ?? calcNextPaymentDate(allowance.day_of_week)
+  const nextStr  = formatPaymentDate(nextDate)
+
+  // A payment is "skipped" when next_payment_date is more than 8 days away
+  // (i.e. it was pushed forward by one extra week).
+  const isSkipped = (() => {
+    const daysUntil = (new Date(nextDate + 'T00:00:00Z').getTime() - Date.now()) / 86_400_000
+    return daysUntil > 8
+  })()
 
   const hasOverride    = allowance.next_amount_override != null
   const displayAmount  = allowance.next_amount_override ?? allowance.amount
@@ -94,7 +88,7 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
     setSkipError(undefined)
     startTransition(async () => {
       const result = await skipNextAllowance(childId)
-      if (result.success) setSkipped(true)
+      if (result.success) router.refresh()
       else setSkipError(result.error ?? 'Failed to skip')
     })
   }
@@ -103,7 +97,7 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
     setSkipError(undefined)
     startTransition(async () => {
       const result = await undoSkipAllowance(childId)
-      if (result.success) setSkipped(false)
+      if (result.success) router.refresh()
       else setSkipError(result.error ?? 'Failed to undo')
     })
   }
@@ -198,7 +192,7 @@ export default function AllowanceWidget({ childId, allowance }: Props) {
             </p>
           </div>
 
-          {skipped ? (
+          {isSkipped ? (
             <div className="flex flex-col items-end gap-1">
               <span className="text-xs text-gray-400 italic">Skipped</span>
               <button
