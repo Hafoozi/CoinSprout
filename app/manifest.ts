@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name:             'CoinSprout',
     short_name:       'CoinSprout',
     description:      'Grow your savings, one coin at a time.',
-    start_url:        '/kids',
+    start_url:        '/',
     display:          'standalone',
     background_color: '#f0fdf4',
     theme_color:      '#16a34a',
