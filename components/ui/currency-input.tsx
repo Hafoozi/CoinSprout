@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Dialog from '@/components/ui/dialog'
 
 const KEYS = ['1','2','3','4','5','6','7','8','9','.','0','⌫']
@@ -49,12 +49,12 @@ export default function CurrencyInput({
 
   const [open, setOpen] = useState(false)
 
-  function updateValue(v: string) {
+  const updateValue = useCallback(function updateValue(v: string) {
     if (!isControlled) setInternalValue(v)
     onChange?.(v)
-  }
+  }, [isControlled, onChange])
 
-  function handleKey(key: string) {
+  const handleKey = useCallback(function handleKey(key: string) {
     if (key === '⌫') {
       updateValue(value.slice(0, -1))
       return
@@ -74,14 +74,26 @@ export default function CurrencyInput({
     // Prevent double-leading-zero (allow "0.")
     if (next.length > 1 && next[0] === '0' && next[1] !== '.') return
     updateValue(next)
-  }
+  }, [value, updateValue, maxLength])
 
-  function handleDone() {
-    // Strip trailing decimal point before closing
+  const handleDone = useCallback(function handleDone() {
     const cleaned = value.endsWith('.') ? value.slice(0, -1) : value
     if (cleaned !== value) updateValue(cleaned)
     setOpen(false)
-  }
+  }, [value, updateValue])
+
+  useEffect(() => {
+    if (!open) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key >= '0' && e.key <= '9') { handleKey(e.key); return }
+      if (e.key === '.')                 { handleKey('.'); return }
+      if (e.key === 'Backspace')         { handleKey('⌫'); return }
+      if (e.key === 'Enter')             { handleDone(); return }
+      if (e.key === 'Escape')            { handleDone(); return }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [open, handleKey, handleDone])
 
   const isEmpty = value === ''
 
