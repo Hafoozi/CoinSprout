@@ -1,17 +1,20 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import type { TreeStage, FruitCluster } from '@/types/domain'
 import type { MilestoneType } from '@/types/database'
 import AnimalIcon from '@/components/ui/animal-icon'
-import TreeAnimalSprite from '@/components/tree/tree-animal-sprite'
+import TreeAnimalSprite, { type AnimalSpriteHandle } from '@/components/tree/tree-animal-sprite'
 import { APPLE_HEX } from '@/lib/constants/fruit-colors'
+import { MILESTONES } from '@/lib/constants/milestone-thresholds'
+import { useCurrency } from '@/components/providers/currency-provider'
 
 interface Props {
   stage:              TreeStage
   fruitClusters:      FruitCluster[]
   unlockedMilestones: MilestoneType[]
   childId:            string
+  milestoneEarnings:  number
 }
 
 const MILESTONE_ORDER: MilestoneType[] = ['bunny', 'bird', 'deer', 'owl', 'fox']
@@ -866,10 +869,13 @@ function TreeSvg({
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function TreeHero({ stage, fruitClusters, unlockedMilestones, childId }: Props) {
-  const [celebrating, setCelebrating] = useState<MilestoneType | null>(null)
-  const [revealed,    setRevealed]    = useState(false)
-  const [now,         setNow]         = useState<Date | null>(null)
+export default function TreeHero({ stage, fruitClusters, unlockedMilestones, childId, milestoneEarnings }: Props) {
+  const currency = useCurrency()
+  const [celebrating,  setCelebrating]  = useState<MilestoneType | null>(null)
+  const [revealed,     setRevealed]     = useState(false)
+  const [now,          setNow]          = useState<Date | null>(null)
+  const [lockedInfo,   setLockedInfo]   = useState<MilestoneType | null>(null)
+  const spriteRefs = useRef<Partial<Record<MilestoneType, AnimalSpriteHandle | null>>>({})
 
   // Hydrate clock client-side only (avoids SSR mismatch)
   useEffect(() => {
@@ -922,7 +928,11 @@ export default function TreeHero({ stage, fruitClusters, unlockedMilestones, chi
         <TreeSvg stage={stage} fruitClusters={fruitClusters} phase={phase} daytimeT={daytimeT}/>
         {MILESTONE_ORDER.filter(type => unlockedMilestones.includes(type)).map(type => (
           <div key={type} className="absolute drop-shadow-sm" style={ANIMAL_OVERLAY[type].style}>
-            <TreeAnimalSprite type={type} size={ANIMAL_OVERLAY[type].size}/>
+            <TreeAnimalSprite
+              ref={(el) => { spriteRefs.current[type] = el }}
+              type={type}
+              size={ANIMAL_OVERLAY[type].size}
+            />
           </div>
         ))}
       </div>
@@ -941,12 +951,64 @@ export default function TreeHero({ stage, fruitClusters, unlockedMilestones, chi
         {MILESTONE_ORDER.map((type) => {
           const unlocked = unlockedMilestones.includes(type)
           return (
-            <div key={type} className={`rounded-full p-1 transition-all ${unlocked ? 'bg-sprout-50 ring-2 ring-sprout-200' : 'bg-gray-50'}`}>
+            <button
+              key={type}
+              type="button"
+              onClick={() => unlocked ? spriteRefs.current[type]?.trigger() : setLockedInfo(type)}
+              className={`rounded-full p-1 transition-all focus:outline-none ${unlocked ? 'bg-sprout-50 ring-2 ring-sprout-200 hover:ring-sprout-400 cursor-pointer' : 'bg-gray-50 cursor-pointer'}`}
+              title={unlocked ? `Click to see ${type}!` : `${type} — locked`}
+            >
               <AnimalIcon type={type} size={36} muted={!unlocked}/>
-            </div>
+            </button>
           )
         })}
       </div>
+
+      {/* Locked animal info modal */}
+      {lockedInfo && (() => {
+        const milestone  = MILESTONES.find(m => m.type === lockedInfo)!
+        const progress   = Math.min((milestoneEarnings / milestone.threshold) * 100, 100)
+        const remaining  = Math.max(milestone.threshold - milestoneEarnings, 0)
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-6"
+            onClick={() => setLockedInfo(null)}
+          >
+            <div
+              className="relative max-w-xs w-full rounded-3xl border-2 border-gray-200 bg-white p-8 shadow-2xl text-center space-y-4 animate-bounce-in"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="text-xl font-bold text-gray-800">Locked Friend</p>
+              <div className="flex justify-center py-1">
+                <AnimalIcon type={lockedInfo} size={96} muted />
+              </div>
+              <p className="text-lg font-semibold text-gray-600 capitalize">{milestone.label}</p>
+              <p className="text-sm text-gray-400">
+                Unlock by earning {currency}{milestone.threshold.toFixed(2)} total
+              </p>
+              <div className="space-y-1.5 w-full">
+                <div className="flex justify-between text-xs text-gray-400">
+                  <span>{currency}{milestoneEarnings.toFixed(2)} earned</span>
+                  <span>{currency}{remaining.toFixed(2)} to go</span>
+                </div>
+                <div className="h-3 w-full rounded-full bg-gray-100 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gray-300 transition-all duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLockedInfo(null)}
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-2xl text-sm transition-colors"
+              >
+                Got it!
+              </button>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Celebration modal */}
       {celebrating && (

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import type { Metadata } from 'next'
 import { requireParent } from '@/lib/auth/require-parent'
 import { getChildrenByFamilyId } from '@/lib/db/queries/children'
@@ -36,6 +37,12 @@ export default async function KidsPage() {
       <header className="sticky top-0 z-10 h-14 bg-white/80 backdrop-blur border-b border-sprout-100 flex items-center px-4 gap-2">
         <CoinSproutLogo size={38} />
         <span className="font-bold text-sprout-700 text-lg tracking-tight">CoinSprout</span>
+        <Link
+          href={ROUTES.PARENT.DASHBOARD}
+          className="ml-auto text-sm font-medium text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          🔒 Parent
+        </Link>
       </header>
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] space-y-8 px-4">
         <div className="text-center space-y-1">

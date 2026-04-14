@@ -88,6 +88,7 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
               fruitClusters={fruitClusters}
               unlockedMilestones={unlockedTypes}
               childId={child.id}
+              milestoneEarnings={summary.milestoneEarnings}
             />
           </div>
 
