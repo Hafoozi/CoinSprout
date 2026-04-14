@@ -13,7 +13,7 @@ export type Json =
   | Json[]
 
 export type TransactionSource = 'allowance' | 'gift' | 'interest' | 'jobs' | 'spend'
-export type MilestoneType = 'bunny' | 'bird' | 'deer' | 'owl' | 'fox'
+export type MilestoneType = 'bunny' | 'bird' | 'deer' | 'owl' | 'fox' | 'squirrel'
 export type CurrencySymbol = '$' | '£' | '€' | '¥' | '₹' | '₩' | 'Fr'
 
 export interface Database {
@@ -260,11 +260,12 @@ export interface Database {
           tree_growing: number | null
           tree_mature:  number | null
           tree_ancient: number | null
-          milestone_bunny: number | null
-          milestone_bird:  number | null
-          milestone_deer:  number | null
-          milestone_owl:   number | null
-          milestone_fox:   number | null
+          milestone_bunny:    number | null
+          milestone_bird:     number | null
+          milestone_deer:     number | null
+          milestone_owl:      number | null
+          milestone_fox:      number | null
+          milestone_squirrel: number | null
           fruit_green_value:     number | null
           fruit_red_value:       number | null
           fruit_silver_value:    number | null
@@ -281,11 +282,12 @@ export interface Database {
           tree_growing?: number | null
           tree_mature?:  number | null
           tree_ancient?: number | null
-          milestone_bunny?: number | null
-          milestone_bird?:  number | null
-          milestone_deer?:  number | null
-          milestone_owl?:   number | null
-          milestone_fox?:   number | null
+          milestone_bunny?:    number | null
+          milestone_bird?:     number | null
+          milestone_deer?:     number | null
+          milestone_owl?:      number | null
+          milestone_fox?:      number | null
+          milestone_squirrel?: number | null
           fruit_green_value?:     number | null
           fruit_red_value?:       number | null
           fruit_silver_value?:    number | null
@@ -302,11 +304,12 @@ export interface Database {
           tree_growing?: number | null
           tree_mature?:  number | null
           tree_ancient?: number | null
-          milestone_bunny?: number | null
-          milestone_bird?:  number | null
-          milestone_deer?:  number | null
-          milestone_owl?:   number | null
-          milestone_fox?:   number | null
+          milestone_bunny?:    number | null
+          milestone_bird?:     number | null
+          milestone_deer?:     number | null
+          milestone_owl?:      number | null
+          milestone_fox?:      number | null
+          milestone_squirrel?: number | null
           fruit_green_value?:     number | null
           fruit_red_value?:       number | null
           fruit_silver_value?:    number | null

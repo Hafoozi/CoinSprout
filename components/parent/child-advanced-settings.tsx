@@ -146,13 +146,14 @@ export default function ChildAdvancedSettings({ childId, settings }: Props) {
             <p className="text-xs text-gray-400 pb-1">
               Set lifetime earnings required to unlock each animal.
             </p>
-            <NumberInput name="milestoneBunny" label="🐰 Bunny" defaultValue={settings.milestoneThresholds.bunny} />
-            <NumberInput name="milestoneBird"  label="🐦 Bird"  defaultValue={settings.milestoneThresholds.bird} />
-            <NumberInput name="milestoneDeer"  label="🦌 Deer"  defaultValue={settings.milestoneThresholds.deer} />
-            <NumberInput name="milestoneOwl"   label="🦉 Owl"   defaultValue={settings.milestoneThresholds.owl} />
-            <NumberInput name="milestoneFox"   label="🦊 Fox"   defaultValue={settings.milestoneThresholds.fox} />
+            <NumberInput name="milestoneBunny"    label="🐰 Bunny"    defaultValue={settings.milestoneThresholds.bunny} />
+            <NumberInput name="milestoneBird"     label="🐦 Bird"     defaultValue={settings.milestoneThresholds.bird} />
+            <NumberInput name="milestoneDeer"     label="🦌 Deer"     defaultValue={settings.milestoneThresholds.deer} />
+            <NumberInput name="milestoneOwl"      label="🦉 Owl"      defaultValue={settings.milestoneThresholds.owl} />
+            <NumberInput name="milestoneFox"      label="🦊 Fox"      defaultValue={settings.milestoneThresholds.fox} />
+            <NumberInput name="milestoneSquirrel" label="🐿️ Squirrel" defaultValue={settings.milestoneThresholds.squirrel} />
             <p className="text-xs text-gray-400 pt-1">
-              Defaults: {currency}{DEFAULT_SETTINGS.milestoneThresholds.bunny} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.bird} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.deer} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.owl} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.fox}
+              Defaults: {currency}{DEFAULT_SETTINGS.milestoneThresholds.bunny} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.bird} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.deer} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.owl} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.fox} / {currency}{DEFAULT_SETTINGS.milestoneThresholds.squirrel}
             </p>
             <label className="flex items-start gap-2.5 cursor-pointer select-none pt-2 border-t border-gray-100 mt-1">
               <input
@@ -213,11 +214,12 @@ export default function ChildAdvancedSettings({ childId, settings }: Props) {
           <input type="hidden" name="treeGrowing" value={settings.treeThresholds.growing} />
           <input type="hidden" name="treeMature"  value={settings.treeThresholds.mature} />
           <input type="hidden" name="treeAncient" value={settings.treeThresholds.ancient} />
-          <input type="hidden" name="milestoneBunny" value={settings.milestoneThresholds.bunny} />
-          <input type="hidden" name="milestoneBird"  value={settings.milestoneThresholds.bird} />
-          <input type="hidden" name="milestoneDeer"  value={settings.milestoneThresholds.deer} />
-          <input type="hidden" name="milestoneOwl"   value={settings.milestoneThresholds.owl} />
-          <input type="hidden" name="milestoneFox"   value={settings.milestoneThresholds.fox} />
+          <input type="hidden" name="milestoneBunny"    value={settings.milestoneThresholds.bunny} />
+          <input type="hidden" name="milestoneBird"     value={settings.milestoneThresholds.bird} />
+          <input type="hidden" name="milestoneDeer"     value={settings.milestoneThresholds.deer} />
+          <input type="hidden" name="milestoneOwl"      value={settings.milestoneThresholds.owl} />
+          <input type="hidden" name="milestoneFox"      value={settings.milestoneThresholds.fox} />
+          <input type="hidden" name="milestoneSquirrel" value={settings.milestoneThresholds.squirrel} />
           <input type="hidden" name="fruitGreenValue"     value={settings.fruitValues.green} />
           <input type="hidden" name="fruitRedValue"       value={settings.fruitValues.red} />
           <input type="hidden" name="fruitSilverValue"    value={settings.fruitValues.silver} />

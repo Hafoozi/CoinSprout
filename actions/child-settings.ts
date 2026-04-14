@@ -25,6 +25,7 @@ export async function saveChildSettings(_: unknown, formData: FormData): Promise
     milestoneDeer:       Number(formData.get('milestoneDeer')),
     milestoneOwl:        Number(formData.get('milestoneOwl')),
     milestoneFox:        Number(formData.get('milestoneFox')),
+    milestoneSquirrel:   Number(formData.get('milestoneSquirrel')),
     fruitGreenValue:     Number(formData.get('fruitGreenValue')),
     fruitRedValue:       Number(formData.get('fruitRedValue')),
     fruitSilverValue:    Number(formData.get('fruitSilverValue')),

@@ -73,11 +73,12 @@ export interface ResolvedChildSettings {
     ancient: number
   }
   milestoneThresholds: {
-    bunny: number
-    bird:  number
-    deer:  number
-    owl:   number
-    fox:   number
+    bunny:    number
+    bird:     number
+    deer:     number
+    owl:      number
+    fox:      number
+    squirrel: number
   }
   fruitValues: {
     green:     number
