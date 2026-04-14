@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireParent } from '@/lib/auth/require-parent'
-import { upsertFamilySettings } from '@/lib/db/mutations/family-settings'
+import { upsertFamilySettings, upsertFamilyQuickAccess } from '@/lib/db/mutations/family-settings'
 import { CURRENCY_OPTIONS } from '@/lib/constants/currencies'
 import type { CurrencySymbol } from '@/lib/db/types'
 import type { ActionResult } from '@/types/ui'
@@ -21,4 +21,16 @@ export async function saveCurrencySettings(_: unknown, formData: FormData): Prom
 
   revalidatePath('/', 'layout')
   return { success: true }
+}
+
+export async function saveQuickAccessSetting(enabled: boolean): Promise<ActionResult> {
+  try {
+    const { family } = await requireParent()
+    const result = await upsertFamilyQuickAccess({ familyId: family.id, quickAccessEnabled: enabled })
+    if (!result) return { success: false, error: 'Failed to save setting' }
+    revalidatePath('/', 'layout')
+    return { success: true }
+  } catch {
+    return { success: false, error: 'Failed to save setting' }
+  }
 }

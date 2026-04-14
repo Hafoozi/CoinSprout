@@ -2,12 +2,46 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireParent } from '@/lib/auth/require-parent'
-import { getChildById } from '@/lib/db/queries/children'
+import { getChildById, getChildrenByFamilyId } from '@/lib/db/queries/children'
+import { getFamilySettings } from '@/lib/db/queries/family-settings'
 import { createChild, updateChild, deleteChild } from '@/lib/db/mutations/children'
 import { createChildSchema, updateChildSchema } from '@/lib/validators/child'
 import { ROUTES } from '@/lib/constants/routes'
 import { redirect } from 'next/navigation'
 import type { ActionResult } from '@/types/ui'
+
+/** All data the ChildShell needs, fetched in one parallel call. */
+export async function getChildShellInfo(childId: string): Promise<{
+  name:               string
+  avatarColor:        string
+  siblings:           { id: string; name: string; avatarColor: string; hasPin: boolean }[]
+  quickAccessEnabled: boolean
+} | null> {
+  try {
+    const { family } = await requireParent()
+    const [allChildren, settings] = await Promise.all([
+      getChildrenByFamilyId(family.id),
+      getFamilySettings(family.id),
+    ])
+    const current = allChildren.find((c) => c.id === childId)
+    if (!current) return null
+    return {
+      name:        current.name,
+      avatarColor: current.avatar_color ?? 'sprout',
+      siblings:    allChildren
+        .filter((c) => c.id !== childId)
+        .map((c) => ({
+          id:          c.id,
+          name:        c.name,
+          avatarColor: c.avatar_color ?? 'sprout',
+          hasPin:      !!c.pin_hash,
+        })),
+      quickAccessEnabled: settings?.quick_access_enabled ?? false,
+    }
+  } catch {
+    return null
+  }
+}
 
 export async function getChildDisplayInfo(
   childId: string

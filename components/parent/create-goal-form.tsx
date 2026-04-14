@@ -3,7 +3,9 @@
 import { useFormState, useFormStatus } from 'react-dom'
 import { useEffect } from 'react'
 import { createGoal } from '@/actions/goals'
+import { useCurrency } from '@/components/providers/currency-provider'
 import Button from '@/components/ui/button'
+import CurrencyInput from '@/components/ui/currency-input'
 import Input from '@/components/ui/input'
 
 const INITIAL = { success: false as const }
@@ -23,6 +25,7 @@ interface Props {
 }
 
 export default function CreateGoalForm({ childId, onSuccess }: Props) {
+  const currency = useCurrency()
   const [state, action] = useFormState(createGoal, INITIAL)
 
   useEffect(() => {
@@ -41,15 +44,12 @@ export default function CreateGoalForm({ childId, onSuccess }: Props) {
         maxLength={50}
         required
       />
-      <Input
+      <CurrencyInput
         id="goal-price"
         name="targetPrice"
-        type="number"
-        label="Target price ($)"
+        label="Target price"
+        prefix={currency}
         placeholder="0.00"
-        min="0.01"
-        max="99999"
-        step="0.01"
         required
       />
 

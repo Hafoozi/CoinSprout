@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 import { saveRecurringInterest, skipNextInterest, undoSkipInterest } from '@/actions/recurring-interest'
 import { useCurrency } from '@/components/providers/currency-provider'
+import CurrencyInput from '@/components/ui/currency-input'
 import { formatPaymentDate, calcNextPaymentDate, addDaysToDate } from '@/lib/utils/payment-date'
 import type { RecurringInterest } from '@/lib/db/types'
 
@@ -102,26 +103,16 @@ export default function RecurringInterestForm({ childId, existing, savingsBalanc
       </div>
 
       {/* Rate */}
-      <div className="space-y-1">
-        <label htmlFor={`rate-${childId}`} className="text-sm font-medium text-gray-700">
-          Interest rate
-        </label>
-        <div className="flex items-center gap-1">
-          <input
-            id={`rate-${childId}`}
-            name="rate"
-            type="number"
-            min="0.01"
-            step="0.01"
-            value={rate}
-            onChange={(e) => setRate(e.target.value)}
-            placeholder="0.00"
-            required
-            className="w-28 rounded-xl border border-gray-200 px-3 py-2 text-sm text-right font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-sprout-400"
-          />
-          <span className="text-sm text-gray-400">% of savings</span>
-        </div>
-      </div>
+      <CurrencyInput
+        id={`rate-${childId}`}
+        name="rate"
+        label="Interest rate"
+        suffix="%"
+        value={rate}
+        onChange={setRate}
+        placeholder="0.00"
+        required
+      />
 
       {/* Day of week */}
       <div className="space-y-1">

@@ -4,6 +4,7 @@ import { requireParent } from '@/lib/auth/require-parent'
 import { getChildrenByFamilyId } from '@/lib/db/queries/children'
 import { ROUTES } from '@/lib/constants/routes'
 import KidsProfileSelect from '@/components/kids/kids-profile-select'
+import CoinSproutLogo from '@/components/ui/coin-sprout-logo'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,12 +32,18 @@ export default async function KidsPage() {
   }))
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 pt-8">
-      <div className="text-center space-y-1">
-        <p className="text-2xl font-bold text-gray-800">Who&apos;s here?</p>
-        <p className="text-sm text-gray-400">Tap your name to see your tree</p>
+    <div className="child-bg min-h-screen">
+      <header className="sticky top-0 z-10 h-14 bg-white/80 backdrop-blur border-b border-sprout-100 flex items-center px-4 gap-2">
+        <CoinSproutLogo size={38} />
+        <span className="font-bold text-sprout-700 text-lg tracking-tight">CoinSprout</span>
+      </header>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] space-y-8 px-4">
+        <div className="text-center space-y-1">
+          <p className="text-2xl font-bold text-gray-800">Who&apos;s here?</p>
+          <p className="text-sm text-gray-400">Tap your name to see your tree</p>
+        </div>
+        <KidsProfileSelect children={profiles} />
       </div>
-      <KidsProfileSelect children={profiles} />
     </div>
   )
 }

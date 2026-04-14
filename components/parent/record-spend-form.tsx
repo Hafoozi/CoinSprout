@@ -3,7 +3,9 @@
 import { useFormState, useFormStatus } from 'react-dom'
 import { useEffect } from 'react'
 import { recordSpend } from '@/actions/transactions'
+import { useCurrency } from '@/components/providers/currency-provider'
 import Button from '@/components/ui/button'
+import CurrencyInput from '@/components/ui/currency-input'
 import Input from '@/components/ui/input'
 
 const INITIAL = { success: false as const }
@@ -23,6 +25,7 @@ interface Props {
 }
 
 export default function RecordSpendForm({ childId, onSuccess }: Props) {
+  const currency = useCurrency()
   const [state, action] = useFormState(recordSpend, INITIAL)
 
   useEffect(() => {
@@ -33,15 +36,14 @@ export default function RecordSpendForm({ childId, onSuccess }: Props) {
     <form action={action} className="space-y-4">
       <input type="hidden" name="childId" value={childId} />
 
-      <Input
+      <CurrencyInput
         id="spend-amount"
         name="amount"
-        type="number"
-        label="Amount spent ($)"
+        label="Amount spent"
+        prefix={currency}
         placeholder="0.00"
-        min="0.01"
-        step="0.01"
         required
+        error={state.error}
       />
       <Input
         id="spend-note"
@@ -51,7 +53,6 @@ export default function RecordSpendForm({ childId, onSuccess }: Props) {
         maxLength={100}
       />
 
-      {state.error && <p className="text-sm text-red-500">{state.error}</p>}
       <SubmitButton />
     </form>
   )

@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { allocateToGoal } from '@/actions/goals'
 import { useCurrency } from '@/components/providers/currency-provider'
 import Button from '@/components/ui/button'
-import Input from '@/components/ui/input'
+import CurrencyInput from '@/components/ui/currency-input'
 import Select from '@/components/ui/select'
 import MoneyAmount from '@/components/shared/money-amount'
 import type { GoalWithProgress } from '@/types/domain'
@@ -54,19 +54,16 @@ export default function AllocateGoalForm({ goals, freeToUse, onSuccess }: Props)
         label="Goal"
         options={goalOptions}
       />
-      <Input
+      <CurrencyInput
         id="allocate-amount"
         name="amount"
-        type="number"
-        label={`Amount (${currency})`}
+        label="Amount"
+        prefix={currency}
         placeholder="0.00"
-        min="0.01"
-        max={freeToUse}
-        step="0.01"
         required
+        error={state.error}
       />
 
-      {state.error && <p className="text-sm text-red-500">{state.error}</p>}
       <SubmitButton />
     </form>
   )

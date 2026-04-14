@@ -55,6 +55,7 @@ export default async function SettingsPageRoute() {
     <SettingsPage
       currency={(familySettings?.currency_symbol ?? DEFAULT_CURRENCY) as CurrencySymbol}
       hasParentPin={!!family.parent_pin_hash}
+      quickAccessEnabled={familySettings?.quick_access_enabled ?? false}
       children={children}
       settingsMap={settingsMap}
       allowanceMap={allowanceMap}

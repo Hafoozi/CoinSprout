@@ -1,15 +1,9 @@
-import ChildShell from '@/components/layout/child-shell'
-
 /**
- * Child route group layout.
- * Wraps all /child/[childId] routes.
- * No Supabase auth guard here — child mode is a UI-level state, not an auth state.
- * The child-shell component handles PIN verification before rendering.
+ * Child route group layout — passthrough.
+ * The ChildShell is applied at app/(child)/child/[childId]/layout.tsx
+ * so it has access to the childId param and can fetch shell data server-side.
+ * The /kids route renders its own standalone UI.
  */
-export default function ChildLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return <ChildShell>{children}</ChildShell>
+export default function ChildLayout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
 }
