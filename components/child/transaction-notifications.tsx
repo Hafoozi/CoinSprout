@@ -88,9 +88,22 @@ export default function TransactionNotifications({ childId, transactions }: Prop
       }
 
       const parsed = JSON.parse(stored)
-      // Support both old plain-array format and new object format
-      const acked: string[] = Array.isArray(parsed) ? parsed : (parsed.acked ?? [])
-      const since: string | null = Array.isArray(parsed) ? null : (parsed.since ?? null)
+
+      // Migrate legacy plain-array format to the new object format.
+      // Devices that first visited with no income have stored [] — without a
+      // 'since' timestamp every subsequent transaction looks new and floods in.
+      // On migration, mark all currently known income as seen and record 'since'
+      // so only genuinely new transactions (added after this visit) notify.
+      if (Array.isArray(parsed)) {
+        localStorage.setItem(key, JSON.stringify({
+          acked: income.map((t) => t.id),
+          since: new Date().toISOString(),
+        }))
+        return
+      }
+
+      const acked: string[]      = parsed.acked ?? []
+      const since: string | null = parsed.since ?? null
 
       const pending = income.filter((t) => {
         if (acked.includes(t.id)) return false
@@ -113,13 +126,13 @@ export default function TransactionNotifications({ childId, transactions }: Prop
     const tx = queue[0]
     if (!tx || accepting) return
 
-    // Mark acknowledged — preserve the since timestamp in the new object format
+    // Mark acknowledged — always in new object format after migration
     const key = `cs_ack_txns_${childId}`
     try {
       const stored = localStorage.getItem(key)
       const parsed = stored ? JSON.parse(stored) : { acked: [], since: null }
-      const acked: string[]    = Array.isArray(parsed) ? parsed : (parsed.acked ?? [])
-      const since: string|null = Array.isArray(parsed) ? null   : (parsed.since ?? null)
+      const acked: string[]    = parsed.acked ?? []
+      const since: string|null = parsed.since ?? null
       localStorage.setItem(key, JSON.stringify({ acked: [...acked, tx.id], since }))
     } catch { /* ignore */ }
 
