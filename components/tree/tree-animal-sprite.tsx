@@ -1,7 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, forwardRef, useImperativeHandle } from 'react'
 import type { MilestoneType } from '@/types/database'
+
+export interface AnimalSpriteHandle {
+  trigger: () => void
+}
 
 interface Props {
   type: MilestoneType
@@ -16,7 +20,7 @@ const ANIM: Record<MilestoneType, { cls: string; duration: number; origin: strin
   fox:   { cls: 'anim-fox-bounce',    duration: 950,  origin: 'bottom center' },
 }
 
-export default function TreeAnimalSprite({ type, size }: Props) {
+const TreeAnimalSprite = forwardRef<AnimalSpriteHandle, Props>(function TreeAnimalSprite({ type, size }, ref) {
   const [animClass, setAnimClass] = useState('')
   const animating  = useRef(false)
   const scheduleId = useRef<ReturnType<typeof setTimeout>>()
@@ -32,6 +36,8 @@ export default function TreeAnimalSprite({ type, size }: Props) {
       animating.current = false
     }, duration)
   }, [type])
+
+  useImperativeHandle(ref, () => ({ trigger }), [trigger])
 
   // Random idle every 6–18 s
   useEffect(() => {
@@ -59,7 +65,9 @@ export default function TreeAnimalSprite({ type, size }: Props) {
       {type === 'fox'   && <FoxSvg   />}
     </div>
   )
-}
+})
+
+export default TreeAnimalSprite
 
 // ─── Bunny (full body) ────────────────────────────────────────────────────────
 function BunnySvg() {
