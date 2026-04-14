@@ -104,7 +104,7 @@ export default async function ChildProfilePage({
         ) : (
           <div className="space-y-3">
             {goals.map((goal) => (
-              <GoalActions key={goal.id} goal={goal} />
+              <GoalActions key={goal.id} goal={goal} freeToUse={summary.freeToUse} />
             ))}
           </div>
         )}

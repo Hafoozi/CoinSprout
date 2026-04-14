@@ -52,7 +52,7 @@ export default async function GoalPage({
 
       <h1 className="text-xl font-bold text-gray-800">{goal.name}</h1>
 
-      <GoalActions goal={goalWithProgress} />
+      <GoalActions goal={goalWithProgress} freeToUse={freeToUse} />
 
       {!goalWithProgress.isComplete && freeToUse > 0 && incompleteGoals.length > 0 && (
         <div className="card-surface p-5 space-y-3">

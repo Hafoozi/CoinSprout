@@ -7,10 +7,11 @@ import { deleteGoal, completeGoal } from '@/actions/goals'
 import type { GoalWithProgress } from '@/types/domain'
 
 interface Props {
-  goal: GoalWithProgress
+  goal:      GoalWithProgress
+  freeToUse: number
 }
 
-export default function GoalActions({ goal }: Props) {
+export default function GoalActions({ goal, freeToUse }: Props) {
   const [confirmDelete,   setConfirmDelete]   = useState(false)
   const [confirmComplete, setConfirmComplete] = useState(false)
   const [error,           setError]           = useState<string | null>(null)
@@ -41,7 +42,7 @@ export default function GoalActions({ goal }: Props) {
   return (
     <>
       <div className="space-y-2">
-        <GoalCard goal={goal} />
+        <GoalCard goal={goal} freeToUse={freeToUse} />
 
         {/* Action row */}
         <div className="flex gap-2 px-1">

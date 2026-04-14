@@ -7,11 +7,12 @@ export async function upsertChildSettings(data: {
   treeGrowing: number | null
   treeMature:  number | null
   treeAncient: number | null
-  milestoneBunny: number | null
-  milestoneBird:  number | null
-  milestoneDeer:  number | null
-  milestoneOwl:   number | null
-  milestoneFox:   number | null
+  milestoneBunny:    number | null
+  milestoneBird:     number | null
+  milestoneDeer:     number | null
+  milestoneOwl:      number | null
+  milestoneFox:      number | null
+  milestoneSquirrel: number | null
   fruitGreenValue:     number | null
   fruitRedValue:       number | null
   fruitSilverValue:    number | null
@@ -33,6 +34,7 @@ export async function upsertChildSettings(data: {
     milestone_deer:        data.milestoneDeer,
     milestone_owl:         data.milestoneOwl,
     milestone_fox:         data.milestoneFox,
+    milestone_squirrel:    data.milestoneSquirrel,
     fruit_green_value:     data.fruitGreenValue,
     fruit_red_value:       data.fruitRedValue,
     fruit_silver_value:    data.fruitSilverValue,

@@ -17,14 +17,15 @@ interface Props {
   milestoneEarnings:  number
 }
 
-const MILESTONE_ORDER: MilestoneType[] = ['bunny', 'bird', 'deer', 'owl', 'fox']
+const MILESTONE_ORDER: MilestoneType[] = ['bunny', 'bird', 'deer', 'owl', 'fox', 'squirrel']
 
 const ANIMAL_OVERLAY: Record<MilestoneType, { style: React.CSSProperties; size: number }> = {
-  bunny: { style: { left: '2%',  bottom: '4%' }, size: 52 },
-  bird:  { style: { right: '6%', top:    '6%' }, size: 46 },
-  deer:  { style: { right: '1%', bottom: '3%' }, size: 56 },
-  owl:   { style: { left: '6%',  top:   '10%' }, size: 46 },
-  fox:   { style: { left: '26%', bottom: '3%' }, size: 52 },
+  bunny:    { style: { left: '2%',  bottom: '4%'  }, size: 52 },
+  bird:     { style: { right: '6%', top:    '6%'  }, size: 46 },
+  deer:     { style: { right: '1%', bottom: '3%'  }, size: 56 },
+  owl:      { style: { left: '6%',  top:   '10%'  }, size: 46 },
+  fox:      { style: { left: '26%', bottom: '3%'  }, size: 52 },
+  squirrel: { style: { right: '28%', bottom: '5%' }, size: 48 },
 }
 
 

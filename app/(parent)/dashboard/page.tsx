@@ -27,7 +27,7 @@ export default async function DashboardPage() {
         getRecurringAllowanceByChildId(child.id),
       ])
       const savingsBalance = calculateSavingsBalance(transactions)
-      const activeGoals    = goals.filter((g) => !g.is_complete).length
+      const activeGoals    = goals.filter((g) => g.allocated_amount < g.target_price).length
       return { child, savingsBalance, activeGoals, allowance }
     })
   )

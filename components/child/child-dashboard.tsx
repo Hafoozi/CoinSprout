@@ -33,7 +33,7 @@ function fmtDate(iso: string) {
 }
 
 const ANIMAL_EMOJI: Record<MilestoneType, string> = {
-  bunny: '🐰', bird: '🐦', deer: '🦌', owl: '🦉', fox: '🦊',
+  bunny: '🐰', bird: '🐦', deer: '🦌', owl: '🦉', fox: '🦊', squirrel: '🐿️',
 }
 
 

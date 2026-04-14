@@ -36,6 +36,12 @@ export const MILESTONES: MilestoneDefinition[] = [
     label:     'Fox',
     iconPath:  '/icons/fox.svg',
   },
+  {
+    type:      'squirrel',
+    threshold: 2000,
+    label:     'Squirrel',
+    iconPath:  '/icons/squirrel.svg',
+  },
 ]
 
 /** Quick lookup: milestone type → threshold amount. */

@@ -13,11 +13,12 @@ export const childSettingsSchema = z.object({
   treeAncient: threshold,
 
   // Animal thresholds — must be strictly ascending
-  milestoneBunny: threshold,
-  milestoneBird:  threshold,
-  milestoneDeer:  threshold,
-  milestoneOwl:   threshold,
-  milestoneFox:   threshold,
+  milestoneBunny:    threshold,
+  milestoneBird:     threshold,
+  milestoneDeer:     threshold,
+  milestoneOwl:      threshold,
+  milestoneFox:      threshold,
+  milestoneSquirrel: threshold,
 
   // Individual apple color values
   fruitGreenValue:     fruitValue,
@@ -64,11 +65,12 @@ export const childSettingsSchema = z.object({
 
   // Animal ascending order
   const animals = [
-    { val: data.milestoneBunny, label: 'Bunny', path: 'milestoneBunny' },
-    { val: data.milestoneBird,  label: 'Bird',  path: 'milestoneBird'  },
-    { val: data.milestoneDeer,  label: 'Deer',  path: 'milestoneDeer'  },
-    { val: data.milestoneOwl,   label: 'Owl',   path: 'milestoneOwl'   },
-    { val: data.milestoneFox,   label: 'Fox',   path: 'milestoneFox'   },
+    { val: data.milestoneBunny,    label: 'Bunny',    path: 'milestoneBunny'    },
+    { val: data.milestoneBird,     label: 'Bird',     path: 'milestoneBird'     },
+    { val: data.milestoneDeer,     label: 'Deer',     path: 'milestoneDeer'     },
+    { val: data.milestoneOwl,      label: 'Owl',      path: 'milestoneOwl'      },
+    { val: data.milestoneFox,      label: 'Fox',      path: 'milestoneFox'      },
+    { val: data.milestoneSquirrel, label: 'Squirrel', path: 'milestoneSquirrel' },
   ]
   for (let i = 1; i < animals.length; i++) {
     if (animals[i].val <= animals[i - 1].val) {
