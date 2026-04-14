@@ -3,7 +3,9 @@
 import { useFormState, useFormStatus } from 'react-dom'
 import { useEffect } from 'react'
 import { editTransaction } from '@/actions/transactions'
+import { useCurrency } from '@/components/providers/currency-provider'
 import Button from '@/components/ui/button'
+import CurrencyInput from '@/components/ui/currency-input'
 import Input from '@/components/ui/input'
 import Select from '@/components/ui/select'
 import { SOURCE_LABELS } from '@/lib/constants/sources'
@@ -35,6 +37,7 @@ interface Props {
 }
 
 export default function EditTransactionForm({ transaction, childId, onSuccess }: Props) {
+  const currency = useCurrency()
   const [state, action] = useFormState(editTransaction, INITIAL)
 
   useEffect(() => {
@@ -59,15 +62,12 @@ export default function EditTransactionForm({ transaction, childId, onSuccess }:
         defaultValue={transaction.source}
       />
 
-      <Input
+      <CurrencyInput
         id="edit-tx-amount"
         name="amount"
-        type="number"
-        label="Amount ($)"
+        label="Amount"
+        prefix={currency}
         defaultValue={defaultAmount}
-        min={0.01}
-        max={9999}
-        step={0.01}
         required
       />
 

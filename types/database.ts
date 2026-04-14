@@ -320,22 +320,25 @@ export interface Database {
       }
       family_settings: {
         Row: {
-          id:              string
-          family_id:       string
-          currency_symbol: string
-          created_at:      string
+          id:                    string
+          family_id:             string
+          currency_symbol:       string
+          quick_access_enabled:  boolean
+          created_at:            string
         }
         Insert: {
-          id?:              string
-          family_id:        string
-          currency_symbol?: string
-          created_at?:      string
+          id?:                    string
+          family_id:              string
+          currency_symbol?:       string
+          quick_access_enabled?:  boolean
+          created_at?:            string
         }
         Update: {
-          id?:              string
-          family_id?:       string
-          currency_symbol?: string
-          created_at?:      string
+          id?:                    string
+          family_id?:             string
+          currency_symbol?:       string
+          quick_access_enabled?:  boolean
+          created_at?:            string
         }
         Relationships: []
       }

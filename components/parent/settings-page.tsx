@@ -4,7 +4,7 @@ import { useFormState, useFormStatus } from 'react-dom'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { saveCurrencySettings } from '@/actions/family-settings'
+import { saveCurrencySettings, saveQuickAccessSetting } from '@/actions/family-settings'
 import { setChildPin, setParentPin } from '@/actions/profile-switch'
 import { triggerPayoutsNow } from '@/actions/trigger-payouts'
 import type { ChildPayoutResult } from '@/actions/trigger-payouts'
@@ -27,13 +27,14 @@ type PinMode =
   | { type: 'set-parent-pin';  step: 'enter' | 'confirm'; first?: string }
 
 interface Props {
-  currency:     CurrencySymbol
-  hasParentPin: boolean
-  children:     Child[]
-  settingsMap:  Record<string, ResolvedChildSettings>
-  allowanceMap: Record<string, RecurringAllowance | null>
-  interestMap:  Record<string, RecurringInterest | null>
-  savingsMap:   Record<string, number>
+  currency:            CurrencySymbol
+  hasParentPin:        boolean
+  quickAccessEnabled:  boolean
+  children:            Child[]
+  settingsMap:         Record<string, ResolvedChildSettings>
+  allowanceMap:        Record<string, RecurringAllowance | null>
+  interestMap:         Record<string, RecurringInterest | null>
+  savingsMap:          Record<string, number>
 }
 
 // ─── Payout result line ───────────────────────────────────────────────────────
@@ -71,7 +72,7 @@ function SaveButton() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function SettingsPage({ currency, hasParentPin, children, settingsMap, allowanceMap, interestMap, savingsMap }: Props) {
+export default function SettingsPage({ currency, hasParentPin, quickAccessEnabled, children, settingsMap, allowanceMap, interestMap, savingsMap }: Props) {
   const router = useRouter()
   const [currencyState, currencyAction] = useFormState(saveCurrencySettings, null)
   const [pinMode,        setPinMode]       = useState<PinMode>({ type: 'closed' })
@@ -80,6 +81,8 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
   const [isPending,      startTransition]  = useTransition()
   const [payoutPending,  startPayoutTx]   = useTransition()
   const [payoutResults,  setPayoutResults] = useState<ChildPayoutResult[] | null>(null)
+  const [quickAccess,    setQuickAccess]   = useState(quickAccessEnabled)
+  const [qaPending,      startQaTx]        = useTransition()
 
   function closePinDialog() {
     setPinMode({ type: 'closed' })
@@ -169,6 +172,38 @@ export default function SettingsPage({ currency, hasParentPin, children, setting
               <SaveButton />
             </div>
           </form>
+        </div>
+      </section>
+
+      {/* ── Quick Access ─────────────────────────────────────────────────── */}
+      <section className="space-y-2">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Navigation</h2>
+        <div className="card-surface p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-800">Quick Access</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Show a profile switcher in the child view header so you can jump between profiles without going back to the parent dashboard
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer ml-4 shrink-0">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={quickAccess}
+                disabled={qaPending}
+                onChange={(e) => {
+                  const enabled = e.currentTarget.checked
+                  setQuickAccess(enabled)
+                  startQaTx(async () => {
+                    await saveQuickAccessSetting(enabled)
+                    router.refresh()
+                  })
+                }}
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sprout-500 disabled:opacity-50" />
+            </label>
+          </div>
         </div>
       </section>
 

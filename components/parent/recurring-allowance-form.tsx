@@ -4,6 +4,7 @@ import { useEffect, useTransition } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 import { saveRecurringAllowance, skipNextAllowance, undoSkipAllowance } from '@/actions/recurring-allowance'
 import { useCurrency } from '@/components/providers/currency-provider'
+import CurrencyInput from '@/components/ui/currency-input'
 import { formatPaymentDate, calcNextPaymentDate, addDaysToDate } from '@/lib/utils/payment-date'
 import type { RecurringAllowance } from '@/lib/db/types'
 
@@ -94,25 +95,15 @@ export default function RecurringAllowanceForm({ childId, existing, onSuccess }:
       </div>
 
       {/* Amount */}
-      <div className="space-y-1">
-        <label htmlFor={`amount-${childId}`} className="text-sm font-medium text-gray-700">
-          Amount
-        </label>
-        <div className="flex items-center gap-1">
-          <span className="text-sm text-gray-400">{currency}</span>
-          <input
-            id={`amount-${childId}`}
-            name="amount"
-            type="number"
-            min="0.01"
-            step="0.01"
-            defaultValue={existing?.amount ?? ''}
-            placeholder="0.00"
-            required
-            className="w-28 rounded-xl border border-gray-200 px-3 py-2 text-sm text-right font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-sprout-400"
-          />
-        </div>
-      </div>
+      <CurrencyInput
+        id={`amount-${childId}`}
+        name="amount"
+        label="Amount"
+        prefix={currency}
+        defaultValue={existing?.amount ?? ''}
+        placeholder="0.00"
+        required
+      />
 
       {/* Day of week */}
       <div className="space-y-1">

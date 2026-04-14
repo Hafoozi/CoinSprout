@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const createGoalSchema = z.object({
   childId:     z.string().uuid(),
   name:        z.string().min(1, 'Goal name is required').max(50),
-  targetPrice: z.number().positive('Target must be greater than zero').max(99999),
+  targetPrice: z.number().positive('Target must be greater than zero').max(99999, 'Target price is too large'),
 })
 
 export const allocateGoalSchema = z.object({

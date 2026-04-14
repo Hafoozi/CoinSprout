@@ -40,6 +40,9 @@ export async function saveRecurringInterest(
   if (isNaN(rate) || rate < 0.01) {
     return { success: false, error: 'Rate must be at least 0.01%' }
   }
+  if (rate > 100) {
+    return { success: false, error: 'Rate cannot exceed 100%' }
+  }
   if (isNaN(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
     return { success: false, error: 'Invalid day of week' }
   }

@@ -1,36 +1,34 @@
 'use client'
 
-import { useState, useTransition, useEffect } from 'react'
-import { useRouter, useParams, usePathname } from 'next/navigation'
+import { useState, useTransition } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Dialog from '@/components/ui/dialog'
 import PinPad from '@/components/ui/pin-pad'
-import { verifyParentPin } from '@/actions/profile-switch'
-import { getChildDisplayInfo } from '@/actions/children'
+import { verifyParentPin, verifyChildPin } from '@/actions/profile-switch'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 import { ROUTES } from '@/lib/constants/routes'
 import CoinSproutLogo from '@/components/ui/coin-sprout-logo'
 
-function ChildAvatar() {
-  const params  = useParams<{ childId: string }>()
-  const childId = params?.childId
-  const [info, setInfo] = useState<{ name: string; avatarColor: string } | null>(null)
+// ── Types ─────────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    if (!childId) return
-    getChildDisplayInfo(childId).then(setInfo)
-  }, [childId])
-
-  if (!info) return null
-
-  const colorClass = AVATAR_BG[info.avatarColor] ?? AVATAR_BG.sprout
-
-  return (
-    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${colorClass}`}>
-      {info.name.charAt(0).toUpperCase()}
-    </div>
-  )
+interface Sibling {
+  id:          string
+  name:        string
+  avatarColor: string
+  hasPin:      boolean
 }
+
+interface ChildShellProps {
+  children:            React.ReactNode
+  childId:             string
+  name:                string
+  avatarColor:         string
+  siblings:            Sibling[]
+  quickAccessEnabled:  boolean
+}
+
+// ── Back-to-parent button ─────────────────────────────────────────────────────
 
 function BackToParentButton() {
   const router = useRouter()
@@ -74,12 +72,141 @@ function BackToParentButton() {
   )
 }
 
-function ChildNav() {
-  const params   = useParams<{ childId: string }>()
-  const pathname = usePathname()
-  const childId  = params?.childId
+// ── Quick Access profile switcher ─────────────────────────────────────────────
 
-  if (!childId) return null
+type SwitchTarget =
+  | { type: 'closed' }
+  | { type: 'select' }
+  | { type: 'pin-child'; sibling: Sibling }
+  | { type: 'pin-parent' }
+
+function QuickProfileSwitcher({ siblings }: { siblings: Sibling[] }) {
+  const router  = useRouter()
+  const [mode,      setMode]     = useState<SwitchTarget>({ type: 'closed' })
+  const [pinError,  setPinError] = useState<string>()
+  const [isPending, startTx]     = useTransition()
+
+  if (siblings.length === 0) return null
+
+  function handleSiblingSelect(sibling: Sibling) {
+    setPinError(undefined)
+    if (sibling.hasPin) {
+      setMode({ type: 'pin-child', sibling })
+    } else {
+      setMode({ type: 'closed' })
+      router.push(ROUTES.CHILD.HOME(sibling.id))
+    }
+  }
+
+  function handleChildPin(sibling: Sibling, pin: string) {
+    setPinError(undefined)
+    startTx(async () => {
+      const result = await verifyChildPin(sibling.id, pin)
+      if (result.success) {
+        setMode({ type: 'closed' })
+        router.push(ROUTES.CHILD.HOME(sibling.id))
+      } else {
+        setPinError(result.error ?? 'Incorrect PIN')
+      }
+    })
+  }
+
+  function handleParentPin(pin: string) {
+    setPinError(undefined)
+    startTx(async () => {
+      const result = await verifyParentPin(pin)
+      if (result.success) {
+        setMode({ type: 'closed' })
+        router.push(ROUTES.PARENT.DASHBOARD)
+      } else {
+        setPinError(result.error ?? 'Incorrect PIN')
+      }
+    })
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => { setPinError(undefined); setMode({ type: 'select' }) }}
+        className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-white/60 transition-colors"
+        title="Switch profile"
+      >
+        👥
+      </button>
+
+      {/* Profile selection */}
+      <Dialog open={mode.type === 'select'} onClose={() => setMode({ type: 'closed' })} title="Switch Profile">
+        <div className="space-y-2">
+          {siblings.map((sibling) => (
+            <button
+              key={sibling.id}
+              type="button"
+              onClick={() => handleSiblingSelect(sibling)}
+              className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-left hover:bg-sprout-50 hover:border-sprout-200 transition-colors"
+            >
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${AVATAR_BG[sibling.avatarColor] ?? AVATAR_BG.sprout}`}>
+                {sibling.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="font-medium text-gray-800">{sibling.name}</p>
+                <p className="text-xs text-gray-400">Child{sibling.hasPin ? ' · PIN required' : ''}</p>
+              </div>
+              <span className="ml-auto text-gray-300">›</span>
+            </button>
+          ))}
+
+          <div className="border-t border-gray-100 pt-2">
+            <button
+              type="button"
+              onClick={() => { setPinError(undefined); setMode({ type: 'pin-parent' }) }}
+              className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-left hover:bg-gray-50 hover:border-gray-300 transition-colors"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600 text-sm font-bold">
+                👤
+              </div>
+              <div>
+                <p className="font-medium text-gray-800">Parent</p>
+                <p className="text-xs text-gray-400">Parent view · PIN required</p>
+              </div>
+              <span className="ml-auto text-gray-300">›</span>
+            </button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Child PIN dialog */}
+      {mode.type === 'pin-child' && (
+        <Dialog open={true} onClose={() => setMode({ type: 'closed' })} title={`Switch to ${mode.sibling.name}`}>
+          <PinPad
+            title={`Enter ${mode.sibling.name}'s PIN`}
+            error={pinError}
+            isLoading={isPending}
+            onComplete={(pin) => handleChildPin(mode.sibling, pin)}
+          />
+        </Dialog>
+      )}
+
+      {/* Parent PIN dialog */}
+      {mode.type === 'pin-parent' && (
+        <Dialog open={true} onClose={() => setMode({ type: 'closed' })} title="Parent Access">
+          <PinPad
+            title="Enter parent PIN"
+            subtitle="Switch to parent view"
+            error={pinError}
+            isLoading={isPending}
+            onComplete={handleParentPin}
+          />
+        </Dialog>
+      )}
+    </>
+  )
+}
+
+// ── Bottom nav ────────────────────────────────────────────────────────────────
+
+function ChildNav({ childId }: { childId: string }) {
+  const pathname = usePathname()
 
   const tabs = [
     { label: 'Tree',     href: ROUTES.CHILD.HOME(childId),     icon: '🌳' },
@@ -109,21 +236,39 @@ function ChildNav() {
   )
 }
 
-export default function ChildShell({ children }: { children: React.ReactNode }) {
+// ── Shell ─────────────────────────────────────────────────────────────────────
+
+export default function ChildShell({
+  children,
+  childId,
+  name,
+  avatarColor,
+  siblings,
+  quickAccessEnabled,
+}: ChildShellProps) {
+  const colorClass = AVATAR_BG[avatarColor] ?? AVATAR_BG.sprout
+
   return (
     <div className="child-bg min-h-screen">
       <header className="sticky top-0 z-10 h-14 bg-white/80 backdrop-blur border-b border-sprout-100 flex items-center justify-between px-4">
         <div className="flex items-center gap-2.5">
           <CoinSproutLogo size={38} />
           <span className="font-bold text-sprout-700 text-lg tracking-tight">CoinSprout</span>
-          <ChildAvatar />
+          {name && (
+            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${colorClass}`}>
+              {name.charAt(0).toUpperCase()}
+            </div>
+          )}
         </div>
-        <BackToParentButton />
+        <div className="flex items-center gap-1">
+          {quickAccessEnabled && <QuickProfileSwitcher siblings={siblings} />}
+          <BackToParentButton />
+        </div>
       </header>
       <main className="max-w-3xl mx-auto px-4 pb-24">
         {children}
       </main>
-      <ChildNav />
+      <ChildNav childId={childId} />
     </div>
   )
 }
