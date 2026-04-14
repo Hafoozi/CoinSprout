@@ -68,20 +68,50 @@ export default function TransactionNotifications({ childId, transactions }: Prop
 
   const savingsBalance = round(transactions.reduce((s, t) => s + t.amount, 0))
 
-  // Initialise from localStorage
+  // Initialise from localStorage.
+  // Storage format: { acked: string[], since: string (ISO timestamp) }
+  // "since" marks when this device first opened the dashboard — any income transaction
+  // created on or before that moment is treated as historical and won't trigger a popup.
+  // Legacy format (plain string[]) is handled for backward compatibility.
   useEffect(() => {
     try {
       const key    = `cs_ack_txns_${childId}`
       const stored = localStorage.getItem(key)
       const income = transactions.filter((t) => t.amount > 0)
+      const now    = new Date().toISOString()
 
       if (stored === null) {
-        localStorage.setItem(key, JSON.stringify(income.map((t) => t.id)))
+        // First ever visit on this device — mark everything as seen so history
+        // doesn't flood in as notifications.
+        localStorage.setItem(key, JSON.stringify({ acked: income.map((t) => t.id), since: now }))
         return
       }
 
-      const acknowledged: string[] = JSON.parse(stored)
-      const pending = income.filter((t) => !acknowledged.includes(t.id))
+      const parsed = JSON.parse(stored)
+
+      // Migrate legacy plain-array format to the new object format.
+      // Devices that first visited with no income have stored [] — without a
+      // 'since' timestamp every subsequent transaction looks new and floods in.
+      // On migration, mark all currently known income as seen and record 'since'
+      // so only genuinely new transactions (added after this visit) notify.
+      if (Array.isArray(parsed)) {
+        localStorage.setItem(key, JSON.stringify({
+          acked: income.map((t) => t.id),
+          since: new Date().toISOString(),
+        }))
+        return
+      }
+
+      const acked: string[]      = parsed.acked ?? []
+      const since: string | null = parsed.since ?? null
+
+      const pending = income.filter((t) => {
+        if (acked.includes(t.id)) return false
+        // Treat any transaction that existed before (or at) first-visit time as historical
+        if (since && t.created_at <= since) return false
+        return true
+      })
+
       if (pending.length > 0) {
         setQueue(pending)
         // Counter starts at balance BEFORE all pending transactions
@@ -96,11 +126,14 @@ export default function TransactionNotifications({ childId, transactions }: Prop
     const tx = queue[0]
     if (!tx || accepting) return
 
-    // Mark acknowledged
+    // Mark acknowledged — always in new object format after migration
     const key = `cs_ack_txns_${childId}`
     try {
-      const acknowledged = JSON.parse(localStorage.getItem(key) ?? '[]') as string[]
-      localStorage.setItem(key, JSON.stringify([...acknowledged, tx.id]))
+      const stored = localStorage.getItem(key)
+      const parsed = stored ? JSON.parse(stored) : { acked: [], since: null }
+      const acked: string[]    = parsed.acked ?? []
+      const since: string|null = parsed.since ?? null
+      localStorage.setItem(key, JSON.stringify({ acked: [...acked, tx.id], since }))
     } catch { /* ignore */ }
 
     const startVal = countVal
