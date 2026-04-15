@@ -54,5 +54,20 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(dashboardUrl)
   }
 
+  // Track which mode (parent vs child) was last used so the PWA start_url
+  // redirect in app/page.tsx can send the user to the right place.
+  const isChildRoute  = pathname.startsWith('/kids') || pathname.startsWith('/child/')
+  const isParentRoute = pathname.startsWith('/dashboard') ||
+                        pathname.startsWith('/children') ||
+                        pathname.startsWith('/goals') ||
+                        pathname.startsWith('/transactions') ||
+                        pathname.startsWith('/settings')
+
+  if (isChildRoute) {
+    supabaseResponse.cookies.set('cs_mode', 'child',  { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
+  } else if (isParentRoute) {
+    supabaseResponse.cookies.set('cs_mode', 'parent', { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
+  }
+
   return supabaseResponse
 }
