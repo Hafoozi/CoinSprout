@@ -218,6 +218,50 @@ export default function SettingsPage({ userId, currency, hasParentPin, quickAcce
         </div>
       </section>
 
+      {/* ── Help & Tutorial ─────────────────────────────────────────────── */}
+      <section className="space-y-2">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Help & Tutorial</h2>
+        <div className="card-surface divide-y divide-gray-100">
+
+          <div className="flex items-center justify-between px-4 py-3">
+            <div>
+              <p className="text-sm font-medium text-gray-800">Parent Tour</p>
+              <p className="text-xs text-gray-400">Walk through the parent dashboard features</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                resetParentTutorial(userId)
+                setTutorialMode({ type: 'parent' })
+              }}
+              className="shrink-0 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              ▶ Replay
+            </button>
+          </div>
+
+          {children.map((child) => (
+            <div key={child.id} className="flex items-center justify-between px-4 py-3">
+              <div>
+                <p className="text-sm font-medium text-gray-800">{child.name}&apos;s Tour</p>
+                <p className="text-xs text-gray-400">Walk through the child tree experience</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  resetChildTutorial(child.id)
+                  setTutorialMode({ type: 'child', childId: child.id })
+                }}
+                className="shrink-0 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                ▶ Replay
+              </button>
+            </div>
+          ))}
+
+        </div>
+      </section>
+
       {/* ── Security / PINs ──────────────────────────────────────────────── */}
       <section className="space-y-2">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Security</h2>
@@ -378,50 +422,6 @@ export default function SettingsPage({ userId, currency, hasParentPin, quickAcce
           </div>
         </section>
       )}
-
-      {/* ── Help & Tutorial ─────────────────────────────────────────────── */}
-      <section className="space-y-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Help & Tutorial</h2>
-        <div className="card-surface divide-y divide-gray-100">
-
-          <div className="flex items-center justify-between px-4 py-3">
-            <div>
-              <p className="text-sm font-medium text-gray-800">Parent Tour</p>
-              <p className="text-xs text-gray-400">Walk through the parent dashboard features</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                resetParentTutorial(userId)
-                setTutorialMode({ type: 'parent' })
-              }}
-              className="shrink-0 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-            >
-              ▶ Replay
-            </button>
-          </div>
-
-          {children.map((child) => (
-            <div key={child.id} className="flex items-center justify-between px-4 py-3">
-              <div>
-                <p className="text-sm font-medium text-gray-800">{child.name}&apos;s Tour</p>
-                <p className="text-xs text-gray-400">Walk through the child tree experience</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  resetChildTutorial(child.id)
-                  setTutorialMode({ type: 'child', childId: child.id })
-                }}
-                className="shrink-0 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-              >
-                ▶ Replay
-              </button>
-            </div>
-          ))}
-
-        </div>
-      </section>
 
       {/* ── Tutorial Overlay ──────────────────────────────────────────────── */}
       {tutorialMode.type === 'parent' && (
