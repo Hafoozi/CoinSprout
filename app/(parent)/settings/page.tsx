@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 }
 
 export default async function SettingsPageRoute() {
-  const { family } = await requireParent()
+  const { family, userId } = await requireParent()
 
   const [familySettings, children] = await Promise.all([
     getFamilySettings(family.id),
@@ -53,6 +53,7 @@ export default async function SettingsPageRoute() {
 
   return (
     <SettingsPage
+      userId={userId}
       currency={(familySettings?.currency_symbol ?? DEFAULT_CURRENCY) as CurrencySymbol}
       hasParentPin={!!family.parent_pin_hash}
       quickAccessEnabled={familySettings?.quick_access_enabled ?? false}
