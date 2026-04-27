@@ -5,6 +5,8 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Dialog from '@/components/ui/dialog'
 import PinPad from '@/components/ui/pin-pad'
+import TutorialOverlay from '@/components/tutorial/tutorial-overlay'
+import { childSteps } from '@/components/tutorial/child-steps'
 import { verifyParentPin, verifyChildPin } from '@/actions/profile-switch'
 import { AVATAR_BG } from '@/lib/constants/avatar-colors'
 import { ROUTES } from '@/lib/constants/routes'
@@ -247,6 +249,7 @@ export default function ChildShell({
   quickAccessEnabled,
 }: ChildShellProps) {
   const colorClass = AVATAR_BG[avatarColor] ?? AVATAR_BG.sprout
+  const [showTutorial, setShowTutorial] = useState(false)
 
   return (
     <div className="child-bg min-h-screen">
@@ -262,9 +265,26 @@ export default function ChildShell({
         </div>
         <div className="flex items-center gap-1">
           {quickAccessEnabled && <QuickProfileSwitcher siblings={siblings} />}
+          <div className="w-px h-6 bg-gray-200 mx-1" />
+          <button
+            type="button"
+            onClick={() => setShowTutorial(true)}
+            className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-200 text-sm font-bold text-gray-500 hover:bg-white/60 hover:text-gray-700 transition-colors"
+            title="Help"
+          >
+            ?
+          </button>
           <BackToParentButton />
         </div>
       </header>
+
+      {showTutorial && (
+        <TutorialOverlay
+          steps={childSteps}
+          onComplete={() => setShowTutorial(false)}
+          onSkip={()    => setShowTutorial(false)}
+        />
+      )}
       <main className="max-w-3xl mx-auto px-4 pb-24">
         {children}
       </main>

@@ -4,6 +4,7 @@ import { requireParent } from '@/lib/auth/require-parent'
 import { getChildrenByFamilyId } from '@/lib/db/queries/children'
 import { ROUTES } from '@/lib/constants/routes'
 import ProfileSwitcher from '@/components/layout/profile-switcher'
+import HelpButton from '@/components/layout/help-button'
 import CoinSproutLogo from '@/components/ui/coin-sprout-logo'
 
 /**
@@ -48,10 +49,15 @@ export default async function AppHeader() {
 
         <div className="w-px h-6 bg-gray-200 mx-2" />
 
+        <HelpButton
+          userId={user?.id ?? ''}
+          children={children.map(c => ({ id: c.id, name: c.name }))}
+        />
+
         <form action={signOut}>
           <button
             type="submit"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors ml-2"
           >
             Sign out
           </button>
