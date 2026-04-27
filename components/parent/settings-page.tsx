@@ -11,10 +11,6 @@ import type { ChildPayoutResult } from '@/actions/trigger-payouts'
 import ChildAdvancedSettings from '@/components/parent/child-advanced-settings'
 import RecurringAllowanceForm from '@/components/parent/recurring-allowance-form'
 import RecurringInterestForm from '@/components/parent/recurring-interest-form'
-import TutorialOverlay from '@/components/tutorial/tutorial-overlay'
-import { parentSteps } from '@/components/tutorial/parent-steps'
-import { childSteps } from '@/components/tutorial/child-steps'
-import { resetParentTutorial, resetChildTutorial } from '@/lib/tutorial/storage'
 import PinPad from '@/components/ui/pin-pad'
 import Dialog from '@/components/ui/dialog'
 import { CURRENCY_OPTIONS } from '@/lib/constants/currencies'
@@ -29,11 +25,6 @@ type PinMode =
   | { type: 'set-child-pin';   child: Child; step: 'enter' | 'confirm'; first?: string }
   | { type: 'reset-child-pin'; child: Child; step: 'enter' | 'confirm'; first?: string }
   | { type: 'set-parent-pin';  step: 'enter' | 'confirm'; first?: string }
-
-type TutorialMode =
-  | { type: 'closed' }
-  | { type: 'parent' }
-  | { type: 'child'; childId: string }
 
 interface Props {
   userId:              string
@@ -93,7 +84,6 @@ export default function SettingsPage({ userId, currency, hasParentPin, quickAcce
   const [payoutResults,  setPayoutResults] = useState<ChildPayoutResult[] | null>(null)
   const [quickAccess,    setQuickAccess]   = useState(quickAccessEnabled)
   const [qaPending,      startQaTx]        = useTransition()
-  const [tutorialMode,   setTutorialMode]  = useState<TutorialMode>({ type: 'closed' })
 
   function closePinDialog() {
     setPinMode({ type: 'closed' })
@@ -215,50 +205,6 @@ export default function SettingsPage({ userId, currency, hasParentPin, quickAcce
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sprout-500 disabled:opacity-50" />
             </label>
           </div>
-        </div>
-      </section>
-
-      {/* ── Help & Tutorial ─────────────────────────────────────────────── */}
-      <section className="space-y-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-1">Help & Tutorial</h2>
-        <div className="card-surface divide-y divide-gray-100">
-
-          <div className="flex items-center justify-between px-4 py-3">
-            <div>
-              <p className="text-sm font-medium text-gray-800">Parent Tour</p>
-              <p className="text-xs text-gray-400">Walk through the parent dashboard features</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                resetParentTutorial(userId)
-                setTutorialMode({ type: 'parent' })
-              }}
-              className="shrink-0 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-            >
-              ▶ Replay
-            </button>
-          </div>
-
-          {children.map((child) => (
-            <div key={child.id} className="flex items-center justify-between px-4 py-3">
-              <div>
-                <p className="text-sm font-medium text-gray-800">{child.name}&apos;s Tour</p>
-                <p className="text-xs text-gray-400">Walk through the child tree experience</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  resetChildTutorial(child.id)
-                  setTutorialMode({ type: 'child', childId: child.id })
-                }}
-                className="shrink-0 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-              >
-                ▶ Replay
-              </button>
-            </div>
-          ))}
-
         </div>
       </section>
 
@@ -421,22 +367,6 @@ export default function SettingsPage({ userId, currency, hasParentPin, quickAcce
             ))}
           </div>
         </section>
-      )}
-
-      {/* ── Tutorial Overlay ──────────────────────────────────────────────── */}
-      {tutorialMode.type === 'parent' && (
-        <TutorialOverlay
-          steps={parentSteps}
-          onComplete={() => setTutorialMode({ type: 'closed' })}
-          onSkip={() => setTutorialMode({ type: 'closed' })}
-        />
-      )}
-      {tutorialMode.type === 'child' && (
-        <TutorialOverlay
-          steps={childSteps}
-          onComplete={() => setTutorialMode({ type: 'closed' })}
-          onSkip={() => setTutorialMode({ type: 'closed' })}
-        />
       )}
 
       {/* ── PIN Dialogs ───────────────────────────────────────────────────── */}
