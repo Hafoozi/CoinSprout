@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Button from '@/components/ui/button'
 import ChildSummaryCard from '@/components/parent/child-summary-card'
+import ParentTutorialTrigger from '@/components/tutorial/parent-tutorial-trigger'
 import { ROUTES } from '@/lib/constants/routes'
 import type { Child, Family, RecurringAllowance } from '@/lib/db/types'
 
@@ -12,13 +13,16 @@ interface ChildEntry {
 }
 
 interface Props {
+  userId:       string
   family:       Family
   childEntries: ChildEntry[]
 }
 
-export default function ParentDashboard({ family, childEntries }: Props) {
+export default function ParentDashboard({ userId, family, childEntries }: Props) {
   return (
     <div className="space-y-6 py-6">
+
+      <ParentTutorialTrigger userId={userId} />
 
       {/* Header */}
       <div className="flex items-center justify-between">

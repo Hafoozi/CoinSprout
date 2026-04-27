@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 }
 
 export default async function DashboardPage() {
-  const { family } = await requireParent()
+  const { family, userId } = await requireParent()
   const children   = await getChildrenByFamilyId(family.id)
 
   // Fetch each child's transactions in parallel, then compute balances in memory
@@ -32,5 +32,5 @@ export default async function DashboardPage() {
     })
   )
 
-  return <ParentDashboard family={family} childEntries={childEntries} />
+  return <ParentDashboard userId={userId} family={family} childEntries={childEntries} />
 }

@@ -4,6 +4,9 @@ import type { Child, MilestoneType, Transaction } from '@/lib/db/types'
 import type { ChildFinancialSummary, GoalWithProgress, ResolvedChildSettings } from '@/types/domain'
 import TreeHero from '@/components/tree/tree-hero'
 import TransactionNotifications from '@/components/child/transaction-notifications'
+import TutorialOverlay from '@/components/tutorial/tutorial-overlay'
+import { childSteps } from '@/components/tutorial/child-steps'
+import { isChildTutorialDone, markChildTutorialDone } from '@/lib/tutorial/storage'
 import { calculateTreeStage } from '@/lib/calculations/tree-stage'
 import { calculateFruitClusters } from '@/lib/calculations/fruit'
 import { getNextMilestone, amountToNextMilestone, getEarnedMilestones } from '@/lib/calculations/milestones'
@@ -12,7 +15,7 @@ import { ROUTES } from '@/lib/constants/routes'
 import AppleIcon from '@/components/ui/apple-icon'
 import { useCurrency } from '@/components/providers/currency-provider'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 interface Props {
@@ -40,6 +43,7 @@ const ANIMAL_EMOJI: Record<MilestoneType, string> = {
 export default function ChildDashboard({ child, summary, transactions, goals, settings }: Props) {
   const router   = useRouter()
   const currency = useCurrency()
+  const [tutorialActive, setTutorialActive] = useState(false)
 
   // Refresh data whenever the app comes back to the foreground (e.g. parent added funds)
   useEffect(() => {
@@ -49,6 +53,15 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
     document.addEventListener('visibilitychange', handleVisibilityChange)
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [router])
+
+  useEffect(() => {
+    if (!isChildTutorialDone(child.id)) setTutorialActive(true)
+  }, [child.id])
+
+  function finishChildTutorial() {
+    markChildTutorialDone(child.id)
+    setTutorialActive(false)
+  }
   const stage         = calculateTreeStage(summary.treeEarnings, settings.treeThresholds)
   const fruitClusters = calculateFruitClusters(summary.savingsBalance, settings.fruitValues)
   const unlockedTypes = getEarnedMilestones(summary.milestoneEarnings, settings.milestoneThresholds)
@@ -63,8 +76,14 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
   return (
     <div className="py-4 space-y-6">
 
-      {/* Fund notifications */}
-      <TransactionNotifications childId={child.id} transactions={transactions}/>
+      {tutorialActive && (
+        <TutorialOverlay steps={childSteps} onComplete={finishChildTutorial} onSkip={finishChildTutorial} />
+      )}
+
+      {/* Fund notifications — suppressed while tutorial is running */}
+      {!tutorialActive && (
+        <TransactionNotifications childId={child.id} transactions={transactions}/>
+      )}
 
       {/* Child header */}
       <div className="flex items-center gap-3">
