@@ -1,4 +1,38 @@
+import { type CSSProperties, type ReactNode } from 'react'
 import type { TutorialStep } from './tutorial-overlay'
+
+// ── Screenshot helpers ────────────────────────────────────────────────────────
+
+function Shot({ src, children }: { src: string; children?: ReactNode }) {
+  return (
+    <div className="-m-4 relative overflow-hidden select-none">
+      <img src={src} className="w-full block" alt="" draggable={false} />
+      {children}
+    </div>
+  )
+}
+
+function Highlight({ style }: { style: CSSProperties }) {
+  return (
+    <div
+      className="absolute border-2 border-yellow-400 rounded bg-yellow-400/20 pointer-events-none z-10"
+      style={style}
+    />
+  )
+}
+
+function Callout({ text, style }: { text: string; style: CSSProperties }) {
+  return (
+    <div
+      className="absolute bg-sprout-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-lg leading-tight pointer-events-none z-10 whitespace-nowrap"
+      style={style}
+    >
+      {text}
+    </div>
+  )
+}
+
+// ── Steps ─────────────────────────────────────────────────────────────────────
 
 export const parentSteps: TutorialStep[] = [
   // ── 1. Welcome ────────────────────────────────────────────────────────────
@@ -19,146 +53,95 @@ export const parentSteps: TutorialStep[] = [
     ),
   },
 
-  // ── 2. Dashboard ──────────────────────────────────────────────────────────
+  // ── 2. Parent Dashboard ───────────────────────────────────────────────────
   {
     id:    'dashboard',
     title: 'Your Parent Dashboard',
-    body:  "Here you'll see all your children at a glance — their current savings, active goals, and next allowance date. Everything in one place.",
+    body:  "This is your home base. All your children appear here. Click any child card to open their savings account and take action.",
     mockup: (
-      <div className="space-y-2">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">Children (1)</p>
-        <div className="flex items-center justify-between rounded-xl bg-white px-3 py-3 shadow-sm border border-sprout-100">
-          <div className="flex items-center gap-2.5">
-            <div className="h-10 w-10 rounded-full bg-sprout-200 flex items-center justify-center text-sm font-bold text-sprout-700">
-              J
-            </div>
-            <div>
-              <p className="text-sm font-bold text-gray-800">Jamie</p>
-              <p className="text-xs text-gray-400">2 active goals</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-sm font-bold text-sprout-700 money">$47.50</p>
-            <p className="text-xs text-gray-400">saved</p>
-          </div>
-        </div>
-      </div>
+      <Shot src="/tutorial/parent-dashboard.png">
+        <Highlight style={{ top: '9%', left: '65%', width: '13%', height: '9%' }} />
+        <Callout text="Add each child here" style={{ top: '19%', left: '58%' }} />
+        <Highlight style={{ top: '23%', left: '22%', width: '56%', height: '14%' }} />
+        <Callout text="Click to manage" style={{ top: '38%', left: '35%' }} />
+      </Shot>
     ),
   },
 
-  // ── 3. Add Child ──────────────────────────────────────────────────────────
-  {
-    id:    'add-child',
-    title: 'Adding a Child',
-    body:  'Use the "+ Add child" button to create a profile for each of your children. Each child gets their own savings balance, goals, and growing tree.',
-    mockup: (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <p className="text-xs font-medium text-gray-500">Your children</p>
-          <div className="rounded-xl bg-sprout-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm">
-            + Add child
-          </div>
-        </div>
-        <div className="rounded-xl border-2 border-dashed border-sprout-200 py-6 text-center bg-white/60">
-          <p className="text-4xl">🌱</p>
-          <p className="text-xs text-gray-400 mt-2 font-medium">Add your first child to get started</p>
-        </div>
-      </div>
-    ),
-  },
-
-  // ── 4. Transactions ───────────────────────────────────────────────────────
+  // ── 3. Action Buttons ─────────────────────────────────────────────────────
   {
     id:    'transactions',
     title: 'Adding Money & Recording Spending',
-    body:  "Open a child's profile to add money (allowance, gifts, interest) or record when they spend. Every transaction appears on their tree.",
+    body:  "Inside each child's profile you'll find four action buttons. Use them to add money (allowance, gifts, jobs) or record what they spend.",
     mockup: (
-      <div className="space-y-2">
-        <div className="flex items-center gap-3 rounded-xl bg-sprout-500 px-4 py-2.5 shadow-sm">
-          <span className="text-lg">💵</span>
-          <span className="text-white font-bold text-sm">Add Money</span>
-        </div>
-        <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-2.5">
-          <span className="text-lg">🛍️</span>
-          <span className="text-gray-700 font-semibold text-sm">Record Spending</span>
-        </div>
-        <div className="pt-2 border-t border-sprout-100 space-y-1.5">
-          {[
-            { icon: '💵', label: 'Allowance',  amount: '+$5.00',  color: 'text-sprout-600' },
-            { icon: '🎁', label: 'Gift',        amount: '+$10.00', color: 'text-sprout-600' },
-            { icon: '🛍️', label: 'Toy store',  amount: '-$3.50',  color: 'text-red-500'   },
-          ].map(({ icon, label, amount, color }) => (
-            <div key={label} className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-1.5 text-gray-600">
-                <span>{icon}</span>{label}
-              </span>
-              <span className={`font-bold money ${color}`}>{amount}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <Shot src="/tutorial/child-detail.png">
+        <Highlight style={{ top: '36%', left: '2%', width: '96%', height: '10%' }} />
+        <Callout text="↑ Your four action buttons" style={{ top: '47%', left: '22%' }} />
+      </Shot>
     ),
   },
 
-  // ── 5. Goals ──────────────────────────────────────────────────────────────
+  // ── 4. Goals ──────────────────────────────────────────────────────────────
   {
     id:    'goals',
     title: 'Savings Goals',
-    body:  "Create goals for things your child is saving toward. Allocate money to each goal so they can see exactly how close they are.",
+    body:  "Create goals for things your child is saving toward. Use '+ Add' to move money into a goal and '- Take back' to return it to their free balance.",
     mockup: (
-      <div className="space-y-2">
-        {[
-          { emoji: '🚲', name: 'New Bike',   saved: 45,  target: 300, pct: 15 },
-          { emoji: '🎮', name: 'Video Game', saved: 30,  target: 60,  pct: 50 },
-        ].map(({ emoji, name, saved, target, pct }) => (
-          <div key={name} className="rounded-xl bg-white px-3 py-3 shadow-sm border border-gray-100 space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-bold text-gray-800">{emoji} {name}</span>
-              <span className="text-xs text-gray-400 money">${saved} / ${target}</span>
-            </div>
-            <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
-              <div className="h-full rounded-full bg-yellow-400 transition-all" style={{ width: `${pct}%` }} />
-            </div>
-            <p className="text-xs text-gray-400">{pct}% saved</p>
-          </div>
-        ))}
-      </div>
+      <Shot src="/tutorial/child-detail.png">
+        <Highlight style={{ top: '47%', left: '2%', width: '96%', height: '40%' }} />
+        <Callout text="↑ Goals — allocate & take back" style={{ top: '88%', left: '18%' }} />
+      </Shot>
     ),
   },
 
-  // ── 6. Tree & Fruit ───────────────────────────────────────────────────────
+  // ── 5. Earnings Breakdown ─────────────────────────────────────────────────
   {
-    id:    'tree-fruit',
-    title: 'The Tree & Fruit',
-    body:  "Your child sees a living tree. Fruit represents their current savings — green for allowance, red for gifts, gold for interest. The tree grows as lifetime earnings increase.",
+    id:    'earnings',
+    title: 'Activity & Earnings Breakdown',
+    body:  "The earnings chart shows exactly where your child's money came from — allowances, gifts, jobs, and interest. Every transaction is logged in the Activity table below.",
     mockup: (
-      <div className="flex flex-col items-center gap-3">
-        <div className="text-7xl leading-none drop-shadow-sm">🌳</div>
-        <div className="flex gap-4">
-          {[
-            { color: 'bg-sprout-400', label: 'Allowance' },
-            { color: 'bg-red-400',    label: 'Gift'      },
-            { color: 'bg-yellow-400', label: 'Interest'  },
-          ].map(({ color, label }) => (
-            <span key={label} className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-              <span className={`inline-block h-3 w-3 rounded-full ${color} shadow-sm`} />
-              {label}
-            </span>
-          ))}
-        </div>
-        <div className="w-full rounded-xl bg-white px-4 py-2.5 text-center shadow-sm border border-sprout-100">
-          <p className="text-xs text-gray-400 font-medium">Current savings</p>
-          <p className="text-xl font-bold text-sprout-700 money">$47.50</p>
-        </div>
-      </div>
+      <Shot src="/tutorial/child-activity.png">
+        <Highlight style={{ top: '18%', left: '2%', width: '96%', height: '40%' }} />
+        <Callout text="↑ Where every dollar came from" style={{ top: '59%', left: '16%' }} />
+      </Shot>
+    ),
+  },
+
+  // ── 6. Settings page ─────────────────────────────────────────────────────
+  {
+    id:    'settings',
+    title: 'Settings ⚙️',
+    body:  "Tap the ⚙️ gear icon in the header to open Settings. Enable Quick Access so you can jump between children without going back to the dashboard. Scroll down to Advanced to configure each child's allowance and interest.",
+    mockup: (
+      <Shot src="/tutorial/parent-settings.png">
+        <Highlight style={{ top: '34%', left: '28%', width: '44%', height: '17%' }} />
+        <Callout text="Quick profile switching" style={{ top: '52%', left: '28%' }} />
+        <Highlight style={{ top: '92%', left: '28%', width: '44%', height: '8%' }} />
+        <Callout text="Per-child setup ↑" style={{ top: '85%', left: '47%' }} />
+      </Shot>
+    ),
+  },
+
+  // ── 7. Allowance & Interest ───────────────────────────────────────────────
+  {
+    id:    'automation',
+    title: 'Allowance & Interest 💵📈',
+    body:  "Toggle on a recurring allowance and set an interest rate. CoinSprout deposits money automatically on the day you choose — no reminders needed!",
+    mockup: (
+      <Shot src="/tutorial/child-advanced.png">
+        <Highlight style={{ top: '7%', left: '2%', width: '95%', height: '36%' }} />
+        <Callout text="Toggle on & set day + amount" style={{ top: '37%', left: '4%' }} />
+        <Highlight style={{ top: '43%', left: '2%', width: '95%', height: '34%' }} />
+        <Callout text="Add a monthly interest rate" style={{ top: '78%', left: '4%' }} />
+      </Shot>
     ),
   },
 
   // ── 7. Animal Friends ─────────────────────────────────────────────────────
   {
     id:    'milestones',
-    title: 'Animal Friends',
-    body:  "As lifetime earnings hit milestones, your child unlocks animal friends who live in the tree permanently — even if money is spent. A great way to celebrate long-term progress.",
+    title: 'Animal Friends & Milestones',
+    body:  "As lifetime earnings hit milestones, your child unlocks animal friends who live in the tree permanently — even if they spend money. A great way to celebrate long-term progress!",
     mockup: (
       <div className="space-y-3">
         <p className="text-xs text-center font-medium text-gray-400">Lifetime earnings milestones</p>
@@ -183,33 +166,7 @@ export const parentSteps: TutorialStep[] = [
     ),
   },
 
-  // ── 8. Automation ─────────────────────────────────────────────────────────
-  {
-    id:    'automation',
-    title: 'Automatic Allowance & Interest',
-    body:  "Set a weekly allowance and an interest rate for each child. CoinSprout adds money on schedule automatically — no reminders needed.",
-    mockup: (
-      <div className="space-y-2">
-        {[
-          { icon: '💵', title: 'Weekly Allowance', sub: 'Every Monday',   value: '$5.00 / wk' },
-          { icon: '📈', title: 'Monthly Interest',  sub: 'Applied on balance', value: '2% / mo'    },
-        ].map(({ icon, title, sub, value }) => (
-          <div key={title} className="flex items-center justify-between rounded-xl bg-white px-3 py-3 shadow-sm border border-gray-100">
-            <div className="flex items-center gap-2.5">
-              <span className="text-xl">{icon}</span>
-              <div>
-                <p className="text-xs font-bold text-gray-800">{title}</p>
-                <p className="text-xs text-gray-400">{sub}</p>
-              </div>
-            </div>
-            <p className="text-xs font-bold text-sprout-600 money">{value}</p>
-          </div>
-        ))}
-      </div>
-    ),
-  },
-
-  // ── 9. Completion ─────────────────────────────────────────────────────────
+  // ── 8. All set ────────────────────────────────────────────────────────────
   {
     id:    'complete',
     title: "You're all set! 🎉",

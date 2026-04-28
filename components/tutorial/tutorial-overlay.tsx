@@ -75,13 +75,13 @@ export default function TutorialOverlay({ steps, onComplete, onSkip }: Props) {
   return createPortal(
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-6 bg-black/60 backdrop-blur-sm">
       <div
-        className="tutorial-enter w-full sm:max-w-sm bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden"
+        className="tutorial-enter w-full sm:max-w-sm bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
 
         {/* ── Gradient header: step counter + title + skip ── */}
-        <div className="bg-gradient-to-br from-sprout-500 to-sprout-600 px-5 pt-5 pb-5">
+        <div className="bg-gradient-to-br from-sprout-500 to-sprout-600 px-5 pt-5 pb-5 shrink-0">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-bold text-white/60 tracking-widest uppercase">
               {idx + 1} of {steps.length}
@@ -97,24 +97,26 @@ export default function TutorialOverlay({ steps, onComplete, onSkip }: Props) {
           <h2 className="text-xl font-bold text-white leading-snug">{step.title}</h2>
         </div>
 
-        {/* ── Animated content (slides on step change) ── */}
-        <div key={`${idx}-${direction}`} className={stepAnimClass}>
+        {/* ── Scrollable content (mockup + body) ── */}
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <div key={`${idx}-${direction}`} className={stepAnimClass}>
 
-          {/* Mockup area */}
-          {step.mockup && (
-            <div className="mx-4 mt-4 rounded-2xl bg-gradient-to-b from-sprout-50 to-white border border-sprout-100 p-4 overflow-hidden">
-              {step.mockup}
+            {/* Mockup area */}
+            {step.mockup && (
+              <div className="mx-4 mt-4 rounded-2xl bg-gradient-to-b from-sprout-50 to-white border border-sprout-100 p-4 overflow-hidden">
+                {step.mockup}
+              </div>
+            )}
+
+            {/* Body text */}
+            <div className={`px-5 pb-2 ${step.mockup ? 'pt-3' : 'pt-5'}`}>
+              <p className="text-sm text-gray-600 leading-relaxed">{step.body}</p>
             </div>
-          )}
-
-          {/* Body text */}
-          <div className={`px-5 pb-2 ${step.mockup ? 'pt-3' : 'pt-5'}`}>
-            <p className="text-sm text-gray-600 leading-relaxed">{step.body}</p>
           </div>
         </div>
 
         {/* ── Progress dots (clickable) ── */}
-        <div className="flex justify-center gap-2 py-3">
+        <div className="flex justify-center gap-2 py-3 shrink-0">
           {steps.map((_, i) => (
             <button
               key={i}
@@ -133,7 +135,7 @@ export default function TutorialOverlay({ steps, onComplete, onSkip }: Props) {
         </div>
 
         {/* ── Controls ── */}
-        <div className="flex items-center justify-between px-5 pb-7">
+        <div className="flex items-center justify-between px-5 pb-7 shrink-0">
           <button
             type="button"
             onClick={retreat}
