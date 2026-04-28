@@ -131,7 +131,7 @@ function QuickProfileSwitcher({ siblings }: { siblings: Sibling[] }) {
       <button
         type="button"
         onClick={() => { setPinError(undefined); setMode({ type: 'select' }) }}
-        className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-white/60 transition-colors"
+        className="flex items-center justify-center w-8 h-8 rounded-lg text-xl text-gray-600 hover:bg-white/60 transition-colors"
         title="Switch profile"
       >
         👥

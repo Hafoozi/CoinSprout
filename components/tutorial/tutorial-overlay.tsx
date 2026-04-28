@@ -73,9 +73,9 @@ export default function TutorialOverlay({ steps, onComplete, onSkip }: Props) {
   const stepAnimClass = direction === 'forward' ? 'tutorial-step-forward' : 'tutorial-step-back'
 
   return createPortal(
-    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-6 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] flex sm:items-center sm:justify-center sm:p-6 bg-black/60 backdrop-blur-sm">
       <div
-        className="tutorial-enter w-full sm:max-w-sm bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="tutorial-enter w-full sm:max-w-sm bg-white sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col sm:max-h-[90vh]"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
