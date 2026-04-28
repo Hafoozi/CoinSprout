@@ -15,8 +15,9 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://coinsproutapp.com'),
   title: 'CoinSprout',
-  description: 'Grow your savings, one coin at a time.',
+  description: 'Where savings turns into something bigger.',
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'CoinSprout',
-    description: 'Grow your savings, one coin at a time.',
+    description: 'Where savings turns into something bigger.',
     url: 'https://coinsproutapp.com',
     siteName: 'CoinSprout',
     type: 'website',
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'CoinSprout',
-    description: 'Grow your savings, one coin at a time.',
+    description: 'Where savings turns into something bigger.',
   },
 }
 
