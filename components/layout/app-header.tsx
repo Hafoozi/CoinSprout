@@ -49,10 +49,7 @@ export default async function AppHeader() {
 
         <div className="w-px h-6 bg-gray-200 mx-2" />
 
-        <HelpButton
-          userId={user?.id ?? ''}
-          children={children.map(c => ({ id: c.id, name: c.name }))}
-        />
+        <HelpButton />
 
         <form action={signOut}>
           <button
