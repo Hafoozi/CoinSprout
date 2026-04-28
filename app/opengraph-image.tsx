@@ -79,7 +79,7 @@ export default function Image() {
         {/* Tagline */}
         <div
           style={{
-            fontSize: 36,
+            fontSize: 52,
             color: 'rgba(255,255,255,0.78)',
             marginTop: 20,
             fontWeight: 400,
@@ -87,15 +87,6 @@ export default function Image() {
           }}
         >
           Watch savings grow
-        </div>
-
-        {/* Bottom coin row */}
-        <div style={{ display: 'flex', marginTop: 52, gap: 20 }}>
-          <div style={{ fontSize: 44, display: 'flex' }}>🪙</div>
-          <div style={{ fontSize: 44, display: 'flex' }}>🌿</div>
-          <div style={{ fontSize: 44, display: 'flex' }}>🪙</div>
-          <div style={{ fontSize: 44, display: 'flex' }}>🌿</div>
-          <div style={{ fontSize: 44, display: 'flex' }}>🪙</div>
         </div>
       </div>
     ),
