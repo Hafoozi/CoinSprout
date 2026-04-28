@@ -269,7 +269,7 @@ export default function ChildShell({
           <button
             type="button"
             onClick={() => setShowTutorial(true)}
-            className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-200 text-sm font-bold text-gray-500 hover:bg-white/60 hover:text-gray-700 transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-gray-400 text-sm font-bold text-gray-600 hover:border-gray-600 hover:text-gray-800 hover:bg-white/60 transition-colors"
             title="Help"
           >
             ?

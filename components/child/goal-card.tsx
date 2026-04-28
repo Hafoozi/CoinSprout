@@ -24,6 +24,8 @@ export default function GoalCard({ goal, freeToUse }: Props) {
   const [selected,   setSelected]   = useState<number | null>(null)
   const [error,      setError]      = useState<string>()
   const [isPending,  startTransition] = useTransition()
+  const [isCustom,   setIsCustom]   = useState(false)
+  const [customRaw,  setCustomRaw]  = useState('')
 
   // Add: can't exceed free savings OR overfund the goal
   const remaining    = goal.targetPrice - goal.allocatedAmount
@@ -36,19 +38,43 @@ export default function GoalCard({ goal, freeToUse }: Props) {
   const removePicks     = [1, 5, 10, 20].filter((n) => n <= maxRemove)
   const removeAllAmount = Math.floor(maxRemove * 100) / 100
 
+  const maxForMode = mode === 'add' ? maxAdd : maxRemove
+  const customParsed = parseFloat(customRaw)
+  const customErrorMsg: string | undefined =
+    isCustom && customRaw !== ''
+      ? isNaN(customParsed) || customParsed <= 0
+        ? 'Enter a valid amount'
+        : customParsed > maxForMode
+          ? `Cannot exceed ${fmt(maxForMode, currency)}`
+          : undefined
+      : undefined
+
   function handleQuickPick(amount: number) {
+    setIsCustom(false)
+    setCustomRaw('')
     setSelected(amount)
     setError(undefined)
   }
 
   function handleAll() {
+    setIsCustom(false)
+    setCustomRaw('')
     setSelected(mode === 'add' ? addAllAmount : removeAllAmount)
     setError(undefined)
+  }
+
+  function handleCustomChange(raw: string) {
+    setCustomRaw(raw)
+    setError(undefined)
+    const val = parseFloat(raw)
+    setSelected(!isNaN(val) && val > 0 ? val : null)
   }
 
   function handleCancel() {
     setMode(null)
     setSelected(null)
+    setIsCustom(false)
+    setCustomRaw('')
     setError(undefined)
   }
 
@@ -62,6 +88,8 @@ export default function GoalCard({ goal, freeToUse }: Props) {
       if (result.success) {
         setMode(null)
         setSelected(null)
+        setIsCustom(false)
+        setCustomRaw('')
       } else {
         setError(result.error ?? 'Something went wrong')
       }
@@ -98,7 +126,7 @@ export default function GoalCard({ goal, freeToUse }: Props) {
           color={goal.isComplete ? 'gold' : 'green'}
         />
         <div className="flex justify-between text-xs text-gray-400">
-          <span>{goal.progressPercent.toFixed(0)}% funded</span>
+          <span>{Math.ceil(goal.progressPercent)}% funded</span>
           {!goal.isComplete && (
             <span>
               <MoneyAmount
@@ -151,7 +179,7 @@ export default function GoalCard({ goal, freeToUse }: Props) {
             </p>
           </div>
 
-          {/* Quick-pick buttons */}
+          {/* Quick-pick + custom buttons */}
           <div className="flex flex-wrap gap-2">
             {(mode === 'add' ? addPicks : removePicks).map((amount) => (
               <button
@@ -159,7 +187,7 @@ export default function GoalCard({ goal, freeToUse }: Props) {
                 onClick={() => handleQuickPick(amount)}
                 className={[
                   'rounded-xl px-4 py-2 text-sm font-bold border-2 transition-all',
-                  selected === amount
+                  !isCustom && selected === amount
                     ? mode === 'add'
                       ? 'bg-sprout-500 border-sprout-500 text-white scale-105'
                       : 'bg-red-500 border-red-500 text-white scale-105'
@@ -178,7 +206,7 @@ export default function GoalCard({ goal, freeToUse }: Props) {
                 onClick={handleAll}
                 className={[
                   'rounded-xl px-4 py-2 text-sm font-bold border-2 transition-all',
-                  selected === (mode === 'add' ? addAllAmount : removeAllAmount)
+                  !isCustom && selected === (mode === 'add' ? addAllAmount : removeAllAmount)
                     ? mode === 'add'
                       ? 'bg-sprout-500 border-sprout-500 text-white scale-105'
                       : 'bg-red-500 border-red-500 text-white scale-105'
@@ -188,7 +216,45 @@ export default function GoalCard({ goal, freeToUse }: Props) {
                 All ({fmt(mode === 'add' ? addAllAmount : removeAllAmount, currency)})
               </button>
             )}
+            {/* Custom amount */}
+            <button
+              onClick={() => {
+                setIsCustom(true)
+                setSelected(null)
+                setCustomRaw('')
+                setError(undefined)
+              }}
+              className={[
+                'rounded-xl px-4 py-2 text-sm font-bold border-2 transition-all',
+                isCustom
+                  ? mode === 'add'
+                    ? 'bg-sprout-500 border-sprout-500 text-white scale-105'
+                    : 'bg-red-500 border-red-500 text-white scale-105'
+                  : 'bg-white border-gray-200 text-gray-700 hover:border-sprout-300',
+              ].join(' ')}
+            >
+              Custom
+            </button>
           </div>
+
+          {/* Custom amount input */}
+          {isCustom && (
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 rounded-xl border-2 border-sprout-300 bg-white px-3 py-2 focus-within:border-sprout-500">
+                <span className="text-sm text-gray-500 shrink-0">{currency}</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={customRaw}
+                  onChange={(e) => handleCustomChange(e.target.value)}
+                  placeholder="0.00"
+                  className="flex-1 bg-transparent text-sm font-bold text-gray-800 focus:outline-none"
+                  autoFocus
+                />
+              </div>
+              {customErrorMsg && <p className="text-xs text-red-500">{customErrorMsg}</p>}
+            </div>
+          )}
 
           {error && <p className="text-xs text-red-500">{error}</p>}
 
@@ -203,7 +269,7 @@ export default function GoalCard({ goal, freeToUse }: Props) {
             </button>
             <button
               onClick={handleSave}
-              disabled={!selected || isPending}
+              disabled={!selected || isPending || !!customErrorMsg}
               className={[
                 'flex-1 rounded-xl font-bold py-2.5 text-sm transition-colors disabled:opacity-40 text-white',
                 mode === 'add'

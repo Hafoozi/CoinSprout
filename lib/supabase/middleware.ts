@@ -65,6 +65,10 @@ export async function updateSession(request: NextRequest) {
 
   if (isChildRoute) {
     supabaseResponse.cookies.set('cs_mode', 'child',  { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
+    const childMatch = pathname.match(/^\/child\/([^/]+)/)
+    if (childMatch) {
+      supabaseResponse.cookies.set('cs_last_child', childMatch[1], { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
+    }
   } else if (isParentRoute) {
     supabaseResponse.cookies.set('cs_mode', 'parent', { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
   }
