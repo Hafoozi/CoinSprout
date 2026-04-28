@@ -3,26 +3,10 @@
 import { useState, useEffect, useRef } from 'react'
 import TutorialOverlay from '@/components/tutorial/tutorial-overlay'
 import { parentSteps } from '@/components/tutorial/parent-steps'
-import { childSteps } from '@/components/tutorial/child-steps'
 
-interface ChildOption {
-  id:   string
-  name: string
-}
-
-interface Props {
-  userId:   string
-  children: ChildOption[]
-}
-
-type TutorialMode =
-  | { type: 'closed' }
-  | { type: 'parent' }
-  | { type: 'child'; childId: string }
-
-export default function HelpButton({ children }: Props) {
-  const [open,     setOpen]     = useState(false)
-  const [tutorial, setTutorial] = useState<TutorialMode>({ type: 'closed' })
+export default function HelpButton() {
+  const [open,       setOpen]       = useState(false)
+  const [showTutorial, setShowTutorial] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -33,9 +17,9 @@ export default function HelpButton({ children }: Props) {
     return () => document.removeEventListener('mousedown', onOutsideClick)
   }, [open])
 
-  function startTutorial(mode: TutorialMode) {
+  function startTutorial() {
     setOpen(false)
-    setTutorial(mode)
+    setShowTutorial(true)
   }
 
   return (
@@ -58,22 +42,11 @@ export default function HelpButton({ children }: Props) {
 
             <button
               type="button"
-              onClick={() => startTutorial({ type: 'parent' })}
+              onClick={startTutorial}
               className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-sprout-50 transition-colors"
             >
               <span>▶</span> Parent Tour
             </button>
-
-            {children.map((child) => (
-              <button
-                key={child.id}
-                type="button"
-                onClick={() => startTutorial({ type: 'child', childId: child.id })}
-                className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-sprout-50 transition-colors"
-              >
-                <span>▶</span> {child.name}&apos;s Tour
-              </button>
-            ))}
 
             <div className="my-1 border-t border-gray-100" />
 
@@ -88,18 +61,11 @@ export default function HelpButton({ children }: Props) {
         )}
       </div>
 
-      {tutorial.type === 'parent' && (
+      {showTutorial && (
         <TutorialOverlay
           steps={parentSteps}
-          onComplete={() => setTutorial({ type: 'closed' })}
-          onSkip={()    => setTutorial({ type: 'closed' })}
-        />
-      )}
-      {tutorial.type === 'child' && (
-        <TutorialOverlay
-          steps={childSteps}
-          onComplete={() => setTutorial({ type: 'closed' })}
-          onSkip={()    => setTutorial({ type: 'closed' })}
+          onComplete={() => setShowTutorial(false)}
+          onSkip={()    => setShowTutorial(false)}
         />
       )}
     </>
