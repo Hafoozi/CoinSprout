@@ -162,7 +162,7 @@ export default function ChildDashboard({ child, summary, transactions, goals, se
                       style={{ width: `${goal.progressPercent}%` }}
                     />
                   </div>
-                  <p className="text-xs text-gray-400">{goal.progressPercent}% saved</p>
+                  <p className="text-xs text-gray-400">{Math.ceil(goal.progressPercent)}% saved</p>
                 </div>
               ))}
             </div>

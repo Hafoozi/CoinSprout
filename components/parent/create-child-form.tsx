@@ -35,6 +35,7 @@ export default function CreateChildForm() {
 
   useEffect(() => {
     if (state.success) {
+      router.refresh()
       router.push(ROUTES.PARENT.DASHBOARD)
     }
   }, [state, router])

@@ -66,7 +66,7 @@ export async function addChild(_: unknown, formData: FormData): Promise<ActionRe
   const child = await createChild({ familyId: family.id, ...parsed.data })
   if (!child) return { success: false, error: 'Failed to create child profile' }
 
-  revalidatePath(ROUTES.PARENT.DASHBOARD)
+  revalidatePath('/', 'layout')
   return { success: true }
 }
 
