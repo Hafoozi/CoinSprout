@@ -3,7 +3,7 @@ import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
   const host = request.headers.get('host')
-  if (host === 'coin-sprout.vercel.app' || host === 'www.coinsproutapp.com') {
+  if (host === 'coin-sprout.vercel.app') {
     const url = request.nextUrl.clone()
     url.host = 'coinsproutapp.com'
     url.port = ''
