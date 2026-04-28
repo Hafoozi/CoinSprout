@@ -33,7 +33,10 @@ export async function GET(request: NextRequest) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) return successResponse
+
+    const failUrl = `${origin}${ROUTES.LOGIN}?auth_error=${encodeURIComponent(error.message)}`
+    return NextResponse.redirect(failUrl)
   }
 
-  return NextResponse.redirect(`${origin}${ROUTES.LOGIN}`)
+  return NextResponse.redirect(`${origin}${ROUTES.LOGIN}?auth_error=no_code`)
 }
