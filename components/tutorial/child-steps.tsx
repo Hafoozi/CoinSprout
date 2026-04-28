@@ -1,38 +1,5 @@
-import { type CSSProperties, type ReactNode } from 'react'
 import type { TutorialStep } from './tutorial-overlay'
-
-// ── Screenshot helpers ────────────────────────────────────────────────────────
-
-function Shot({ src, children }: { src: string; children?: ReactNode }) {
-  return (
-    <div className="-m-4 relative overflow-hidden select-none">
-      <img src={src} className="w-full block" alt="" draggable={false} />
-      {children}
-    </div>
-  )
-}
-
-function Highlight({ style }: { style: CSSProperties }) {
-  return (
-    <div
-      className="absolute border-2 border-yellow-400 rounded bg-yellow-400/20 pointer-events-none z-10"
-      style={style}
-    />
-  )
-}
-
-function Callout({ text, style }: { text: string; style: CSSProperties }) {
-  return (
-    <div
-      className="absolute bg-sprout-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-lg leading-tight pointer-events-none z-10 whitespace-nowrap"
-      style={style}
-    >
-      {text}
-    </div>
-  )
-}
-
-// ── Steps ─────────────────────────────────────────────────────────────────────
+import { Shot, Highlight, Callout } from './tutorial-helpers'
 
 export const childSteps: TutorialStep[] = [
   // ── 1. Welcome ────────────────────────────────────────────────────────────
@@ -59,10 +26,10 @@ export const childSteps: TutorialStep[] = [
     body:  "Your tree grows the more you earn! Fruit on the tree shows how much you have saved right now. On the right you can see your total savings and how much is free to spend.",
     mockup: (
       <Shot src="/tutorial/child-tree.png">
-        <Highlight style={{ top: '1%', left: '1%', width: '44%', height: '57%' }} />
-        <Callout text="Your growing tree!" style={{ top: '59%', left: '2%' }} />
+        <Highlight style={{ top: '1%', left: '1%',  width: '44%', height: '57%' }} />
+        <Callout   text="Your growing tree!" style={{ top: '59%', left: '2%' }} />
         <Highlight style={{ top: '1%', left: '47%', width: '51%', height: '22%' }} />
-        <Callout text="Your savings" style={{ top: '24%', left: '54%' }} />
+        <Callout   text="Your savings"       style={{ top: '24%', left: '54%' }} />
       </Shot>
     ),
   },
@@ -75,7 +42,7 @@ export const childSteps: TutorialStep[] = [
     mockup: (
       <Shot src="/tutorial/child-tree.png">
         <Highlight style={{ top: '57%', left: '1%', width: '44%', height: '13%' }} />
-        <Callout text="↑ Friends you've unlocked!" style={{ top: '71%', left: '2%' }} />
+        <Callout   text="Friends you've unlocked!" style={{ top: '71%', left: '2%' }} />
       </Shot>
     ),
   },
@@ -88,7 +55,7 @@ export const childSteps: TutorialStep[] = [
     mockup: (
       <Shot src="/tutorial/child-tree.png">
         <Highlight style={{ top: '22%', left: '47%', width: '51%', height: '35%' }} />
-        <Callout text="Things you're saving up for" style={{ top: '58%', left: '48%' }} />
+        <Callout   text="Things you're saving up for" style={{ top: '58%', left: '48%' }} />
       </Shot>
     ),
   },
@@ -101,7 +68,7 @@ export const childSteps: TutorialStep[] = [
     mockup: (
       <Shot src="/tutorial/child-tree.png">
         <Highlight style={{ top: '91%', left: '0%', width: '100%', height: '9%' }} />
-        <Callout text="Switch pages here" style={{ top: '84%', left: '34%' }} />
+        <Callout   text="Switch pages here" style={{ top: '82%', left: '34%' }} tail="down" />
       </Shot>
     ),
   },
