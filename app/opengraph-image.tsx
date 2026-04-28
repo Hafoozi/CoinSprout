@@ -86,7 +86,7 @@ export default function Image() {
             display: 'flex',
           }}
         >
-          Grow your savings, one coin at a time.
+          Watch savings grow
         </div>
 
         {/* Bottom coin row */}
