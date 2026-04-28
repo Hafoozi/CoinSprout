@@ -27,6 +27,18 @@ export const metadata: Metadata = {
   icons: {
     apple: [{ url: '/apple-icon', sizes: '180x180', type: 'image/png' }],
   },
+  openGraph: {
+    title: 'CoinSprout',
+    description: 'Grow your savings, one coin at a time.',
+    url: 'https://coinsproutapp.com',
+    siteName: 'CoinSprout',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CoinSprout',
+    description: 'Grow your savings, one coin at a time.',
+  },
 }
 
 export default function RootLayout({
